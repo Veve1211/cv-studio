@@ -45,3 +45,6 @@
 
 ## Rozhodnutí
 - 2026-11-08: název Cvéčko; Next.js scaffold z create-next-app 16.4.5; TypeScript 5 a ESLint 9 ponechány podle šablony create-next-app (oficiálně podporovaná kombinace)
+- 2026-11-08: Tailwind loader jen pro `globals.css` (širší pravidlo rozbíjí CSS moduly šablon)
+- 2026-11-08: šablony = React komponenty + CSS moduly v mm/pt, akcent přes `--accent`; 6 barev s kontrastem AA (test); výchozí šablona Časopis
+- 2026-11-08: písma přes `next/font/google` (self-hosted, žádné volání Googlu z prohlížeče)

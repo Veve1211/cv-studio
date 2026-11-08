@@ -1,0 +1,215 @@
+.root {
+  --ink: #0e0e10;
+  --muted: #5d5d63;
+  --soft: #f1f0ed;
+  color: var(--ink);
+  font-family: var(--font-inter-tight), var(--font-inter), sans-serif;
+  font-size: 9pt;
+  line-height: 1.45;
+  min-height: 297mm;
+  display: flex;
+  flex-direction: column;
+}
+
+.hero {
+  background: var(--accent);
+  color: var(--on-accent, #fff);
+  padding: 16mm 16mm 10mm;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 6mm 10mm;
+  align-items: end;
+}
+
+.name {
+  grid-column: 1 / -1;
+  font-size: 50pt;
+  font-weight: 800;
+  line-height: 0.88;
+  letter-spacing: -0.045em;
+  overflow-wrap: anywhere;
+}
+
+.headline {
+  font-size: 13pt;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  max-width: 100mm;
+}
+
+.contact {
+  text-align: right;
+  font-size: 8pt;
+  line-height: 1.6;
+  opacity: 0.92;
+}
+
+.summaryBand {
+  padding: 8mm 16mm;
+  border-bottom: 1.4pt solid var(--ink);
+}
+
+.summary {
+  font-size: 12.5pt;
+  font-weight: 500;
+  line-height: 1.38;
+  letter-spacing: -0.01em;
+  max-width: 160mm;
+}
+
+.body {
+  padding: 8mm 16mm 0;
+  flex: 1;
+}
+
+.section {
+  display: grid;
+  grid-template-columns: 40mm 1fr;
+  gap: 6mm;
+  padding: 5mm 0 4mm;
+  border-top: 0.6pt solid #d6d5d0;
+  break-inside: avoid-page;
+}
+
+.section:first-child {
+  border-top: 0;
+  padding-top: 0;
+}
+
+.sectionTitle {
+  display: flex;
+  gap: 2.5mm;
+  align-items: baseline;
+  font-size: 14pt;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1;
+}
+
+.num {
+  font-size: 8pt;
+  font-weight: 700;
+  color: var(--accent);
+  letter-spacing: 0;
+  font-variant-numeric: tabular-nums;
+}
+
+.job {
+  display: grid;
+  grid-template-columns: 1fr 26mm;
+  gap: 1mm 6mm;
+  margin-bottom: 5mm;
+  break-inside: avoid;
+}
+
+.job:last-child {
+  margin-bottom: 0;
+}
+
+.role {
+  font-size: 11pt;
+  font-weight: 700;
+  letter-spacing: -0.015em;
+  line-height: 1.2;
+}
+
+.period {
+  grid-row: span 2;
+  text-align: right;
+  font-size: 8pt;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--muted);
+}
+
+.company {
+  font-size: 7.5pt;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.points {
+  grid-column: 1 / -1;
+  margin-top: 1.2mm !important;
+}
+
+.points li {
+  position: relative;
+  padding-left: 4.5mm;
+  margin-bottom: 0.7mm;
+}
+
+.points li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.5em;
+  width: 2mm;
+  height: 2mm;
+  background: var(--accent);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2mm 6mm;
+}
+
+.cell strong {
+  display: block;
+  font-weight: 700;
+}
+
+.cell span {
+  color: var(--muted);
+}
+
+.foot {
+  margin-top: 6mm;
+  background: var(--soft);
+  padding: 7mm 16mm 9mm;
+  display: grid;
+  grid-template-columns: 1fr 52mm;
+  gap: 8mm;
+  break-inside: avoid;
+}
+
+.footTitle {
+  font-size: 7.5pt;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  margin-bottom: 2.5mm !important;
+}
+
+.skills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5mm 0;
+  font-size: 12pt;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.3;
+}
+
+.skills li:not(:last-child)::after {
+  content: "/";
+  color: var(--accent);
+  margin: 0 2mm;
+  font-weight: 400;
+}
+
+.langs li {
+  display: flex;
+  justify-content: space-between;
+  gap: 3mm;
+  font-weight: 600;
+  padding: 0.6mm 0;
+}
+
+.langs span:last-child {
+  color: var(--muted);
+  font-weight: 500;
+}

@@ -1,4 +1,5 @@
 import type { ElementType } from "react";
+import { czechTypo } from "@/lib/cv/typography";
 
 interface FieldProps {
   as?: ElementType;
@@ -15,7 +16,7 @@ export function Field({ as: Tag = "span", className, path, value, placeholder }:
   if (!value && !placeholder) return null;
   return (
     <Tag className={className} data-path={path}>
-      {value || placeholder}
+      {czechTypo(value || placeholder || "")}
     </Tag>
   );
 }
