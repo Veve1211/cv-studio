@@ -11,6 +11,7 @@ import { AccentPicker } from "./accent-picker";
 import { LoadingPage } from "./loading-page";
 import { TemplatePicker } from "./template-picker";
 import { EditContext } from "@/components/templates/edit-context";
+import { DownloadPdfButton } from "./download-pdf-button";
 import { PreviewToolbar } from "./preview-toolbar";
 import { useGenerate } from "./use-generate";
 
@@ -51,10 +52,10 @@ export function CvStudio() {
   const loading = status === "loading";
 
   return (
-    <div id="studio" className="grid w-full flex-1 lg:grid-cols-[minmax(360px,440px)_1fr]">
+    <div id="studio" className="grid w-full flex-1 lg:grid-cols-[minmax(360px,440px)_1fr] print:block">
       <section
         aria-labelledby="studio-title"
-        className="border-line bg-white px-4 py-8 sm:px-8 lg:sticky lg:top-0 lg:h-dvh lg:overflow-y-auto lg:border-r"
+        className="border-line bg-white px-4 py-8 sm:px-8 lg:sticky lg:top-0 lg:h-dvh lg:overflow-y-auto lg:border-r print:hidden"
       >
         <h2 id="studio-title" className="font-display text-3xl font-semibold tracking-tight">
           Tvůj životopis
@@ -118,15 +119,15 @@ export function CvStudio() {
         </form>
       </section>
 
-      <section aria-labelledby="preview-title" className="bg-canvas flex min-w-0 flex-col">
+      <section aria-labelledby="preview-title" className="bg-canvas flex min-w-0 flex-col print:block print:bg-transparent">
         <h2 id="preview-title" ref={previewRef} tabIndex={-1} className="sr-only">
           Náhled
         </h2>
-        <div className="border-line bg-canvas/95 flex flex-col gap-4 border-b px-4 pb-3 pt-5 backdrop-blur sm:px-8 xl:flex-row xl:items-end xl:justify-between">
+        <div className="border-line bg-canvas/95 flex flex-col gap-4 border-b px-4 pb-3 pt-5 backdrop-blur sm:px-8 xl:flex-row xl:items-end xl:justify-between print:hidden">
           <TemplatePicker value={templateId} onChange={setTemplateId} accent={accent} cv={cv} />
           <AccentPicker value={accent} onChange={setAccent} />
         </div>
-        <div className="flex-1 px-4 py-8 sm:px-8 lg:py-10">
+        <div className="flex-1 px-4 py-8 sm:px-8 lg:py-10 print:p-0">
           {loading ? (
             <LoadingPage />
           ) : cv ? (
@@ -136,7 +137,9 @@ export function CvStudio() {
                 canUndo={canUndo}
                 onUndo={undo}
                 onSummary={(summary) => update((c) => ({ ...c, summary }))}
-              />
+              >
+                <DownloadPdfButton name={cv.name} />
+              </PreviewToolbar>
               <A4Preview accent={accent} paper={template.paper} templateId={template.id}>
                 <EditContext value={editApi}>
                   <template.Component cv={cv} />

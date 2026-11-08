@@ -68,7 +68,6 @@
   gap: 6mm;
   padding: 5mm 0 4mm;
   border-top: 0.6pt solid #d6d5d0;
-  break-inside: avoid-page;
 }
 
 .section:first-child {
@@ -212,4 +211,10 @@
 .langs span:last-child {
   color: var(--muted);
   font-weight: 500;
+}
+
+@media print {
+  .root {
+    min-height: 285mm;
+  }
 }

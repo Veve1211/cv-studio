@@ -71,3 +71,48 @@ body {
   background-color: color-mix(in srgb, var(--accent) 12%, transparent);
   box-shadow: 0 0 0 1.5px var(--accent);
 }
+
+/* ===== Print / PDF: only the A4 page, exactly like the preview ===== */
+/* First page has no margins (colour blocks reach the edge); continuation pages
+   get a top/bottom margin so text never touches the paper edge. */
+@page {
+  size: A4;
+  margin: 14mm 0 12mm;
+}
+
+@page :first {
+  margin-top: 0;
+}
+
+@media print {
+  html,
+  body {
+    background: transparent !important;
+  }
+
+  * {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .cv-preview-frame {
+    width: auto !important;
+    height: auto !important;
+  }
+
+  #cv-page {
+    position: static !important;
+    transform: none !important;
+    box-shadow: none !important;
+    overflow: visible !important;
+    /* 297 mm minus the 12 mm bottom margin, so a one-page CV stays one page */
+    min-height: 285mm !important;
+  }
+
+  .cv-editable,
+  .cv-editable:hover,
+  .cv-editable:focus {
+    background: none !important;
+    box-shadow: none !important;
+  }
+}

@@ -42,6 +42,8 @@ export function A4Preview({ children, accent, paper, templateId }: A4PreviewProp
 
   return (
     <div ref={outerRef} className="cv-preview-outer w-full">
+      {/* Paint the paper colour into the printed page margins too (only hex values from our registry). */}
+      {/^#[0-9a-f]{6}$/i.test(paper) && <style>{`@page { background: ${paper}; }`}</style>}
       <div
         className="cv-preview-frame relative mx-auto"
         style={{ width: box.width || undefined, height: box.height || undefined }}
