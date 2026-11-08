@@ -1,0 +1,19 @@
+.page {
+  width: 210mm;
+  min-height: 297mm;
+  box-sizing: border-box;
+  background: #fff;
+  color: #1a1a1a;
+  position: relative;
+  overflow: hidden;
+  --accent: #e4572e;
+}
+
+.page :where(h1, h2, h3, p, ul, ol) {
+  margin: 0;
+}
+
+.page :where(ul, ol) {
+  padding: 0;
+  list-style: none;
+}

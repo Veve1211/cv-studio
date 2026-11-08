@@ -1,12 +1,14 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
   cacheComponents: true,
   partialPrefetching: true,
+  poweredByHeader: false,
   turbopack: {
     rules: {
-      "*.css": {
+      // Tailwind only processes the global stylesheet. A broader "*.css" rule with
+      // `as: "*.css"` would turn CSS Modules into global CSS and break templates.
+      "globals.css": {
         loaders: ["@tailwindcss/turbopack"],
         as: "*.css",
       },
