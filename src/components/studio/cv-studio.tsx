@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useId, useRef, useState } from "react";
+import { useEffect, useId, useMemo, useRef, useState } from "react";
 import { A4Preview } from "@/components/preview/a4-preview";
 import { DEFAULT_TEMPLATE, getTemplate } from "@/components/templates";
 import type { TemplateId } from "@/components/templates/types";
@@ -10,6 +10,8 @@ import { DEFAULT_ACCENT } from "@/components/templates/palette";
 import { AccentPicker } from "./accent-picker";
 import { LoadingPage } from "./loading-page";
 import { TemplatePicker } from "./template-picker";
+import { EditContext } from "@/components/templates/edit-context";
+import { PreviewToolbar } from "./preview-toolbar";
 import { useGenerate } from "./use-generate";
 
 export function CvStudio() {
@@ -17,7 +19,8 @@ export function CvStudio() {
   const [templateId, setTemplateId] = useState<TemplateId>(DEFAULT_TEMPLATE);
   const [accent, setAccent] = useState(DEFAULT_ACCENT);
   const [localError, setLocalError] = useState<string | null>(null);
-  const { status, error, cv, generate, loadSample } = useGenerate();
+  const { status, error, cv, canUndo, generate, loadSample, editText, update, undo } = useGenerate();
+  const editApi = useMemo(() => ({ onEdit: editText }), [editText]);
   const previewRef = useRef<HTMLHeadingElement>(null);
   const textareaId = useId();
   const hintId = useId();
@@ -127,9 +130,19 @@ export function CvStudio() {
           {loading ? (
             <LoadingPage />
           ) : cv ? (
-            <A4Preview accent={accent} paper={template.paper} templateId={template.id}>
-              <template.Component cv={cv} />
-            </A4Preview>
+            <>
+              <PreviewToolbar
+                cv={cv}
+                canUndo={canUndo}
+                onUndo={undo}
+                onSummary={(summary) => update((c) => ({ ...c, summary }))}
+              />
+              <A4Preview accent={accent} paper={template.paper} templateId={template.id}>
+                <EditContext value={editApi}>
+                  <template.Component cv={cv} />
+                </EditContext>
+              </A4Preview>
+            </>
           ) : (
             <EmptyPreview />
           )}

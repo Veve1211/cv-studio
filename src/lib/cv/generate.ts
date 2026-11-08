@@ -42,7 +42,7 @@ export interface MessagesClient {
 }
 
 let defaultClient: MessagesClient | null = null;
-function getClient(): MessagesClient {
+export function getClient(): MessagesClient {
   if (!process.env.ANTHROPIC_API_KEY) {
     throw new CvError("Server nemá nastavený klíč k AI. Dej prosím vědět provozovateli.", 503);
   }

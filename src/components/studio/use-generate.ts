@@ -1,56 +1,80 @@
 "use client";
 
 import { useCallback, useRef, useState } from "react";
+import { postJson } from "@/lib/client-api";
+import { setCvText } from "@/lib/cv/path";
 import { CvSchema, type Cv } from "@/lib/cv/schema";
 
 export type GenerateStatus = "idle" | "loading" | "ready" | "error";
 
-/** Calls /api/cv and keeps the resulting CV in memory only (never persisted). */
+const MAX_HISTORY = 50;
+
+/**
+ * Calls /api/cv and keeps the resulting CV in memory only (never persisted).
+ * Edits are kept in a small undo history.
+ */
 export function useGenerate() {
   const [status, setStatus] = useState<GenerateStatus>("idle");
   const [error, setError] = useState<string | null>(null);
   const [cv, setCv] = useState<Cv | null>(null);
+  const [history, setHistory] = useState<Cv[]>([]);
   const abortRef = useRef<AbortController | null>(null);
 
-  const generate = useCallback(async (text: string) => {
-    abortRef.current?.abort();
-    const controller = new AbortController();
-    abortRef.current = controller;
-    setStatus("loading");
-    setError(null);
-    try {
-      const res = await fetch("/api/cv", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text }),
-        signal: controller.signal,
-      });
-      const data: unknown = await res.json().catch(() => null);
-      if (!res.ok) {
-        const message =
-          data && typeof data === "object" && "error" in data && typeof data.error === "string"
-            ? data.error
-            : "Něco se pokazilo. Zkus to prosím znovu.";
-        throw new Error(message);
-      }
-      const parsed = CvSchema.safeParse((data as { cv?: unknown } | null)?.cv);
-      if (!parsed.success) throw new Error("Server vrátil nečekaná data. Zkus to prosím znovu.");
-      setCv(parsed.data);
-      setStatus("ready");
-    } catch (err) {
-      if (controller.signal.aborted) return;
-      const offline = err instanceof TypeError;
-      setError(offline ? "Nepodařilo se spojit se serverem. Jsi online?" : (err as Error).message);
-      setStatus("error");
-    }
-  }, []);
-
-  const loadSample = useCallback((sample: Cv) => {
-    abortRef.current?.abort();
-    setCv(structuredClone(sample));
+  const replace = useCallback((next: Cv) => {
+    setCv(next);
+    setHistory([]);
     setError(null);
     setStatus("ready");
   }, []);
 
-  return { status, error, cv, setCv, generate, loadSample };
+  const generate = useCallback(
+    async (text: string) => {
+      abortRef.current?.abort();
+      const controller = new AbortController();
+      abortRef.current = controller;
+      setStatus("loading");
+      setError(null);
+      try {
+        const data = await postJson("/api/cv", { text }, controller.signal);
+        const parsed = CvSchema.safeParse((data as { cv?: unknown } | null)?.cv);
+        if (!parsed.success) throw new Error("Server vrátil nečekaná data. Zkus to prosím znovu.");
+        replace(parsed.data);
+      } catch (err) {
+        if (controller.signal.aborted) return;
+        setError((err as Error).message);
+        setStatus("error");
+      }
+    },
+    [replace],
+  );
+
+  const loadSample = useCallback(
+    (sample: Cv) => {
+      abortRef.current?.abort();
+      replace(structuredClone(sample));
+    },
+    [replace],
+  );
+
+  /** Applies a change and remembers the previous version for undo. */
+  const update = useCallback(
+    (makeNext: (current: Cv) => Cv) => {
+      if (!cv) return;
+      const next = makeNext(cv);
+      if (next === cv) return;
+      setHistory((h) => [...h.slice(-(MAX_HISTORY - 1)), cv]);
+      setCv(next);
+    },
+    [cv],
+  );
+
+  const editText = useCallback((path: string, value: string) => update((c) => setCvText(c, path, value)), [update]);
+
+  const undo = useCallback(() => {
+    if (history.length === 0) return;
+    setCv(history[history.length - 1]);
+    setHistory(history.slice(0, -1));
+  }, [history]);
+
+  return { status, error, cv, canUndo: history.length > 0, generate, loadSample, editText, update, undo };
 }
