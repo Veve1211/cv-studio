@@ -7,6 +7,8 @@ export function createRateLimiter(options: { limit: number; windowMs: number; no
   const hits = new Map<string, { count: number; resetAt: number }>();
 
   return function check(key: string): { ok: boolean; retryAfterSec: number } {
+    // E2E tests hit the server many times from one IP.
+    if (process.env.RATE_LIMIT_DISABLED === "1") return { ok: true, retryAfterSec: 0 };
     const t = now();
     // Opportunistic cleanup so the map cannot grow forever.
     if (hits.size > 10_000) {

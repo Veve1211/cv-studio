@@ -24,6 +24,6 @@ export default defineConfig({
     url: `http://localhost:${PORT}`,
     reuseExistingServer: !process.env.CI,
     timeout: 120_000,
-    env: { E2E_MOCK_AI: "1" },
+    env: { E2E_MOCK_AI: "1", RATE_LIMIT_DISABLED: "1" },
   },
 });

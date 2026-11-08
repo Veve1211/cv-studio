@@ -27,12 +27,27 @@ export function Timeline({ cv }: TemplateProps) {
           <ol>
             {cv.experience.map((e, i) => {
               const { start, end } = splitPeriod(e.period);
+              // the separator is in the DOM (so editing reads "2019 – 2022") but not visible
               return (
                 <li key={i} className={s.entry}>
-                  <div className={s.year} data-path={`experience.${i}.period`}>
-                    <span className={s.yearStart}>{start}</span>
-                    {end && <span className={s.yearEnd}>{end}</span>}
-                  </div>
+                  <Field
+                    as="div"
+                    className={s.year}
+                    path={`experience.${i}.period`}
+                    value={e.period}
+                    placeholder=" "
+                    render={() => (
+                      <>
+                        <span className={s.yearStart}>{start}</span>
+                        {end && (
+                          <>
+                            <span className={s.sep}> – </span>
+                            <span className={s.yearEnd}>{end}</span>
+                          </>
+                        )}
+                      </>
+                    )}
+                  />
                   <div className={s.dot} aria-hidden />
                   <div>
                     <Field as="h3" className={s.role} path={`experience.${i}.role`} value={e.role} />

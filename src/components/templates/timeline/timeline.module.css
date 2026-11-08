@@ -182,3 +182,7 @@
 .rows li:last-child {
   border-bottom: 0;
 }
+
+.sep {
+  font-size: 0;
+}
