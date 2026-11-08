@@ -6,15 +6,16 @@ import { DEFAULT_TEMPLATE, getTemplate } from "@/components/templates";
 import type { TemplateId } from "@/components/templates/types";
 import { SAMPLE_CV } from "@/lib/cv/sample";
 import { MAX_INPUT_CHARS, MIN_INPUT_CHARS } from "@/lib/cv/schema";
+import { DEFAULT_ACCENT } from "@/components/templates/palette";
+import { AccentPicker } from "./accent-picker";
 import { LoadingPage } from "./loading-page";
+import { TemplatePicker } from "./template-picker";
 import { useGenerate } from "./use-generate";
-
-const DEFAULT_ACCENT = "#e4572e";
 
 export function CvStudio() {
   const [text, setText] = useState("");
-  const [templateId] = useState<TemplateId>(DEFAULT_TEMPLATE);
-  const [accent] = useState(DEFAULT_ACCENT);
+  const [templateId, setTemplateId] = useState<TemplateId>(DEFAULT_TEMPLATE);
+  const [accent, setAccent] = useState(DEFAULT_ACCENT);
   const [localError, setLocalError] = useState<string | null>(null);
   const { status, error, cv, generate, loadSample } = useGenerate();
   const previewRef = useRef<HTMLHeadingElement>(null);
@@ -118,6 +119,10 @@ export function CvStudio() {
         <h2 id="preview-title" ref={previewRef} tabIndex={-1} className="sr-only">
           Náhled
         </h2>
+        <div className="border-line bg-canvas/95 flex flex-col gap-4 border-b px-4 pb-3 pt-5 backdrop-blur sm:px-8 xl:flex-row xl:items-end xl:justify-between">
+          <TemplatePicker value={templateId} onChange={setTemplateId} accent={accent} cv={cv} />
+          <AccentPicker value={accent} onChange={setAccent} />
+        </div>
         <div className="flex-1 px-4 py-8 sm:px-8 lg:py-10">
           {loading ? (
             <LoadingPage />

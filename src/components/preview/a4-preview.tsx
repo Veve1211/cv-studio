@@ -2,12 +2,17 @@
 
 import { useLayoutEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import pageStyles from "@/components/templates/page.module.css";
+import type { Accent } from "@/components/templates/palette";
 
 interface A4PreviewProps {
   children: ReactNode;
-  accent: string;
+  accent: Accent;
   paper: string;
   templateId: string;
+}
+
+export function pageStyle(accent: Accent, paper: string): CSSProperties {
+  return { background: paper, "--accent": accent.value, "--on-accent": accent.on } as CSSProperties;
 }
 
 /**
@@ -47,7 +52,7 @@ export function A4Preview({ children, accent, paper, templateId }: A4PreviewProp
           data-template={templateId}
           aria-label="Náhled životopisu"
           className={`${pageStyles.page} cv-page absolute left-0 top-0 origin-top-left shadow-[0_2px_6px_rgba(0,0,0,0.06),0_24px_60px_rgba(0,0,0,0.12)]`}
-          style={{ transform: `scale(${box.scale})`, background: paper, "--accent": accent } as CSSProperties}
+          style={{ transform: `scale(${box.scale})`, ...pageStyle(accent, paper) }}
         >
           {children}
         </article>

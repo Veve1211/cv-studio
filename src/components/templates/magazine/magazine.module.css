@@ -1,0 +1,149 @@
+.root {
+  --ink: #16130f;
+  --rule: #d8d1c4;
+  color: var(--ink);
+  padding: 15mm 16mm 16mm;
+  font-family: var(--font-fraunces), Georgia, serif;
+  font-variation-settings: "opsz" 12;
+  font-size: 9.6pt;
+  line-height: 1.5;
+}
+
+.topline {
+  display: flex;
+  justify-content: space-between;
+  gap: 6mm;
+  font-family: var(--font-inter), sans-serif;
+  font-size: 7.5pt;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  padding-bottom: 3mm;
+  border-bottom: 0.6pt solid var(--ink);
+}
+
+.topline > :last-child {
+  color: var(--accent);
+  text-align: right;
+}
+
+.name {
+  font-size: 56pt;
+  font-weight: 800;
+  font-variation-settings: "opsz" 144;
+  line-height: 0.95;
+  letter-spacing: -0.035em;
+  padding: 5mm 0 4mm;
+  overflow-wrap: anywhere;
+}
+
+.contact {
+  display: flex;
+  flex-wrap: wrap;
+  column-gap: 5mm;
+  font-family: var(--font-inter), sans-serif;
+  font-size: 8pt;
+  letter-spacing: 0.03em;
+  padding: 2.2mm 0;
+  border-top: 2.2pt solid var(--ink);
+  border-bottom: 0.6pt solid var(--ink);
+}
+
+.contact li + li::before {
+  content: "·";
+  margin-right: 5mm;
+  color: var(--accent);
+}
+
+.lead {
+  margin: 7mm 0 6mm !important;
+  font-size: 14pt;
+  font-style: italic;
+  font-weight: 350;
+  font-variation-settings: "opsz" 36;
+  line-height: 1.38;
+  max-width: 150mm;
+}
+
+.lead::first-letter {
+  float: left;
+  font-style: normal;
+  font-weight: 800;
+  font-size: 44pt;
+  line-height: 0.82;
+  padding: 1.4mm 2.4mm 0 0;
+  color: var(--accent);
+  font-variation-settings: "opsz" 144;
+}
+
+.columns {
+  column-count: 2;
+  column-gap: 9mm;
+  column-rule: 0.6pt solid var(--rule);
+  border-top: 0.6pt solid var(--ink);
+  padding-top: 5mm;
+}
+
+.section {
+  margin-bottom: 5mm;
+}
+
+.kicker {
+  font-family: var(--font-inter), sans-serif;
+  font-size: 7.5pt;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 2.5mm !important;
+  break-after: avoid;
+}
+
+.item {
+  break-inside: avoid;
+  margin-bottom: 4mm;
+}
+
+.role {
+  font-size: 12.5pt;
+  font-weight: 650;
+  line-height: 1.2;
+  font-variation-settings: "opsz" 24;
+}
+
+.meta {
+  font-style: italic;
+  color: #5c554b;
+  margin-top: 0.6mm !important;
+}
+
+.list {
+  margin-top: 1.5mm !important;
+}
+
+.list li {
+  padding-left: 4mm;
+  position: relative;
+  margin-bottom: 0.8mm;
+}
+
+.list li::before {
+  content: "—";
+  position: absolute;
+  left: 0;
+  color: var(--accent);
+}
+
+.inline {
+  font-size: 10pt;
+  line-height: 1.6;
+}
+
+.inline li {
+  display: inline;
+}
+
+.inline li + li::before {
+  content: " · ";
+  color: var(--accent);
+}
