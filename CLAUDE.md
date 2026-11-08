@@ -1,0 +1,47 @@
+@AGENTS.md
+
+# CLAUDE.md
+
+Živý dokument. Průběžně aktualizuj, udržuj krátký.
+
+## Projekt
+- Název: Cvéčko (repo `cv-studio`)
+- Webová aplikace: uživatel vloží libovolný text o sobě, AI (Claude) z něj udělá hotový životopis v moderních šablonách. Bez formulářů.
+- Cíl: výrazně modernější než klasické generátory životopisů. Nekopíruj vzhled ani texty jiných služeb.
+- Jazyk UI: čeština, tón přátelský. Mobile first.
+
+## Stack
+- Next.js 16 (App Router, `src/`, Cache Components zapnuté), React 19, TypeScript, Tailwind 4
+- Claude API (`@anthropic-ai/sdk`, model `claude-opus-5-5`), validace `zod`
+- Stripe Checkout (jen test mode, volitelné)
+- Bez databáze, bez účtů. Hosting Railway (`npm start`, port z `PORT`).
+
+## Větve a nasazení
+- `dev` = staging, `main` = ostrý web.
+- Práce vždy na feature větvi z `dev` → PR do `dev`.
+- Do `main` merguje jen Veve. Nikdy nepushuj ani nemerguj do `main`.
+- PR do `dev` smí být zmergovaný (squash), jen když projde CI: lint, typecheck, Vitest, build, Playwright (desktop + mobil).
+
+## Pravidla
+- Osobní údaje: text uživatele nikde neukládej a nelogguj. Posílá se jen do Claude API. Životopis žije jen v prohlížeči.
+- AI nesmí přidat zkušenost, firmu, dovednost ani údaj, který v textu není. Smí jen učesat formulace.
+- Veškerý text od uživatele/AI vykresluj jako text (React), nikdy `dangerouslySetInnerHTML`.
+- Tajné klíče jen v proměnných prostředí (`.env.local` lokálně, Railway Variables). Nikdy v kódu ani commitech.
+- Kód, komentáře, commity anglicky (`feat: ...`, `fix: ...`). UI texty česky.
+- Knihovny: nejnovější stabilní verze, nic deprecated.
+
+## Příkazy
+- `npm run dev`, `npm run build`, `npm start`
+- `npm run lint`, `npm run typecheck`, `npm run test` (Vitest), `npm run test:e2e` (Playwright)
+- `npm run check` = vše najednou
+- Lokálně v cloud sandboxu: `PW_CHROMIUM_PATH=/opt/pw-browsers/chromium-1243/chrome-linux64/chrome npm run test:e2e`
+- E2E běží s `E2E_MOCK_AI=1` (API vrací ukázková data, žádné volání Claude).
+
+## Struktura
+- `src/app/` – stránky a API routes
+- `src/lib/` – logika (schéma životopisu, volání AI, šablony)
+- `e2e/` – Playwright testy; `*.test.ts` vedle kódu – Vitest
+- `.github/workflows/ci.yml` – CI
+
+## Rozhodnutí
+- 2026-11-08: název Cvéčko; Next.js scaffold z create-next-app 16.4.5; TypeScript 5 a ESLint 9 ponechány podle šablony create-next-app (oficiálně podporovaná kombinace)
