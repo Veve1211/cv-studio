@@ -27,6 +27,7 @@
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.4.5",
+    "pdfjs-dist": "^6.5.438",
     "tailwindcss": "^4",
     "typescript": "^5",
     "vitest": "^5.1.0"
