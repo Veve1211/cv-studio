@@ -60,7 +60,7 @@ export function CvStudio() {
   const loading = status === "loading";
 
   return (
-    <div id="studio" className="grid w-full flex-1 lg:grid-cols-[minmax(360px,440px)_1fr] print:block">
+    <div id="studio" className="grid w-full flex-1 scroll-mt-16 lg:grid-cols-[minmax(360px,440px)_1fr] print:block">
       <section
         aria-labelledby="studio-title"
         className="border-line bg-white px-4 py-8 sm:px-8 lg:sticky lg:top-0 lg:h-dvh lg:overflow-y-auto lg:border-r print:hidden"

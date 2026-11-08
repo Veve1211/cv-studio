@@ -40,6 +40,8 @@ test.describe("PDF export", () => {
       expect(pages[0]).not.toContain(squash("Napiš o sobě cokoliv"));
       expect(pages[0]).not.toContain(squash("Vylepšit shrnutí"));
       expect(pages[0]).not.toContain(squash("Šablona"));
+      expect(pages[0]).not.toContain(squash("Bez formulářů"));
+      expect(pages[0]).not.toContain(squash("Zásady ochrany"));
     });
 
     test(`${name}: long CV flows onto page 2 without losing text`, async ({ page }) => {
