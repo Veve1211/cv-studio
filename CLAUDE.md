@@ -38,7 +38,8 @@
 - E2E běží s `E2E_MOCK_AI=1` (API vrací ukázková data, žádné volání Claude).
 
 ## Struktura
-- `src/app/` – stránky a API routes
+- `src/app/` – stránky (`/`, `/soukromi`, 404, error) a API routes (`/api/cv`, `/api/summary`, `/api/checkout`, `/api/checkout/verify`)
+- `src/components/site/` – hlavička, patička, landing; `studio/` – aplikace; `templates/` – 5 šablon + miniatury; `preview/` – A4 náhled
 - `src/lib/` – logika (schéma životopisu, volání AI, šablony)
 - `e2e/` – Playwright testy; `*.test.ts` vedle kódu – Vitest
 - `.github/workflows/ci.yml` – CI
@@ -51,3 +52,5 @@
 - 2026-11-08: PDF = tisk prohlížeče (`window.print`), `@page` A4: 1. strana bez okrajů, další 14/12 mm; okraje mají barvu papíru (`@page { background }`); e2e kontroluje počet stran a úplnost textu přes pdfjs
 - 2026-11-08: platba = přesměrování na Stripe Checkout; životopis se na dobu platby uloží jen do `sessionStorage` okna a po návratu se hned smaže (jinak by se ztratil); ověření přes `/api/checkout/verify`; Ctrl+P při zamčení tiskne jen upozornění (klientská ochrana, dá se obejít přes devtools – OK pro ukázku)
 - 2026-11-08: `APP_URL` (volitelné) = adresa pro návrat ze Stripe; bez ní se bere z požadavku
+- 2026-11-08: přístupnost hlídá axe (WCAG 2.1 AA) v e2e na všech šablonách; šedé texty v šablonách musí mít kontrast ≥ 4.5:1
+- 2026-11-08: bezpečnostní hlavičky v `next.config.ts` (nosniff, X-Frame-Options DENY, Referrer-Policy, Permissions-Policy); plná CSP zatím ne (Next vkládá inline skripty, chtělo by to nonce)

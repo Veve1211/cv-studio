@@ -1,6 +1,6 @@
 .root {
   --ink: #1d1d1f;
-  --muted: #8a8a8e;
+  --muted: #6b6b70;
   color: var(--ink);
   font-family: var(--font-manrope), sans-serif;
   font-size: 8.6pt;
@@ -114,7 +114,7 @@
 }
 
 .level {
-  color: var(--muted);
+  color: #4f4f55;
   font-weight: 400;
   margin-left: 1mm;
 }

@@ -2,7 +2,16 @@ import Link from "next/link";
 
 export function SiteHeader({ cta = true }: { cta?: boolean }) {
   return (
-    <header className="border-line sticky top-0 z-20 flex items-center justify-between border-b bg-white/90 px-4 py-3 backdrop-blur sm:px-8 print:hidden">
+    <>
+      {cta && (
+        <a
+          href="#studio"
+          className="bg-ink sr-only z-50 rounded-full px-4 py-2 text-sm font-semibold text-white focus:not-sr-only focus:fixed focus:left-3 focus:top-3"
+        >
+          Přeskočit na tvorbu životopisu
+        </a>
+      )}
+      <header className="border-line sticky top-0 z-20 flex items-center justify-between border-b bg-white/90 px-4 py-3 backdrop-blur sm:px-8 print:hidden">
       <Link href="/" className="font-display text-2xl font-semibold tracking-tight">
         Cvéčko
       </Link>
@@ -14,6 +23,7 @@ export function SiteHeader({ cta = true }: { cta?: boolean }) {
           Vytvořit životopis
         </a>
       )}
-    </header>
+      </header>
+    </>
   );
 }
