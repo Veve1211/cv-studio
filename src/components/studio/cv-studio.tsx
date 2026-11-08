@@ -11,7 +11,9 @@ import { AccentPicker } from "./accent-picker";
 import { LoadingPage } from "./loading-page";
 import { TemplatePicker } from "./template-picker";
 import { EditContext } from "@/components/templates/edit-context";
-import { DownloadPdfButton } from "./download-pdf-button";
+import { DownloadPdfButton, printCv } from "./download-pdf-button";
+import { PaywallDialog } from "./paywall-dialog";
+import { usePaywall } from "./use-paywall";
 import { PreviewToolbar } from "./preview-toolbar";
 import { useGenerate } from "./use-generate";
 
@@ -21,6 +23,12 @@ export function CvStudio() {
   const [accent, setAccent] = useState(DEFAULT_ACCENT);
   const [localError, setLocalError] = useState<string | null>(null);
   const { status, error, cv, canUndo, generate, loadSample, editText, update, undo } = useGenerate();
+  const [paywallOpen, setPaywallOpen] = useState(false);
+  const paywall = usePaywall((snapshot) => {
+    loadSample(snapshot.cv);
+    setTemplateId(snapshot.templateId);
+    setAccent(snapshot.accent);
+  });
   const editApi = useMemo(() => ({ onEdit: editText }), [editText]);
   const previewRef = useRef<HTMLHeadingElement>(null);
   const textareaId = useId();
@@ -138,8 +146,41 @@ export function CvStudio() {
                 onUndo={undo}
                 onSummary={(summary) => update((c) => ({ ...c, summary }))}
               >
-                <DownloadPdfButton name={cv.name} />
+                <DownloadPdfButton
+                  name={cv.name}
+                  beforePrint={() => {
+                    if (!paywall.locked) return true;
+                    setPaywallOpen(true);
+                    return false;
+                  }}
+                />
               </PreviewToolbar>
+              {paywall.notice && (
+                <p
+                  role={paywall.notice.error ? "alert" : "status"}
+                  className={`mx-auto mb-4 max-w-[794px] rounded-xl px-4 py-3 text-sm print:hidden ${
+                    paywall.notice.error ? "bg-red-50 text-red-800" : "bg-emerald-50 text-emerald-900"
+                  }`}
+                >
+                  {paywall.notice.text}
+                  {paywall.paid && (
+                    <button type="button" onClick={() => printCv(cv.name)} className="ml-2 font-semibold underline">
+                      Stáhnout PDF
+                    </button>
+                  )}
+                </p>
+              )}
+              <p className="print-locked-notice hidden">
+                Životopis si stáhneš v PDF po zaplacení přes tlačítko „Stáhnout PDF“ na webu Cvéčko.
+              </p>
+              {paywall.config?.enabled && (
+                <PaywallDialog
+                  open={paywallOpen}
+                  config={paywall.config}
+                  onClose={() => setPaywallOpen(false)}
+                  onPay={() => paywall.startCheckout({ cv, templateId, accent })}
+                />
+              )}
               <A4Preview accent={accent} paper={template.paper} templateId={template.id}>
                 <EditContext value={editApi}>
                   <template.Component cv={cv} />

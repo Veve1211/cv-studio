@@ -13,7 +13,7 @@
 ## Stack
 - Next.js 16 (App Router, `src/`, Cache Components zapnuté), React 19, TypeScript, Tailwind 4
 - Claude API (`@anthropic-ai/sdk`, model `claude-opus-5-5`), validace `zod`
-- Stripe Checkout (jen test mode, volitelné)
+- Stripe Checkout (jen test mode, volitelné): bez `STRIPE_SECRET_KEY` je PDF zdarma a o platbě se nic neukazuje
 - Bez databáze, bez účtů. Hosting Railway (`npm start`, port z `PORT`).
 
 ## Větve a nasazení
@@ -48,3 +48,6 @@
 - 2026-11-08: Tailwind loader jen pro `globals.css` (širší pravidlo rozbíjí CSS moduly šablon)
 - 2026-11-08: šablony = React komponenty + CSS moduly v mm/pt, akcent přes `--accent`; 6 barev s kontrastem AA (test); výchozí šablona Časopis
 - 2026-11-08: písma přes `next/font/google` (self-hosted, žádné volání Googlu z prohlížeče)
+- 2026-11-08: PDF = tisk prohlížeče (`window.print`), `@page` A4: 1. strana bez okrajů, další 14/12 mm; okraje mají barvu papíru (`@page { background }`); e2e kontroluje počet stran a úplnost textu přes pdfjs
+- 2026-11-08: platba = přesměrování na Stripe Checkout; životopis se na dobu platby uloží jen do `sessionStorage` okna a po návratu se hned smaže (jinak by se ztratil); ověření přes `/api/checkout/verify`; Ctrl+P při zamčení tiskne jen upozornění (klientská ochrana, dá se obejít přes devtools – OK pro ukázku)
+- 2026-11-08: `APP_URL` (volitelné) = adresa pro návrat ze Stripe; bez ní se bere z požadavku
