@@ -7,10 +7,10 @@ Po obnovení: zjisti čas, přečti tento soubor, `git status`, `git log`, otev�
 | --- | --- | --- | --- |
 | 1. Prezentační režim | `feat/demo-mode` | #19 | ✅ zmergováno |
 | 2. Zjednodušení | `feat/simplify` | #20 | ✅ zmergováno |
-| 3. 3 nové šablony (Aura, Švýcar, Bento) | `feat/templates` | PR otevřen | CI běží |
+| 3. 3 nové šablony (Aura, Švýcar, Bento) | `feat/templates` | #21 | ✅ zmergováno |
 | 4. Přizpůsobení inzerátu | `feat/tailor` | PR otevřen | CI běží |
 | 5. Angličtina | – | – | nezačato |
 | 6. Placený přístup | – | – | nezačato |
 | 7. Ko-fi | – | – | nezačato |
 
-Další konkrétní krok: zmergovat fáze 3 a 4 po zeleném CI (4 je nad 3), přeskládat `feat/english` (fáze 5, hotové) a otevřít PR.
+Další konkrétní krok: zmergovat fázi 4 po zeleném CI, přeskládat `feat/english` (fáze 5) na dev + PR. Fáze 6 rozpracovaná ve `feat/access` (server hotový, chybí napojení dialogu ve studiu + e2e).
