@@ -24,6 +24,7 @@ import { useLetter } from "./use-letter";
 import { DownloadPdfButton, printCv } from "./download-pdf-button";
 import { PaywallDialog } from "./paywall-dialog";
 import { usePaywall } from "./use-paywall";
+import { NextSteps } from "./next-steps";
 import { PreviewToolbar } from "./preview-toolbar";
 import { useGenerate } from "./use-generate";
 
@@ -268,7 +269,7 @@ export function CvStudio() {
                 setDoc("cv");
                 setView("preview");
               }}
-              className="border-line hover:border-brand-strong rounded-full border bg-white/80 px-5 py-3.5 text-[15px] font-medium transition"
+              className="text-brand-strong rounded-full px-4 py-3.5 text-[15px] font-semibold underline-offset-4 transition hover:underline max-lg:min-h-11 max-lg:py-2"
             >
               Ukázka
             </button>
@@ -302,13 +303,6 @@ export function CvStudio() {
                 grounding={doc === "letter" ? letterUnverified.size : source === null ? null : unverified.size}
                 cvActions={doc === "cv"}
               >
-                <button
-                  type="button"
-                  onClick={() => setLetterOpen(true)}
-                  className="border-line hover:border-brand-strong rounded-full border bg-white px-4 py-2 text-sm font-medium transition"
-                >
-                  ✉️ {letterState.letter ? "Nový dopis" : "Napsat motivační dopis"}
-                </button>
                 <DownloadPdfButton onClick={downloadPdf} busy={paywall.downloading} />
               </PreviewToolbar>
               {paywall.notice && (
@@ -388,6 +382,18 @@ export function CvStudio() {
                 )}
               </A4Preview>
               </div>
+              <NextSteps
+                steps={[
+                  {
+                    id: "letter",
+                    icon: "✉️",
+                    title: "Motivační dopis",
+                    text: "Vložíš inzerát a AI napíše dopis jen z údajů v tvém životopise.",
+                    action: letterState.letter ? "Napsat nový dopis" : "Napsat motivační dopis",
+                    onClick: () => setLetterOpen(true),
+                  },
+                ]}
+              />
             </>
           ) : (
             <EmptyPreview />
