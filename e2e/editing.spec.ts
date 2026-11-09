@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test";
-import { loadSample } from "./helpers";
+import { loadSample, openMore } from "./helpers";
 
 const SELECT_ALL = process.platform === "darwin" ? "Meta+A" : "Control+A";
 
@@ -14,8 +14,11 @@ test.describe("editing in the preview", () => {
     await expect(name).toHaveText("Tereza Svobodová");
     await expect(name).not.toBeFocused();
 
+    await openMore(page);
+
     await page.getByRole("button", { name: "Zpět" }).click();
     await expect(page.locator('#cv-page [data-path="name"]')).toHaveText("Tereza Nováková");
+    await openMore(page);
     await expect(page.getByRole("button", { name: "Zpět" })).toBeDisabled();
   });
 
@@ -39,6 +42,7 @@ test.describe("editing in the preview", () => {
     await page.keyboard.type("Něco jiného");
     await page.keyboard.press("Escape");
     await expect(name).toHaveText("Tereza Nováková");
+    await openMore(page);
     await expect(page.getByRole("button", { name: "Zpět" })).toBeDisabled();
   });
 
@@ -61,9 +65,11 @@ test.describe("editing in the preview", () => {
 
   test("Vylepšit shrnutí replaces the summary via AI", async ({ page }) => {
     await loadSample(page);
+    await openMore(page);
     await page.getByRole("button", { name: /Vylepšit shrnutí/ }).click();
     await expect(page.locator('#cv-page [data-path="summary"]')).toContainText("staví na výzkumu s uživateli");
     await expect(page.getByRole("status").filter({ hasText: "Shrnutí je vylepšené" })).toBeVisible();
+    await openMore(page);
     await page.getByRole("button", { name: "Zpět" }).click();
     await expect(page.locator('#cv-page [data-path="summary"]')).toContainText("Propojuje výzkum");
   });
@@ -71,6 +77,7 @@ test.describe("editing in the preview", () => {
   test("summary errors are shown in Czech", async ({ page }) => {
     await page.route("/api/summary", (route) => route.fulfill({ status: 503, json: { error: "AI je teď přetížená." } }));
     await loadSample(page);
+    await openMore(page);
     await page.getByRole("button", { name: /Vylepšit shrnutí/ }).click();
     await expect(page.getByRole("alert").filter({ hasText: /\S/ })).toContainText("přetížená");
   });

@@ -12,3 +12,12 @@ export async function loadSample(page: Page) {
   await page.getByRole("button", { name: "Ukázka" }).click();
   await page.locator("#cv-page").waitFor();
 }
+
+/** Opens the "Další možnosti" menu (undo, summary, …). */
+export async function openMore(page: Page) {
+  const menu = page.locator("details.more-menu");
+  if (!(await menu.evaluate((el) => (el as HTMLDetailsElement).open))) {
+    await menu.locator("summary").click();
+  }
+  return menu;
+}

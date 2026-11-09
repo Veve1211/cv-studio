@@ -5,12 +5,12 @@ Po obnovení: zjisti čas, přečti tento soubor, `git status`, `git log`, otev�
 
 | Fáze | Větev | PR | Stav |
 | --- | --- | --- | --- |
-| 1. Prezentační režim | `feat/demo-mode` | – | hotovo lokálně (lint, typecheck, Vitest, celé e2e zelené), čeká PR + CI |
-| 2. Zjednodušení | – | – | nezačato |
+| 1. Prezentační režim | `feat/demo-mode` | #19 | hotovo, CI běží → merge |
+| 2. Zjednodušení | `feat/simplify` (nad #19, po merge rebase na dev) | – | hotovo lokálně, cílené e2e zelené |
 | 3. 3 nové šablony (Aura, Švýcar, Bento) | – | – | nezačato |
 | 4. Přizpůsobení inzerátu | – | – | nezačato |
 | 5. Angličtina | – | – | nezačato |
 | 6. Placený přístup | – | – | nezačato |
 | 7. Ko-fi | – | – | nezačato |
 
-Další konkrétní krok: otevřít PR fáze 1, počkat na CI, zmergovat, začít fázi 2.
+Další konkrétní krok: zmergovat #19, rebase `feat/simplify` na dev, PR fáze 2, začít fázi 3 (šablony).
