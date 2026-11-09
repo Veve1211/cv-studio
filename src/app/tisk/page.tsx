@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { PrintView } from "./print-view";
 
 export const metadata: Metadata = {
-  title: "Tisk – Cvéčko",
+  title: "Tisk",
   robots: { index: false, follow: false },
 };
 
