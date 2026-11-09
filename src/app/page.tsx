@@ -6,6 +6,7 @@ import { Pricing } from "@/components/site/pricing";
 import { SiteFooter } from "@/components/site/site-footer";
 import { SiteHeader } from "@/components/site/site-header";
 import { CvStudio } from "@/components/studio/cv-studio";
+import { kofiUrl } from "@/lib/site";
 
 export default async function Home() {
   const nonce = (await headers()).get("x-nonce") ?? undefined;
@@ -16,7 +17,7 @@ export default async function Home() {
         <Landing />
         <BeforeAfter />
         <Pricing />
-        <CvStudio />
+        <CvStudio kofiUrl={kofiUrl()} />
         <Faq nonce={nonce} />
       </main>
       <SiteFooter />

@@ -25,6 +25,7 @@ import { DownloadPdfButton, printCv } from "./download-pdf-button";
 import { PaywallDialog } from "./paywall-dialog";
 import { usePaywall } from "./use-paywall";
 import { NextSteps } from "./next-steps";
+import { KofiLink } from "@/components/site/kofi-link";
 import { PreviewToolbar } from "./preview-toolbar";
 import { useGenerate } from "./use-generate";
 import { TailorPanel } from "./tailor-panel";
@@ -37,7 +38,7 @@ import { useTailor } from "./use-tailor";
 
 const EXAMPLE_TEXTS: ReadonlySet<string> = new Set(EXAMPLES.map((e) => e.text));
 
-export function CvStudio() {
+export function CvStudio({ kofiUrl = null }: { kofiUrl?: string | null }) {
   const [text, setText] = useState("");
   const [templateId, setTemplateId] = useState<TemplateId>(DEFAULT_TEMPLATE);
   const [accent, setAccent] = useState(DEFAULT_ACCENT);
@@ -64,6 +65,8 @@ export function CvStudio() {
   /** The last job ad the user pasted (memory only), offered again for the letter. */
   const [jobAd, setJobAd] = useState("");
   const [paywallOpen, setPaywallOpen] = useState(false);
+  /** Gentle "support us" note after a PDF download (only with KOFI_URL). */
+  const [askSupport, setAskSupport] = useState(false);
   const [paywallReason, setPaywallReason] = useState("PDF bez vodoznaku");
 
   const letterState = useLetter();
@@ -219,6 +222,7 @@ export function CvStudio() {
   function downloadPdf() {
     if (!cv) return;
     if (!paywall.config?.enabled) {
+      setAskSupport(true);
       if (enActive) printCv(cv.name, doc === "letter" ? "Cover-letter" : "CV");
       else printCv(cv.name, doc === "letter" ? "Motivacni-dopis" : undefined);
       return;
@@ -228,6 +232,7 @@ export function CvStudio() {
       setPaywallOpen(true);
       return;
     }
+    setAskSupport(true);
     void paywall.downloadServerPdf({
       cv: shownCv ?? cv,
       templateId,
@@ -466,6 +471,18 @@ export function CvStudio() {
                       Stáhnout PDF
                     </button>
                   )}
+                </p>
+              )}
+              {kofiUrl && askSupport && (
+                <p
+                  data-testid="kofi-note"
+                  className="bg-brand-soft text-ink mx-auto mb-4 flex max-w-[794px] flex-wrap items-center justify-between gap-2 rounded-2xl px-4 py-3 text-sm print:hidden"
+                >
+                  <span>Pomohlo ti Cvéčko? Podpoř ho drobným příspěvkem.</span>
+                  <KofiLink
+                    href={kofiUrl}
+                    className="rounded-full bg-white px-4 py-2 font-semibold shadow-sm transition hover:shadow"
+                  />
                 </p>
               )}
               <p className="print-locked-notice hidden">
