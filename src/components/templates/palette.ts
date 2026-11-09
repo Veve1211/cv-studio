@@ -8,6 +8,7 @@ export interface Accent {
 }
 
 export const ACCENTS: Accent[] = [
+  { id: "sky", name: "Nebeská", value: "#0a66b8", on: "#ffffff" },
   { id: "coral", name: "Korálová", value: "#c23d17", on: "#ffffff" },
   { id: "cobalt", name: "Kobaltová", value: "#2448d8", on: "#ffffff" },
   { id: "emerald", name: "Smaragdová", value: "#0b7a5c", on: "#ffffff" },

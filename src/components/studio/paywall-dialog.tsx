@@ -67,14 +67,14 @@ export function PaywallDialog({ open, config, onClose, onPay }: PaywallDialogPro
             type="button"
             onClick={pay}
             disabled={busy}
-            className="bg-ink hover:bg-ink/90 flex-1 rounded-full px-6 py-3 font-semibold text-white transition disabled:cursor-wait disabled:opacity-60"
+            className="btn-primary flex-1 rounded-full px-6 py-3 font-semibold transition disabled:cursor-wait disabled:opacity-60"
           >
             {busy ? "Přesměrovávám…" : `Zaplatit ${config.priceCzk} Kč`}
           </button>
           <button
             type="button"
             onClick={onClose}
-            className="border-line hover:border-ink rounded-full border px-5 py-3 font-medium transition"
+            className="border-line hover:border-brand-strong rounded-full border px-5 py-3 font-medium transition"
           >
             Zrušit
           </button>

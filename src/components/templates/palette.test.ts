@@ -14,9 +14,9 @@ function contrast(a: string, b: string): number {
 }
 
 describe("accent palette", () => {
-  it("has exactly 6 colours with unique ids", () => {
-    expect(ACCENTS).toHaveLength(6);
-    expect(new Set(ACCENTS.map((a) => a.id)).size).toBe(6);
+  it("has exactly 7 colours with unique ids", () => {
+    expect(ACCENTS).toHaveLength(7);
+    expect(new Set(ACCENTS.map((a) => a.id)).size).toBe(7);
   });
 
   it.each(ACCENTS)("$name meets WCAG AA contrast on white and with its text colour", (accent) => {

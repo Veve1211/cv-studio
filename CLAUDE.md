@@ -47,10 +47,11 @@
 ## Rozhodnutí
 - 2026-11-08: název Cvéčko; Next.js scaffold z create-next-app 16.4.5; TypeScript 5 a ESLint 9 ponechány podle šablony create-next-app (oficiálně podporovaná kombinace)
 - 2026-11-08: Tailwind loader jen pro `globals.css` (širší pravidlo rozbíjí CSS moduly šablon)
-- 2026-11-08: šablony = React komponenty + CSS moduly v mm/pt, akcent přes `--accent`; 6 barev s kontrastem AA (test); výchozí šablona Časopis
+- 2026-11-08: šablony = React komponenty + CSS moduly v mm/pt, akcent přes `--accent`; barvy s kontrastem AA (test); výchozí šablona Časopis
 - 2026-11-08: písma přes `next/font/google` (self-hosted, žádné volání Googlu z prohlížeče)
 - 2026-11-08: PDF = tisk prohlížeče (`window.print`), `@page` A4: 1. strana bez okrajů, další 14/12 mm; okraje mají barvu papíru (`@page { background }`); e2e kontroluje počet stran a úplnost textu přes pdfjs
 - 2026-11-08: platba = přesměrování na Stripe Checkout; životopis se na dobu platby uloží jen do `sessionStorage` okna a po návratu se hned smaže (jinak by se ztratil); ověření přes `/api/checkout/verify`; Ctrl+P při zamčení tiskne jen upozornění (klientská ochrana, dá se obejít přes devtools – OK pro ukázku)
 - 2026-11-08: `APP_URL` (volitelné) = adresa pro návrat ze Stripe; bez ní se bere z požadavku
 - 2026-11-08: přístupnost hlídá axe (WCAG 2.1 AA) v e2e na všech šablonách; šedé texty v šablonách musí mít kontrast ≥ 4.5:1
 - 2026-11-08: bezpečnostní hlavičky v `next.config.ts` (nosniff, X-Frame-Options DENY, Referrer-Policy, Permissions-Policy); plná CSP zatím ne (Next vkládá inline skripty, chtělo by to nonce)
+- 2026-11-09: vzhled aplikace světle modrý a modernější (Veve): tokeny `brand*` v `globals.css`, hlavní tlačítka `.btn-primary` (světle modrá + tmavě modrý text), nadpisy Space Grotesk, skleněné plochy `.glass`, plovoucí hlavička, mesh gradient v úvodu (animace vypne `prefers-reduced-motion`); 7. barva životopisu „Nebeská“ je výchozí

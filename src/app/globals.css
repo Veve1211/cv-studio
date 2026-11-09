@@ -1,20 +1,25 @@
 @import "tailwindcss";
 
 :root {
-  --background: #f4f2ee;
-  --foreground: #16161a;
+  --background: #f2f8ff;
+  --foreground: #0b1b33;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --color-ink: #16161a;
-  --color-muted: #5f5e66;
-  --color-line: #e3e0d9;
-  --color-canvas: #ebe8e1;
-  --color-paper-soft: #fbfaf7;
+  --color-ink: #0b1b33;
+  --color-ink-soft: #2c3e5a;
+  --color-muted: #4b5d78;
+  --color-line: #d5e5f6;
+  --color-canvas: #e3effc;
+  --color-paper-soft: #f8fbff;
+  --color-brand: #8fd0ff;
+  --color-brand-hover: #6fc0fb;
+  --color-brand-soft: #dceeff;
+  --color-brand-strong: #0a5fb8;
   --font-sans: var(--font-inter), system-ui, sans-serif;
-  --font-display: var(--font-fraunces), Georgia, serif;
+  --font-display: var(--font-space-grotesk), var(--font-inter), system-ui, sans-serif;
   --font-mono: var(--font-jetbrains-mono), ui-monospace, monospace;
 }
 
@@ -25,12 +30,122 @@ body {
 }
 
 :focus-visible {
-  outline: 2px solid var(--color-ink);
+  outline: 2px solid var(--color-brand-strong);
   outline-offset: 2px;
 }
 
+/* Primary call-to-action: light blue pill with dark navy text (contrast > 10:1) */
+.btn-primary {
+  background-color: var(--color-brand);
+  color: var(--color-ink);
+  box-shadow: 0 1px 0 rgb(255 255 255 / 0.6) inset, 0 8px 24px -10px rgb(10 95 184 / 0.55);
+  transition: background-color 0.15s, transform 0.15s, box-shadow 0.15s;
+}
+
+.btn-primary:hover {
+  background-color: var(--color-brand-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 1px 0 rgb(255 255 255 / 0.6) inset, 0 12px 28px -10px rgb(10 95 184 / 0.6);
+}
+
+.btn-primary:disabled {
+  transform: none;
+}
+
+/* ===== 2026 look: mesh gradient hero, glass surfaces, gradient text ===== */
+.hero-glow {
+  position: relative;
+  isolation: isolate;
+  background: linear-gradient(180deg, #e6f3ff 0%, var(--background) 100%);
+}
+
+.hero-glow::before,
+.hero-glow::after {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  border-radius: 9999px;
+  filter: blur(70px);
+  pointer-events: none;
+}
+
+.hero-glow::before {
+  width: 46rem;
+  height: 46rem;
+  max-width: 120vw;
+  top: -18rem;
+  right: -12rem;
+  background: radial-gradient(circle, rgb(125 200 255 / 0.75), rgb(190 228 255 / 0.2) 60%, transparent 70%);
+  animation: drift 18s ease-in-out infinite alternate;
+}
+
+.hero-glow::after {
+  width: 34rem;
+  height: 34rem;
+  max-width: 100vw;
+  bottom: -14rem;
+  left: -10rem;
+  background: radial-gradient(circle, rgb(167 216 255 / 0.7), rgb(214 236 255 / 0.25) 60%, transparent 70%);
+  animation: drift 22s ease-in-out infinite alternate-reverse;
+}
+
+/* Fine dot grid that fades out towards the edges */
+.dot-grid {
+  background-image: radial-gradient(rgb(10 95 184 / 0.13) 1px, transparent 1px);
+  background-size: 22px 22px;
+  mask-image: radial-gradient(ellipse 70% 60% at 50% 40%, #000 30%, transparent 75%);
+}
+
+@keyframes drift {
+  from {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  to {
+    transform: translate3d(-4rem, 3rem, 0) scale(1.12);
+  }
+}
+
+.text-gradient {
+  background: linear-gradient(100deg, #0a5fb8 0%, #2f8de4 45%, #5bb6f7 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.glass {
+  background: rgb(255 255 255 / 0.62);
+  border: 1px solid rgb(255 255 255 / 0.8);
+  box-shadow:
+    0 1px 0 rgb(255 255 255 / 0.9) inset,
+    0 20px 50px -24px rgb(10 60 120 / 0.28);
+  backdrop-filter: blur(18px) saturate(1.4);
+  -webkit-backdrop-filter: blur(18px) saturate(1.4);
+}
+
+.float-slow {
+  animation: float 6s ease-in-out infinite;
+}
+
+.float-slower {
+  animation: float 8s ease-in-out infinite reverse;
+}
+
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+.field-glow:focus {
+  box-shadow: 0 0 0 4px rgb(143 208 255 / 0.45);
+}
+
 .skeleton {
-  background: linear-gradient(90deg, #eeece7 0%, #f7f6f2 50%, #eeece7 100%);
+  background: linear-gradient(90deg, #e4effb 0%, #f4f9ff 50%, #e4effb 100%);
   background-size: 200% 100%;
   animation: shimmer 1.4s ease-in-out infinite;
 }
