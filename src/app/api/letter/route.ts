@@ -2,6 +2,7 @@ import { z } from "zod";
 import { CvError } from "@/lib/cv/generate";
 import { CvSchema } from "@/lib/cv/schema";
 import { firstIssue, jsonError, readJson } from "@/lib/http";
+import { requireAccess } from "@/lib/require-access";
 import { generateLetter } from "@/lib/letter/generate";
 import { MAX_JOB_CHARS, MIN_JOB_CHARS } from "@/lib/letter/schema";
 import { createAiLimit } from "@/lib/ai-limit";
@@ -23,6 +24,9 @@ export async function POST(request: Request) {
   if (body === null) return jsonError("Neplatný požadavek.", 400);
   const parsed = BodySchema.safeParse(body);
   if (!parsed.success) return jsonError(firstIssue(parsed.error), 400);
+
+  const locked = requireAccess(request);
+  if (locked) return locked;
 
   const rate = limit(request);
   if (rate.error) return rate.error;

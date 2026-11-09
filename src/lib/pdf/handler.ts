@@ -1,19 +1,20 @@
-import { z } from "zod";
 import { jsonError, readJson } from "@/lib/http";
-import { isPaywallEnabled, verifyCheckout } from "@/lib/payments/checkout";
+import { hasFullAccess } from "@/lib/access";
+import { isPaywallEnabled } from "@/lib/payments/checkout";
 import { pdfFileTitle } from "@/lib/pdf";
 import { clientKey, createRateLimiter } from "@/lib/rate-limit";
 import { PrintDataSchema, type PrintData } from "./print-data";
 
-const BodySchema = PrintDataSchema.extend({ sessionId: z.string().max(256) });
+const BodySchema = PrintDataSchema;
 
 interface Deps {
-  verify: (sessionId: string) => Promise<boolean>;
+  /** Paid access of this browser (signed cookie), presentation mode included. */
+  verify: (request: Request) => boolean;
   render: (data: PrintData) => Promise<Uint8Array>;
 }
 
 /**
- * Paid PDF download: only after Stripe confirms the session is paid, rendered on the
+ * Paid PDF download: only with full access (checked here, on the server), rendered on the
  * server (clean, no watermark). Nothing is stored; the CV only lives in this request.
  */
 export function createPdfHandler(deps: Deps) {
@@ -27,8 +28,8 @@ export function createPdfHandler(deps: Deps) {
     const parsed = body === null ? null : BodySchema.safeParse(body);
     if (!parsed?.success) return jsonError("Neplatný požadavek.", 400);
 
-    const { sessionId, ...data } = parsed.data;
-    if (!(await deps.verify(sessionId))) return jsonError("PDF je dostupné až po zaplacení.", 402);
+    const data = parsed.data;
+    if (!deps.verify(request)) return jsonError("PDF bez vodoznaku je součástí plného přístupu.", 402);
 
     try {
       const pdf = await deps.render(data);
@@ -46,4 +47,4 @@ export function createPdfHandler(deps: Deps) {
   };
 }
 
-export const verifyPaid = verifyCheckout;
+export const verifyPaid = hasFullAccess;

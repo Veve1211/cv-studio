@@ -12,15 +12,26 @@ import type { DocKind } from "./doc-tabs";
 
 const STASH_KEY = "cvecko:checkout";
 
-export interface PaywallConfig {
-  enabled: boolean;
+export interface PlanInfo {
+  id: "trial" | "14d" | "year";
+  name: string;
+  days: number;
   priceCzk: number;
+}
+
+export interface PaywallConfig {
+  /** Payments are on for this browser (off without a Stripe key or in presentation mode). */
+  enabled: boolean;
   testMode: boolean;
   /** Presentation mode: everything unlocked in this browser until this time (unix s). */
   demoUntil?: number | null;
+  plans: PlanInfo[];
+  trialUsed: boolean;
+  /** Paid (or trial) access of this browser, with the code for another device. */
+  access: { until: number; code: string } | null;
 }
 
-const FREE: PaywallConfig = { enabled: false, priceCzk: 0, testMode: false, demoUntil: null };
+const FREE: PaywallConfig = { enabled: false, testMode: false, demoUntil: null, plans: [], trialUsed: false, access: null };
 
 /** ?demo=1 turns presentation mode on (server must have DEMO_ENABLED=1). */
 async function activateDemo(): Promise<string | null> {
@@ -55,29 +66,34 @@ export interface Snapshot {
  */
 export function usePaywall(onRestore: (snapshot: Snapshot) => void) {
   const [config, setConfig] = useState<PaywallConfig | null>(null);
-  const [paid, setPaid] = useState(false);
-  /** Verified, paid Stripe session (memory only) – the server needs it for every PDF. */
-  const [sessionId, setSessionId] = useState<string | null>(null);
   const [downloading, setDownloading] = useState(false);
   const [notice, setNotice] = useState<{ text: string; error: boolean } | null>(null);
   const [demoError, setDemoError] = useState<string | null>(null);
 
+  /** Reads the access state of this browser from the server (cookie based). */
+  const refresh = useCallback(async () => {
+    try {
+      const r = await fetch("/api/checkout", { cache: "no-store" });
+      const data = r.ok ? ((await r.json()) as PaywallConfig) : null;
+      setConfig(data ? { ...FREE, ...data } : FREE);
+      return data;
+    } catch {
+      setConfig(FREE);
+      return null;
+    }
+  }, []);
+
   useEffect(() => {
     let cancelled = false;
-    activateDemo()
-      .then((demoError) => {
-        if (demoError && !cancelled) setDemoError(demoError);
-        return fetch("/api/checkout", { cache: "no-store" });
-      })
-      .then((r) => (r.ok ? r.json() : null))
-      .then((data: PaywallConfig | null) => {
-        if (!cancelled) setConfig(data ?? FREE);
-      })
-      .catch(() => !cancelled && setConfig(FREE));
+    void activateDemo().then((demoError) => {
+      if (cancelled) return;
+      if (demoError) setDemoError(demoError);
+      void refresh();
+    });
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [refresh]);
 
   // Returning from Stripe: restore the CV and verify the payment.
   useEffect(() => {
@@ -95,11 +111,18 @@ export function usePaywall(onRestore: (snapshot: Snapshot) => void) {
         return;
       }
       try {
-        const data = await postJson("/api/checkout/verify", { sessionId: sessionIdParam });
-        if ((data as { paid?: unknown } | null)?.paid === true) {
-          setPaid(true);
-          setSessionId(sessionIdParam);
-          setNotice({ text: "Zaplaceno, děkujeme! Teď si můžeš stáhnout PDF.", error: false });
+        const data = (await postJson("/api/checkout/verify", { sessionId: sessionIdParam })) as {
+          paid?: unknown;
+          code?: unknown;
+        } | null;
+        if (data?.paid === true) {
+          await refresh();
+          setNotice({
+            text: `Zaplaceno, děkujeme! Máš plný přístup.${
+              typeof data.code === "string" ? ` Kód pro jiné zařízení: ${data.code}` : ""
+            }`,
+            error: false,
+          });
         } else {
           setNotice({ text: "Platbu se nepodařilo ověřit. Pokud ti byly strženy peníze, napiš nám.", error: true });
         }
@@ -112,6 +135,7 @@ export function usePaywall(onRestore: (snapshot: Snapshot) => void) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  const paid = Boolean(config?.access);
   const locked = Boolean(config?.enabled) && !paid;
 
   // Ctrl+P must not bypass the paywall: print CSS hides the CV while locked.
@@ -120,7 +144,24 @@ export function usePaywall(onRestore: (snapshot: Snapshot) => void) {
     else delete document.documentElement.dataset.paywall;
   }, [locked]);
 
-  const startCheckout = useCallback(async (snapshot: Snapshot) => {
+  /** Free day (once per browser) or a code from another device: unlocks without Stripe. */
+  const unlock = useCallback(
+    async (kind: "trial" | "code", code = "") => {
+      const data = (await postJson(kind === "trial" ? "/api/access/trial" : "/api/access/code", { code })) as {
+        code?: unknown;
+      } | null;
+      await refresh();
+      setNotice({
+        text: `Plný přístup je odemčený.${
+          kind === "trial" && typeof data?.code === "string" ? ` Kód pro jiné zařízení: ${data.code}` : ""
+        }`,
+        error: false,
+      });
+    },
+    [refresh],
+  );
+
+  const startCheckout = useCallback(async (snapshot: Snapshot, plan: "14d" | "year") => {
     try {
       sessionStorage.setItem(
         STASH_KEY,
@@ -136,7 +177,13 @@ export function usePaywall(onRestore: (snapshot: Snapshot) => void) {
       // Private mode / storage full: the user would lose the CV after the redirect.
       throw new Error("Prohlížeč nedovolil dočasně uložit životopis. Zkus to prosím mimo anonymní režim.");
     }
-    const data = await postJson("/api/checkout", {});
+    let data: unknown;
+    try {
+      data = await postJson("/api/checkout", { plan, terms: true, startNow: true });
+    } catch (err) {
+      sessionStorage.removeItem(STASH_KEY);
+      throw err;
+    }
     const url = (data as { url?: unknown } | null)?.url;
     if (typeof url !== "string" || !/^https?:\/\//.test(url)) {
       sessionStorage.removeItem(STASH_KEY);
@@ -148,14 +195,12 @@ export function usePaywall(onRestore: (snapshot: Snapshot) => void) {
   /** Clean PDF rendered on the server after the payment is verified there again. */
   const downloadServerPdf = useCallback(
     async (snapshot: Snapshot) => {
-      if (!sessionId) return;
       setDownloading(true);
       try {
         const res = await fetch("/api/pdf", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            sessionId,
             cv: snapshot.cv,
             templateId: snapshot.templateId,
             accentId: snapshot.accent.id,
@@ -189,11 +234,23 @@ export function usePaywall(onRestore: (snapshot: Snapshot) => void) {
         setDownloading(false);
       }
     },
-    [sessionId],
+    [],
   );
 
   const demoUntil = config?.demoUntil ?? null;
-  return { config, demoUntil, demoError, locked, paid, downloading, notice, setNotice, startCheckout, downloadServerPdf };
+  return {
+    config,
+    demoUntil,
+    demoError,
+    locked,
+    paid,
+    downloading,
+    notice,
+    setNotice,
+    startCheckout,
+    unlock,
+    downloadServerPdf,
+  };
 }
 
 function readStash(): Snapshot | null {

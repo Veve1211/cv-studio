@@ -1,13 +1,12 @@
 import Stripe from "stripe";
+import type { Plan } from "@/lib/access";
 
-export const PRICE_CZK = 99;
-export const PAID_VALID_DAYS = 30;
-const PRODUCT_TAG = "cv-pdf";
+const PRODUCT_TAG = "cv-access";
 const SESSION_ID = /^cs_(test|live)_[A-Za-z0-9]{1,200}$/;
 
 /** E2E-only fake: lets Playwright exercise the paid flow without calling Stripe. */
 export const MOCK_KEY = "sk_test_mock";
-export const MOCK_SESSION_ID = "cs_test_mock";
+export const MOCK_SESSION_PREFIX = "cs_test_mock";
 
 export function isPaywallEnabled(): boolean {
   return Boolean(process.env.STRIPE_SECRET_KEY);
@@ -34,9 +33,9 @@ function getClient(): CheckoutClient {
   return client;
 }
 
-/** Creates a one-off Stripe Checkout session for the PDF and returns its URL. */
-export async function createCheckout(origin: string, stripe?: CheckoutClient): Promise<string> {
-  if (!stripe && isMock()) return `${origin}/?checkout=success&session_id=${MOCK_SESSION_ID}`;
+/** One-off Stripe Checkout payment for a time-limited plan (no subscription). */
+export async function createCheckout(origin: string, plan: Plan, stripe?: CheckoutClient): Promise<string> {
+  if (!stripe && isMock()) return `${origin}/?checkout=success&session_id=${MOCK_SESSION_PREFIX}${plan.id}`;
   const session = await (stripe ?? getClient()).checkout.sessions.create({
     mode: "payment",
     locale: "cs",
@@ -45,12 +44,15 @@ export async function createCheckout(origin: string, stripe?: CheckoutClient): P
         quantity: 1,
         price_data: {
           currency: "czk",
-          unit_amount: PRICE_CZK * 100,
-          product_data: { name: "Životopis v PDF", description: "Jednorázové stažení životopisu z Cvéčka" },
+          unit_amount: plan.priceCzk * 100,
+          product_data: {
+            name: `Cvéčko – plný přístup na ${plan.name}`,
+            description: "PDF bez vodoznaku, motivační dopis, přizpůsobení inzerátu a angličtina. Jednorázově, bez automatického obnovení.",
+          },
         },
       },
     ],
-    metadata: { product: PRODUCT_TAG },
+    metadata: { product: PRODUCT_TAG, plan: plan.id },
     success_url: `${origin}/?checkout=success&session_id={CHECKOUT_SESSION_ID}`,
     cancel_url: `${origin}/?checkout=cancel`,
   });
@@ -58,17 +60,22 @@ export async function createCheckout(origin: string, stripe?: CheckoutClient): P
   return session.url;
 }
 
-/** True only for a real, paid session of our product. */
-export async function verifyCheckout(sessionId: string, stripe?: CheckoutClient): Promise<boolean> {
-  if (!SESSION_ID.test(sessionId)) return false;
-  if (!stripe && isMock()) return sessionId === MOCK_SESSION_ID;
+/** A paid session of our product: which plan and when it was paid (unix s). */
+export async function verifyCheckout(
+  sessionId: string,
+  stripe?: CheckoutClient,
+): Promise<{ plan: string; created: number } | null> {
+  if (!SESSION_ID.test(sessionId)) return null;
+  if (!stripe && isMock()) {
+    const plan = sessionId.startsWith(MOCK_SESSION_PREFIX) ? sessionId.slice(MOCK_SESSION_PREFIX.length) : "";
+    return plan === "14d" || plan === "year" ? { plan, created: Math.floor(Date.now() / 1000) } : null;
+  }
   try {
     const session = await (stripe ?? getClient()).checkout.sessions.retrieve(sessionId);
-    // One payment unlocks downloads (also after edits) for 30 days.
-    const fresh = session.created === undefined || Date.now() / 1000 - session.created < PAID_VALID_DAYS * 86_400;
-    return session.payment_status === "paid" && session.metadata?.product === PRODUCT_TAG && fresh;
+    if (session.payment_status !== "paid" || session.metadata?.product !== PRODUCT_TAG) return null;
+    return { plan: session.metadata.plan ?? "", created: session.created ?? Math.floor(Date.now() / 1000) };
   } catch {
-    return false;
+    return null;
   }
 }
 
