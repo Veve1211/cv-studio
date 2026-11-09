@@ -4,7 +4,8 @@ import { SiteFooter } from "@/components/site/site-footer";
 import { SiteHeader } from "@/components/site/site-header";
 
 export const metadata: Metadata = {
-  title: "Zásady ochrany osobních údajů – Cvéčko",
+  title: "Zásady ochrany osobních údajů",
+  alternates: { canonical: "/soukromi" },
   description: "Jak Cvéčko zachází s tvými údaji: nic neukládáme.",
 };
 
