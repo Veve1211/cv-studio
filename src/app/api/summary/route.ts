@@ -3,10 +3,9 @@ import { CvError } from "@/lib/cv/generate";
 import { CvSchema } from "@/lib/cv/schema";
 import { improveSummary } from "@/lib/cv/summary";
 import { jsonError, readJson } from "@/lib/http";
-import { clientKey, createRateLimiter } from "@/lib/rate-limit";
-import { cookieLimit } from "@/lib/rate-limit-cookie";
+import { createAiLimit } from "@/lib/ai-limit";
 
-const limiter = createRateLimiter({ limit: 20, windowMs: 15 * 60 * 1000 });
+const limit = createAiLimit("summary", 20);
 const BodySchema = z.object({ cv: CvSchema });
 
 export async function POST(request: Request) {
@@ -19,25 +18,13 @@ export async function POST(request: Request) {
     return jsonError("V životopise je zatím málo údajů na nové shrnutí.", 422);
   }
 
-  const rate = limiter(clientKey(request));
-  if (!rate.ok) {
-    return jsonError("Moc pokusů za sebou. Zkus to prosím za chvíli znovu.", 429, {
-      "Retry-After": String(rate.retryAfterSec),
-    });
-  }
-
-  // Survives restarts: the count also lives in a signed HttpOnly cookie.
-  const cookie = cookieLimit(request, { scope: "summary", limit: 20, windowSec: 15 * 60 });
-  if (!cookie.ok) {
-    return jsonError("Moc pokusů za sebou. Zkus to prosím za chvíli znovu.", 429, {
-      "Retry-After": String(cookie.retryAfterSec),
-    });
-  }
+  const rate = limit(request);
+  if (rate.error) return rate.error;
 
   try {
     const summary = await improveSummary(cv);
     const headers = new Headers({ "Cache-Control": "no-store" });
-    if (cookie.setCookie) headers.append("Set-Cookie", cookie.setCookie);
+    if (rate.setCookie) headers.append("Set-Cookie", rate.setCookie);
     return Response.json({ summary }, { headers });
   } catch (error) {
     if (error instanceof CvError) return jsonError(error.message, error.status);

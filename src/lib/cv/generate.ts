@@ -1,5 +1,6 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { CV_JSON_SCHEMA, CvSchema, type Cv } from "./schema";
+import { CHAOS_CV, EXAMPLES } from "./examples";
 import { SAMPLE_CV } from "./sample";
 
 export const MODEL = "claude-opus-5-5";
@@ -44,9 +45,10 @@ export interface MessagesClient {
 let defaultClient: MessagesClient | null = null;
 export function getClient(): MessagesClient {
   if (!process.env.ANTHROPIC_API_KEY) {
-    throw new CvError("Server nemá nastavený klíč k AI. Dej prosím vědět provozovateli.", 503);
+    throw new CvError("AI teď není dostupná (server nemá nastavený klíč). Mezitím si můžeš prohlédnout Ukázku.", 503);
   }
-  defaultClient ??= new Anthropic() as unknown as MessagesClient;
+  // Bounded wait: a stuck request must end in a friendly error, not a spinner forever.
+  defaultClient ??= new Anthropic({ timeout: 120_000, maxRetries: 1 }) as unknown as MessagesClient;
   return defaultClient;
 }
 
@@ -119,7 +121,9 @@ export function wrapUserText(text: string): string {
 
 /** Turns free text into a validated CV. */
 export async function generateCv(text: string, client?: MessagesClient): Promise<Cv> {
-  if (!client && isMockMode()) return structuredClone(SAMPLE_CV);
+  if (!client && isMockMode()) {
+    return structuredClone(text.trim() === EXAMPLES[0].text.trim() ? CHAOS_CV : SAMPLE_CV);
+  }
   const raw = await requestStructured(client ?? getClient(), {
     system: SYSTEM_PROMPT,
     userContent: wrapUserText(text),

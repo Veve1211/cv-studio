@@ -16,7 +16,7 @@ test.describe("guide and empty states", () => {
 
     await field.fill("Můj vlastní text o mně a mé práci.");
     await group.getByRole("button", { name: "Absolventka" }).click();
-    await expect(field).toHaveValue(EXAMPLES[0].text);
+    await expect(field).toHaveValue(EXAMPLES.find((e) => e.label === "Absolventka")!.text);
     await page.getByRole("button", { name: "↩ Vrátit můj text" }).click();
     await expect(field).toHaveValue("Můj vlastní text o mně a mé práci.");
   });
