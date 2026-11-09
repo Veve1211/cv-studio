@@ -98,6 +98,22 @@ export function useGenerate() {
     [update],
   );
 
+  /**
+   * Replaces the CV with a reordered version (job ad tailoring). Paths the user already
+   * rewrote follow their values to the new place; the new summary is checked again.
+   */
+  const applyReordered = useCallback(
+    (next: Cv, remap: (path: string) => string) => {
+      update(() => next);
+      setConfirmed((prev) => {
+        const moved = new Set([...prev].map(remap));
+        moved.delete("summary");
+        return moved;
+      });
+    },
+    [update],
+  );
+
   const undo = useCallback(() => {
     if (history.length === 0) return;
     setCv(history[history.length - 1]);
@@ -115,6 +131,7 @@ export function useGenerate() {
     loadSample,
     editText,
     replaceSummary,
+    applyReordered,
     update,
     undo,
   };
