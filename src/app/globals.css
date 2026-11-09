@@ -349,3 +349,45 @@ body {
     transform: translateY(6px);
   }
 }
+
+/* ===== Before / after ===== */
+.ba-grid:not([data-shown]) .ba-after {
+  opacity: 0;
+}
+
+[data-shown] .ba-after {
+  animation: ba-in 0.9s cubic-bezier(0.2, 0.8, 0.2, 1) 0.35s both;
+}
+
+[data-shown] .ba-arrow {
+  animation: ba-pop 0.5s ease-out both;
+}
+
+[data-shown] .before-text {
+  animation: ba-dim 0.9s ease-out 0.35s both;
+}
+
+@keyframes ba-in {
+  from {
+    opacity: 0;
+    transform: translateX(-24px) scale(0.96);
+    filter: blur(6px);
+  }
+}
+
+@keyframes ba-pop {
+  from {
+    opacity: 0;
+    transform: scale(0.6);
+  }
+}
+
+@keyframes ba-dim {
+  to {
+    opacity: 0.55;
+  }
+}
+
+.faq summary::-webkit-details-marker {
+  display: none;
+}

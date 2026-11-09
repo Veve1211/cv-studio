@@ -13,9 +13,10 @@ test.describe("sharing and search", () => {
     expect(ogImage).toMatch(/opengraph-image/);
     await expect(page.locator('meta[name="twitter:card"]')).toHaveAttribute("content", "summary_large_image");
 
-    const ld = JSON.parse((await page.locator('script[type="application/ld+json"]').textContent()) ?? "{}");
-    expect(ld["@type"]).toBe("WebApplication");
-    expect(ld.inLanguage).toBe("cs");
+    const blocks = (await page.locator('script[type="application/ld+json"]').allTextContents()).map((t) => JSON.parse(t));
+    const app = blocks.find((d) => d["@type"] === "WebApplication");
+    expect(app.inLanguage).toBe("cs");
+    expect(blocks.some((d) => d["@type"] === "FAQPage")).toBe(true);
   });
 
   test("Open Graph image is a 1200×630 PNG", async ({ request }) => {
