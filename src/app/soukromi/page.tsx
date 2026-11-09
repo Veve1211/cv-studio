@@ -27,6 +27,10 @@ export default function PrivacyPage() {
               přímo do služby Claude od společnosti Anthropic, která z něj sestaví životopis.
             </li>
             <li>Na našem serveru se text ani životopis neukládá a nezapisuje do žádných logů.</li>
+            <li>
+              Když nahraješ starý životopis (PDF nebo Word), server z něj jen v paměti vytáhne text a soubor hned
+              zahodí. Nikam se neukládá.
+            </li>
             <li>Hotový životopis drží jen tvůj prohlížeč. Když stránku zavřeš nebo obnovíš, zmizí.</li>
             <li>
               Anthropic s daty zachází podle svých obchodních podmínek a zásad ochrany soukromí.
