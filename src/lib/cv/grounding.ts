@@ -211,6 +211,15 @@ function checkContact(kind: "email" | "phone" | "location" | "web", value: strin
   return missingWords(value, src).length ? [value] : [];
 }
 
+/**
+ * Years, numbers and proper nouns in free text (e.g. a cover letter paragraph) that
+ * the source does not contain.
+ */
+export function checkFreeText(text: string, source: string): string[] {
+  const src = new SourceIndex(source);
+  return [...new Set([...checkYears(text, src), ...checkNumbers(text, src), ...checkTerms(text, src)])];
+}
+
 /** All facts in the CV that the source text does not support. */
 export function checkGrounding(cv: Cv, source: string): GroundingFlag[] {
   const src = new SourceIndex(source);

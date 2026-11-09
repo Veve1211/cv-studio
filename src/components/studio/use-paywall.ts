@@ -6,7 +6,9 @@ import { getAccent, type Accent } from "@/components/templates/palette";
 import type { TemplateId } from "@/components/templates/types";
 import { postJson } from "@/lib/client-api";
 import { CvSchema, type Cv } from "@/lib/cv/schema";
+import { LetterDocSchema, type LetterDoc } from "@/lib/letter/schema";
 import { pdfFileTitle } from "@/lib/pdf";
+import type { DocKind } from "./doc-tabs";
 
 const STASH_KEY = "cvecko:checkout";
 
@@ -20,6 +22,10 @@ export interface Snapshot {
   cv: Cv;
   templateId: TemplateId;
   accent: Accent;
+  /** Cover letter (kept across the Stripe redirect). */
+  letter?: LetterDoc | null;
+  /** Which document is shown / downloaded. */
+  doc?: DocKind;
 }
 
 /**
@@ -93,7 +99,13 @@ export function usePaywall(onRestore: (snapshot: Snapshot) => void) {
     try {
       sessionStorage.setItem(
         STASH_KEY,
-        JSON.stringify({ cv: snapshot.cv, templateId: snapshot.templateId, accentId: snapshot.accent.id }),
+        JSON.stringify({
+          cv: snapshot.cv,
+          templateId: snapshot.templateId,
+          accentId: snapshot.accent.id,
+          letter: snapshot.letter ?? null,
+          doc: snapshot.doc ?? "cv",
+        }),
       );
     } catch {
       // Private mode / storage full: the user would lose the CV after the redirect.
@@ -122,6 +134,7 @@ export function usePaywall(onRestore: (snapshot: Snapshot) => void) {
             cv: snapshot.cv,
             templateId: snapshot.templateId,
             accentId: snapshot.accent.id,
+            ...(snapshot.doc === "letter" && snapshot.letter ? { letter: snapshot.letter } : {}),
           }),
         });
         if (!res.ok) {
@@ -136,7 +149,7 @@ export function usePaywall(onRestore: (snapshot: Snapshot) => void) {
         const url = URL.createObjectURL(blob);
         const link = document.createElement("a");
         link.href = url;
-        link.download = `${pdfFileTitle(snapshot.cv.name)}.pdf`;
+        link.download = `${pdfFileTitle(snapshot.cv.name, snapshot.doc === "letter" ? "Motivacni-dopis" : "Zivotopis")}.pdf`;
         document.body.append(link);
         link.click();
         link.remove();
@@ -161,11 +174,18 @@ function readStash(): Snapshot | null {
     const raw = sessionStorage.getItem(STASH_KEY);
     sessionStorage.removeItem(STASH_KEY);
     if (!raw) return null;
-    const data = JSON.parse(raw) as { cv?: unknown; templateId?: unknown; accentId?: unknown };
+    const data = JSON.parse(raw) as { cv?: unknown; templateId?: unknown; accentId?: unknown; letter?: unknown; doc?: unknown };
     const cv = CvSchema.safeParse(data.cv);
     if (!cv.success) return null;
     const templateId = typeof data.templateId === "string" && isTemplateId(data.templateId) ? data.templateId : "magazine";
-    return { cv: cv.data, templateId, accent: getAccent(String(data.accentId ?? "")) };
+    const letter = LetterDocSchema.safeParse(data.letter);
+    return {
+      cv: cv.data,
+      templateId,
+      accent: getAccent(String(data.accentId ?? "")),
+      letter: letter.success ? letter.data : null,
+      doc: data.doc === "letter" && letter.success ? "letter" : "cv",
+    };
   } catch {
     return null;
   }

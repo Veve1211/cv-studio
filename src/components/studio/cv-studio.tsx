@@ -16,7 +16,11 @@ import { MobileBar, ZoomControls, type MobileView } from "./mobile-bar";
 import { TemplatePicker } from "./template-picker";
 import { EditContext } from "@/components/templates/edit-context";
 import { GroundingContext } from "@/components/templates/grounding-context";
-import { checkGrounding } from "@/lib/cv/grounding";
+import { checkFreeText, checkGrounding } from "@/lib/cv/grounding";
+import { LetterPage } from "@/components/letter/letter-page";
+import { DocTabs, type DocKind } from "./doc-tabs";
+import { LetterDialog } from "./letter-dialog";
+import { useLetter } from "./use-letter";
 import { DownloadPdfButton, printCv } from "./download-pdf-button";
 import { PaywallDialog } from "./paywall-dialog";
 import { usePaywall } from "./use-paywall";
@@ -33,6 +37,9 @@ export function CvStudio() {
   const { status, error, cv, source, confirmed, canUndo, generate, loadSample, editText, replaceSummary, undo } =
     useGenerate();
   const [paywallOpen, setPaywallOpen] = useState(false);
+  const letterState = useLetter();
+  const [doc, setDoc] = useState<DocKind>("cv");
+  const [letterOpen, setLetterOpen] = useState(false);
   const [view, setView] = useState<MobileView>("text");
   const [zoom, setZoom] = useState(1);
   const formRef = useRef<HTMLFormElement>(null);
@@ -41,6 +48,8 @@ export function CvStudio() {
     setView("preview");
     setTemplateId(snapshot.templateId);
     setAccent(snapshot.accent);
+    letterState.restore(snapshot.letter ?? null);
+    setDoc(snapshot.doc ?? "cv");
   });
   const editApi = useMemo(() => ({ onEdit: editText }), [editText]);
   // Facts the AI wrote that are not in the user's text (code check, never AI).
@@ -52,6 +61,25 @@ export function CvStudio() {
     }
     return map;
   }, [cv, source, confirmed]);
+  const letterEditApi = useMemo(() => ({ onEdit: letterState.editText }), [letterState.editText]);
+  // Same check for the cover letter: numbers, years and names must come from the CV,
+  // the user's text or the job ad.
+  const letterUnverified = useMemo(() => {
+    const map = new Map<string, string[]>();
+    const letter = letterState.letter;
+    if (!cv || !letter) return map;
+    const known = [source ?? "", letterState.job, JSON.stringify(cv)].join("\n");
+    const fields: Array<[string, string]> = [
+      ["recipient", letter.recipient],
+      ...letter.paragraphs.map((p, i): [string, string] => [`paragraphs.${i}`, p]),
+    ];
+    for (const [path, value] of fields) {
+      if (letterState.confirmed.has(path)) continue;
+      const missing = checkFreeText(value, known);
+      if (missing.length) map.set(path, missing);
+    }
+    return map;
+  }, [cv, source, letterState.letter, letterState.job, letterState.confirmed]);
   const previewRef = useRef<HTMLHeadingElement>(null);
 
   const [uploadNote, setUploadNote] = useState<string | null>(null);
@@ -87,6 +115,8 @@ export function CvStudio() {
     setLocalError(null);
     // Phones: show the loading steps in the preview, back to the text on error.
     setView("preview");
+    letterState.restore(null);
+    setDoc("cv");
     void generate(value).then((ok) => {
       if (!ok) setView("text");
     });
@@ -98,14 +128,14 @@ export function CvStudio() {
   function downloadPdf() {
     if (!cv) return;
     if (!paywall.config?.enabled) {
-      printCv(cv.name);
+      printCv(cv.name, doc === "letter" ? "Motivacni-dopis" : undefined);
       return;
     }
     if (!paywall.paid) {
       setPaywallOpen(true);
       return;
     }
-    void paywall.downloadServerPdf({ cv, templateId, accent });
+    void paywall.downloadServerPdf({ cv, templateId, accent, letter: letterState.letter, doc });
   }
 
   return (
@@ -212,6 +242,8 @@ export function CvStudio() {
               onClick={() => {
                 setLocalError(null);
                 loadSample(SAMPLE_CV);
+                letterState.restore(null);
+                setDoc("cv");
                 setView("preview");
               }}
               className="border-line hover:border-brand-strong rounded-full border bg-white/80 px-5 py-3.5 text-[15px] font-medium transition"
@@ -245,8 +277,16 @@ export function CvStudio() {
                 canUndo={canUndo}
                 onUndo={undo}
                 onSummary={replaceSummary}
-                grounding={source === null ? null : unverified.size}
+                grounding={doc === "letter" ? letterUnverified.size : source === null ? null : unverified.size}
+                cvActions={doc === "cv"}
               >
+                <button
+                  type="button"
+                  onClick={() => setLetterOpen(true)}
+                  className="border-line hover:border-brand-strong rounded-full border bg-white px-4 py-2 text-sm font-medium transition"
+                >
+                  ✉️ {letterState.letter ? "Nový dopis" : "Napsat motivační dopis"}
+                </button>
                 <DownloadPdfButton onClick={downloadPdf} busy={paywall.downloading} />
               </PreviewToolbar>
               {paywall.notice && (
@@ -272,9 +312,28 @@ export function CvStudio() {
                   open={paywallOpen}
                   config={paywall.config}
                   onClose={() => setPaywallOpen(false)}
-                  onPay={() => paywall.startCheckout({ cv, templateId, accent })}
+                  onPay={() => paywall.startCheckout({ cv, templateId, accent, letter: letterState.letter, doc })}
                 />
               )}
+              <LetterDialog
+                open={letterOpen}
+                initialJob={letterState.job}
+                busy={letterState.busy}
+                error={letterState.error}
+                onClose={() => {
+                  setLetterOpen(false);
+                  letterState.setError(null);
+                }}
+                onSubmit={(job) =>
+                  void letterState.generate(cv, job).then((ok) => {
+                    if (ok) {
+                      setLetterOpen(false);
+                      setDoc("letter");
+                    }
+                  })
+                }
+              />
+              {letterState.letter && <DocTabs value={doc} onChange={setDoc} />}
               <ZoomControls zoom={zoom} onZoom={setZoom} />
               {!hintDismissed && (
                 <p role="note" className="edit-hint bg-ink mx-auto mb-3 w-fit rounded-full px-4 py-2 text-sm font-medium text-white shadow-lg print:hidden">
@@ -292,11 +351,19 @@ export function CvStudio() {
                 watermark={paywall.locked}
                 zoom={zoom}
               >
-                <EditContext value={editApi}>
-                  <GroundingContext value={unverified}>
-                    <template.Component cv={cv} />
-                  </GroundingContext>
-                </EditContext>
+                {doc === "letter" && letterState.letter ? (
+                  <EditContext value={letterEditApi}>
+                    <GroundingContext value={letterUnverified}>
+                      <LetterPage cv={cv} letter={letterState.letter} variant={template.id} />
+                    </GroundingContext>
+                  </EditContext>
+                ) : (
+                  <EditContext value={editApi}>
+                    <GroundingContext value={unverified}>
+                      <template.Component cv={cv} />
+                    </GroundingContext>
+                  </EditContext>
+                )}
               </A4Preview>
               </div>
             </>

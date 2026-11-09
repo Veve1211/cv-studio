@@ -35,7 +35,7 @@ export function createPdfHandler(deps: Deps) {
       return new Response(new Uint8Array(pdf), {
         headers: {
           "Content-Type": "application/pdf",
-          "Content-Disposition": `attachment; filename="${pdfFileTitle(data.cv.name)}.pdf"`,
+          "Content-Disposition": `attachment; filename="${pdfFileTitle(data.cv.name, data.letter ? "Motivacni-dopis" : "Zivotopis")}.pdf"`,
           "Cache-Control": "no-store",
         },
       });

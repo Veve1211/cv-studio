@@ -29,3 +29,13 @@ describe("setCvText", () => {
     expect(setCvText(SAMPLE_CV, "name", "  Tereza N.  ").name).toBe("Tereza N.");
   });
 });
+
+describe("setTextAt with another schema", () => {
+  it("edits a cover letter", async () => {
+    const { setTextAt } = await import("./path");
+    const { LetterDocSchema } = await import("@/lib/letter/schema");
+    const letter = { recipient: "", greeting: "Dobrý den,", paragraphs: ["A", "B"], closing: "S pozdravem", dateLine: "Brno, 1. 1. 2026" };
+    expect(setTextAt(letter, "paragraphs.1", "Nový odstavec", LetterDocSchema).paragraphs[1]).toBe("Nový odstavec");
+    expect(setTextAt(letter, "paragraphs.9", "x", LetterDocSchema)).toBe(letter);
+  });
+});

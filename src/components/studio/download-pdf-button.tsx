@@ -26,11 +26,11 @@ export function DownloadPdfButton({ onClick, busy = false }: DownloadPdfButtonPr
  * Prints the A4 preview. The browser's "Save as PDF" produces exactly the preview,
  * with no browser margins (@page margin 0). The document title becomes the file name.
  */
-export function printCv(name: string) {
+export function printCv(name: string, prefix?: string) {
   // Commit an edit that is still in progress.
   if (document.activeElement instanceof HTMLElement) document.activeElement.blur();
   const previous = document.title;
-  document.title = pdfFileTitle(name);
+  document.title = pdfFileTitle(name, prefix);
   const restore = () => {
     document.title = previous;
     window.removeEventListener("afterprint", restore);

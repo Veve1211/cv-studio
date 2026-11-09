@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { CvSchema } from "@/lib/cv/schema";
+import { LetterDocSchema } from "@/lib/letter/schema";
 
 export const TEMPLATE_IDS = ["magazine", "timeline", "minimal", "block", "terminal"] as const;
 
@@ -8,6 +9,8 @@ export const PrintDataSchema = z.object({
   cv: CvSchema,
   templateId: z.enum(TEMPLATE_IDS),
   accentId: z.string().max(32),
+  /** When present, the cover letter is printed instead of the CV. */
+  letter: LetterDocSchema.optional(),
 });
 
 export type PrintData = z.infer<typeof PrintDataSchema>;
