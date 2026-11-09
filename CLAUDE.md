@@ -54,4 +54,4 @@
 - 2026-11-08: `APP_URL` (volitelné) = adresa pro návrat ze Stripe; bez ní se bere z požadavku
 - 2026-11-08: přístupnost hlídá axe (WCAG 2.1 AA) v e2e na všech šablonách; šedé texty v šablonách musí mít kontrast ≥ 4.5:1
 - 2026-11-08: bezpečnostní hlavičky v `next.config.ts` (nosniff, X-Frame-Options DENY, Referrer-Policy, Permissions-Policy); plná CSP zatím ne (Next vkládá inline skripty, chtělo by to nonce)
-- 2026-11-09: vzhled aplikace světle modrý a modernější (Veve): tokeny `brand*` v `globals.css`, hlavní tlačítka `.btn-primary` (světle modrá + tmavě modrý text), nadpisy Space Grotesk; 7. barva životopisu „Nebeská“ je výchozí
+- 2026-11-09: vzhled aplikace světle modrý a modernější (Veve): tokeny `brand*` v `globals.css`, hlavní tlačítka `.btn-primary` (světle modrá + tmavě modrý text), nadpisy Space Grotesk, skleněné plochy `.glass`, plovoucí hlavička, mesh gradient v úvodu (animace vypne `prefers-reduced-motion`); 7. barva životopisu „Nebeská“ je výchozí

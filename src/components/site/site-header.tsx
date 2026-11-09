@@ -11,21 +11,21 @@ export function SiteHeader({ cta = true }: { cta?: boolean }) {
           Přeskočit na tvorbu životopisu
         </a>
       )}
-      <header className="border-line sticky top-0 z-20 flex items-center justify-between border-b bg-white/70 px-4 py-3 backdrop-blur sm:px-8 print:hidden">
+      <header className="glass sticky top-3 z-20 mx-3 mt-3 flex items-center justify-between rounded-full py-2 pl-5 pr-2 sm:mx-auto sm:w-[min(72rem,calc(100%-2rem))] print:hidden">
         <Link
           href="/"
           className="font-display flex items-center gap-2 text-2xl font-bold tracking-tight"
         >
           <span
             aria-hidden="true"
-            className="bg-brand inline-block size-3 rounded-full"
+            className="inline-block size-3 rounded-full bg-gradient-to-br from-[#5bb6f7] to-[#0a5fb8]"
           />
           Cvéčko
         </Link>
         {cta && (
           <a
             href="#studio"
-            className="btn-primary rounded-full px-4 py-2 text-sm font-semibold transition"
+            className="btn-primary rounded-full px-5 py-2.5 text-sm font-semibold transition"
           >
             Vytvořit životopis
           </a>

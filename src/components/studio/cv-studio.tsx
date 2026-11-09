@@ -60,12 +60,12 @@ export function CvStudio() {
   const loading = status === "loading";
 
   return (
-    <div id="studio" className="grid w-full flex-1 scroll-mt-16 lg:grid-cols-[minmax(360px,440px)_1fr] print:block">
+    <div id="studio" className="grid w-full flex-1 scroll-mt-20 lg:scroll-mt-0 lg:grid-cols-[minmax(360px,440px)_1fr] print:block">
       <section
         aria-labelledby="studio-title"
-        className="border-line bg-white px-4 py-8 sm:px-8 lg:sticky lg:top-0 lg:h-dvh lg:overflow-y-auto lg:border-r print:hidden"
+        className="border-line bg-white/70 px-4 py-8 backdrop-blur-xl sm:px-8 lg:sticky lg:top-0 lg:pt-24 lg:h-dvh lg:overflow-y-auto lg:border-r print:hidden"
       >
-        <h2 id="studio-title" className="font-display text-3xl font-semibold tracking-tight">
+        <h2 id="studio-title" className="font-display text-3xl font-bold tracking-[-0.03em]">
           Tvůj životopis
         </h2>
         <p className="text-muted mt-2 text-[15px] leading-relaxed">
@@ -94,7 +94,7 @@ export function CvStudio() {
             placeholder={
               "Klidně neučesaně, třeba:\n\nJana, Ostrava. 4 roky v účtárně u firmy Ocel a.s., předtím 2 roky na recepci v hotelu. Umím Excel, Pohodu, angličtina B2. Vystudovala jsem obchodní akademii…"
             }
-            className="border-line bg-paper-soft focus:border-brand-strong min-h-[260px] w-full resize-y rounded-2xl border px-4 py-3.5 text-[15px] leading-relaxed outline-none transition-colors lg:min-h-[340px]"
+            className="border-line focus:border-brand-strong field-glow min-h-[260px] w-full resize-y rounded-3xl border bg-white/80 shadow-[0_1px_2px_rgba(10,60,120,0.06)] px-4 py-3.5 text-[15px] leading-relaxed outline-none transition-colors lg:min-h-[340px]"
           />
           <div className="text-muted flex justify-between text-xs">
             <span id={hintId}>
@@ -126,7 +126,7 @@ export function CvStudio() {
                 setLocalError(null);
                 loadSample(SAMPLE_CV);
               }}
-              className="border-line hover:border-brand-strong rounded-full border px-5 py-3.5 text-[15px] font-medium transition"
+              className="border-line hover:border-brand-strong rounded-full border bg-white/80 px-5 py-3.5 text-[15px] font-medium transition"
             >
               Ukázka
             </button>
@@ -134,7 +134,7 @@ export function CvStudio() {
         </form>
       </section>
 
-      <section aria-labelledby="preview-title" className="bg-canvas flex min-w-0 flex-col print:block print:bg-transparent">
+      <section aria-labelledby="preview-title" className="bg-canvas flex min-w-0 flex-col lg:pt-[4.5rem] print:block print:bg-transparent">
         <h2 id="preview-title" ref={previewRef} tabIndex={-1} className="sr-only">
           Náhled
         </h2>
