@@ -64,6 +64,8 @@ export function CvStudio() {
   /** The last job ad the user pasted (memory only), offered again for the letter. */
   const [jobAd, setJobAd] = useState("");
   const [paywallOpen, setPaywallOpen] = useState(false);
+  const [paywallReason, setPaywallReason] = useState("PDF bez vodoznaku");
+
   const letterState = useLetter();
   const [doc, setDoc] = useState<DocKind>("cv");
   const [letterOpen, setLetterOpen] = useState(false);
@@ -147,6 +149,10 @@ export function CvStudio() {
       setLang("en");
       return;
     }
+    if (paywall.locked) {
+      withAccess("Anglická verze", () => {});
+      return;
+    }
     void english.translate(cv, letterState.letter).then((ok) => ok && setLang("en"));
   }
 
@@ -168,7 +174,7 @@ export function CvStudio() {
       `Načteno ze souboru ${result.fileName}.${result.truncated ? " Text byl moc dlouhý, zkrátili jsme ho." : ""} Zkontroluj ho a klikni na „Vytvořit životopis“. Soubor nikam neukládáme.`,
     );
     textareaRef.current?.focus();
-  }, []);
+  }, [setUploadNote]);
   const fileUpload = useFileUpload(onUploadedText);
   const textareaId = useId();
   const hintId = useId();
@@ -199,6 +205,16 @@ export function CvStudio() {
 
   const loading = status === "loading";
 
+  /** Paid features: run right away with full access, otherwise offer access first. */
+  function withAccess(reason: string, action: () => void) {
+    if (paywall.locked) {
+      setPaywallReason(reason);
+      setPaywallOpen(true);
+      return;
+    }
+    action();
+  }
+
   /** No paywall: browser print. Paywall: dialog first, then a clean PDF from the server. */
   function downloadPdf() {
     if (!cv) return;
@@ -208,6 +224,7 @@ export function CvStudio() {
       return;
     }
     if (!paywall.paid) {
+      setPaywallReason("PDF bez vodoznaku");
       setPaywallOpen(true);
       return;
     }
@@ -235,6 +252,16 @@ export function CvStudio() {
             className="bg-brand-soft text-ink mb-4 w-fit rounded-full px-3.5 py-1.5 text-sm font-semibold"
           >
             <span aria-hidden>🎤 </span>Prezentační režim · vše odemčené do {formatTime(paywall.demoUntil)}
+          </p>
+        )}
+        {paywall.config?.enabled && paywall.config.access && (
+          <p data-testid="access-badge" className="bg-brand-soft text-ink mb-4 rounded-2xl px-3.5 py-2 text-sm">
+            <span className="font-semibold">
+              <span aria-hidden>✨ </span>Plný přístup do {formatDate(paywall.config.access.until)}
+            </span>
+            <span className="text-muted block">
+              Kód pro jiné zařízení: <code className="text-ink font-mono font-semibold">{paywall.config.access.code}</code>
+            </span>
           </p>
         )}
         {paywall.demoError && (
@@ -448,8 +475,10 @@ export function CvStudio() {
                 <PaywallDialog
                   open={paywallOpen}
                   config={paywall.config}
+                  reason={paywallReason}
                   onClose={() => setPaywallOpen(false)}
-                  onPay={() => paywall.startCheckout({ cv, templateId, accent, letter: letterState.letter, doc })}
+                  onPay={(plan) => paywall.startCheckout({ cv, templateId, accent, letter: letterState.letter, doc }, plan)}
+                  onUnlock={paywall.unlock}
                 />
               )}
               <LetterDialog
@@ -502,7 +531,7 @@ export function CvStudio() {
                     if (before) update(() => before);
                     tailor.clear();
                   }}
-                  onLetter={() => setLetterOpen(true)}
+                  onLetter={() => withAccess("Motivační dopis", () => setLetterOpen(true))}
                 />
               )}
               {letterState.letter && <DocTabs value={doc} onChange={setDoc} />}
@@ -546,7 +575,7 @@ export function CvStudio() {
                     title: "Motivační dopis",
                     text: "Vložíš inzerát a AI napíše dopis jen z údajů v tvém životopise.",
                     action: letterState.letter ? "Napsat nový dopis" : "Napsat motivační dopis",
-                    onClick: () => setLetterOpen(true),
+                    onClick: () => withAccess("Motivační dopis", () => setLetterOpen(true)),
                   },
                   {
                     id: "tailor",
@@ -554,7 +583,7 @@ export function CvStudio() {
                     title: "Přizpůsobit inzerátu",
                     text: "AI přeskupí životopis tak, aby nahoře bylo to, co inzerát chce. Nic nepřidá.",
                     action: tailor.state ? "Přizpůsobit jinému inzerátu" : "Přizpůsobit inzerátu",
-                    onClick: () => setTailorOpen(true),
+                    onClick: () => withAccess("Přizpůsobení inzerátu", () => setTailorOpen(true)),
                   },
                   {
                     id: "english",
@@ -592,6 +621,10 @@ export function CvStudio() {
 
 function formatTime(unixSec: number): string {
   return new Date(unixSec * 1000).toLocaleTimeString("cs-CZ", { hour: "2-digit", minute: "2-digit" });
+}
+
+function formatDate(unixSec: number): string {
+  return new Date(unixSec * 1000).toLocaleDateString("cs-CZ", { day: "numeric", month: "numeric", year: "numeric" });
 }
 
 function EmptyPreview() {

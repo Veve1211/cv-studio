@@ -22,7 +22,9 @@ test.describe("selling landing", () => {
     await question.click();
     await expect(faq.getByText(/Nepřidává firmy, roky, čísla/)).toBeHidden();
     await expect(faq.getByText("Kolik to stojí?")).toHaveCount(0);
-    await expect(page.getByRole("region", { name: /PDF za 99 Kč/ })).toHaveCount(0);
+    await expect(page.getByRole("region", { name: /Náhled vždy zdarma/ })).toHaveCount(0);
+    await expect(page.getByRole("link", { name: "Obchodní podmínky" })).toHaveCount(0);
+    expect((await page.request.get("/obchodni-podminky")).status()).toBe(404);
 
     const ld = await page.locator('script[type="application/ld+json"]').allTextContents();
     const faqLd = ld.map((t) => JSON.parse(t)).find((d) => d["@type"] === "FAQPage");
@@ -33,12 +35,27 @@ test.describe("selling landing", () => {
 test.describe("selling landing with payments on", () => {
   test.use({ baseURL: `http://localhost:${PAYWALL_PORT}` });
 
-  test("shows the price and the payment FAQ", async ({ page }) => {
+  test("shows three plans, the year as the best deal, and the payment FAQ", async ({ page }) => {
     await page.goto("/");
-    const pricing = page.getByRole("region", { name: "Náhled zdarma. PDF za 99 Kč." });
+    const pricing = page.getByRole("region", { name: "Náhled vždy zdarma. Plný přístup na čas." });
     await expect(pricing).toBeVisible();
-    await expect(pricing).toContainText("jednorázově");
-    await expect(pricing).toContainText("žádné předplatné");
+    await expect(pricing.getByTestId("plan-trial")).toContainText("1 den zdarma");
+    await expect(pricing.getByTestId("plan-14d")).toContainText("14 dní");
+    await expect(pricing.getByTestId("plan-year")).toContainText("Nejvýhodnější");
+    await expect(pricing).toContainText("automatické obnovení");
     await expect(page.getByRole("region", { name: "Časté otázky" }).getByText("Kolik to stojí?")).toBeVisible();
+  });
+
+  test("terms and complaints pages exist and never invent operator data", async ({ page }) => {
+    for (const [path, title] of [
+      ["/obchodni-podminky", "Obchodní podmínky"],
+      ["/reklamace", "Reklamace"],
+    ] as const) {
+      await page.goto(path);
+      await expect(page.getByRole("heading", { level: 1 })).toHaveText(title);
+      await expect(page.locator("main")).toContainText("[DOPLNIT");
+    }
+    await page.goto("/");
+    await expect(page.getByRole("contentinfo").getByRole("link", { name: "Obchodní podmínky" })).toBeVisible();
   });
 });
