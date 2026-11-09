@@ -1,0 +1,187 @@
+.root {
+  --ink: #0b0b0c;
+  --muted: #545458;
+  color: var(--ink);
+  font-family: var(--font-inter-tight), var(--font-inter), sans-serif;
+  font-size: 9pt;
+  line-height: 1.45;
+  padding: 16mm 16mm 14mm;
+}
+
+.head {
+  border-top: 3pt solid var(--ink);
+  padding-top: 5mm;
+  margin-bottom: 7mm;
+}
+
+.name {
+  font-size: 46pt;
+  font-weight: 700;
+  line-height: 0.92;
+  letter-spacing: -0.05em;
+  overflow-wrap: anywhere;
+}
+
+.headRow {
+  display: grid;
+  grid-template-columns: 1fr 62mm;
+  gap: 6mm;
+  margin-top: 5mm;
+  align-items: start;
+}
+
+.headline {
+  font-size: 13pt;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  color: var(--accent);
+}
+
+.contact {
+  font-size: 8.4pt;
+  line-height: 1.6;
+  text-align: left;
+}
+
+/* 12-column feel: a 42 mm label column and the content column, always aligned. */
+.row,
+.entry {
+  display: grid;
+  grid-template-columns: 42mm 1fr;
+  gap: 0 6mm;
+}
+
+.row {
+  border-top: 1pt solid var(--ink);
+  padding: 4mm 0 6mm;
+}
+
+.label {
+  font-size: 8pt;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  display: flex;
+  gap: 2.5mm;
+  align-items: baseline;
+}
+
+.labelWide {
+  border-top: 1pt solid var(--ink);
+  padding: 4mm 0 3mm;
+  break-after: avoid;
+}
+
+.num {
+  color: var(--accent);
+  font-variant-numeric: tabular-nums;
+}
+
+.summary {
+  font-size: 11.5pt;
+  font-weight: 500;
+  line-height: 1.45;
+  letter-spacing: -0.01em;
+}
+
+.entry {
+  padding: 2mm 0 5mm;
+  break-inside: avoid;
+}
+
+.year {
+  font-variant-numeric: tabular-nums;
+  line-height: 0.9;
+}
+
+.yearStart {
+  display: block;
+  font-size: 30pt;
+  font-weight: 800;
+  overflow-wrap: anywhere;
+  letter-spacing: -0.05em;
+  color: var(--accent);
+}
+
+.yearSmall .yearStart {
+  font-size: 20pt;
+}
+
+.yearEnd {
+  display: block;
+  font-size: 8.5pt;
+  font-weight: 600;
+  color: var(--muted);
+  margin-top: 1.5mm;
+  letter-spacing: 0;
+}
+
+.sep {
+  font-size: 0;
+}
+
+.role {
+  font-size: 12pt;
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: -0.015em;
+}
+
+.company {
+  font-weight: 500;
+  color: var(--muted);
+  margin-top: 0.6mm !important;
+}
+
+.points {
+  margin-top: 2mm !important;
+}
+
+.points li {
+  position: relative;
+  padding-left: 4mm;
+  margin-bottom: 0.8mm;
+}
+
+.points li::before {
+  content: "–";
+  position: absolute;
+  left: 0;
+  color: var(--accent);
+  font-weight: 700;
+}
+
+.bottom {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8mm;
+  border-top: 1pt solid var(--ink);
+  padding-top: 4mm;
+  break-inside: avoid;
+}
+
+.bottom .label {
+  margin-bottom: 3mm;
+}
+
+.cols {
+  columns: 2;
+  column-gap: 5mm;
+}
+
+.cols li {
+  break-inside: avoid;
+  padding: 0.6mm 0;
+}
+
+.langs li {
+  display: flex;
+  justify-content: space-between;
+  gap: 3mm;
+  padding: 0.6mm 0;
+  border-bottom: 0.6pt solid #d9d9dc;
+}
+
+.level {
+  font-weight: 700;
+}

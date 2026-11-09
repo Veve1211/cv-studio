@@ -12,7 +12,7 @@ test.describe("landing", () => {
     await page.goto("/");
     const showcase = page.getByRole("img", { name: "Ukázky šablon" });
     await expect(showcase).toBeVisible();
-    for (const name of ["Časopis", "Blok", "Časová osa"]) {
+    for (const name of ["Aura", "Švýcar", "Bento"]) {
       await expect(showcase.getByText(name, { exact: true })).toBeVisible();
     }
   });

@@ -1,13 +1,14 @@
 import { expect, test } from "@playwright/test";
 import { PAYWALL_PORT } from "../playwright.config";
 import { LONG_SAMPLE_CV, SAMPLE_CV } from "../src/lib/cv/sample";
+import { TEMPLATE_IDS } from "../src/lib/pdf/print-data";
 import { pdfPages, squash } from "./pdf";
 
 // The mock Stripe server accepts "cs_test_mock" as a paid session.
 test.use({ baseURL: `http://localhost:${PAYWALL_PORT}` });
 test.skip(({ isMobile }) => isMobile, "server rendering does not depend on the viewport");
 
-for (const templateId of ["magazine", "timeline", "minimal", "block", "terminal"] as const) {
+for (const templateId of TEMPLATE_IDS) {
   test(`server PDF for ${templateId}: short = 1 page, long = 2 pages with all text`, async ({ request }) => {
     const short = await request.post("/api/pdf", {
       data: { sessionId: "cs_test_mock", cv: SAMPLE_CV, templateId, accentId: "sky" },

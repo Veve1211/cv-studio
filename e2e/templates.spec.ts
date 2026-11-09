@@ -1,14 +1,9 @@
 import { expect, test } from "@playwright/test";
 import { LONG_SAMPLE_CV } from "../src/lib/cv/sample";
+import { TEMPLATES as REGISTRY } from "../src/components/templates";
 import { loadSample, pickRadio } from "./helpers";
 
-const TEMPLATES = [
-  ["Časopis", "magazine"],
-  ["Časová osa", "timeline"],
-  ["Minimal", "minimal"],
-  ["Blok", "block"],
-  ["Terminál", "terminal"],
-] as const;
+const TEMPLATES = REGISTRY.map((t) => [t.name, t.id] as const);
 
 test.describe("templates", () => {
   test("switching templates re-renders the same CV", async ({ page }) => {

@@ -1,10 +1,11 @@
 import { expect, test, type Page } from "@playwright/test";
 import { LONG_SAMPLE_CV, SAMPLE_CV } from "../src/lib/cv/sample";
 import type { Cv } from "../src/lib/cv/schema";
+import { TEMPLATES as REGISTRY } from "../src/components/templates";
 import { pickRadio } from "./helpers";
 import { pdfPages, squash } from "./pdf";
 
-const TEMPLATES = ["Časopis", "Časová osa", "Minimal", "Blok", "Terminál"];
+const TEMPLATES = REGISTRY.map((t) => t.name);
 
 async function openWith(page: Page, cv: Cv) {
   await page.route("/api/cv", (route) => route.fulfill({ json: { cv } }));
