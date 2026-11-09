@@ -9,6 +9,8 @@ export const PrintDataSchema = z.object({
   cv: CvSchema,
   templateId: z.enum(TEMPLATE_IDS),
   accentId: z.string().max(32),
+  /** Language of the section headings (English version). */
+  lang: z.enum(["cs", "en"]).optional(),
   /** When present, the cover letter is printed instead of the CV. */
   letter: LetterDocSchema.optional(),
 });

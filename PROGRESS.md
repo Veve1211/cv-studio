@@ -9,7 +9,7 @@ Po obnovení: zjisti čas, přečti tento soubor, `git status`, `git log`, otev�
 | 2. Zjednodušení | `feat/simplify` | #20 | ✅ zmergováno |
 | 3. 3 nové šablony (Aura, Švýcar, Bento) | `feat/templates` | #21 | ✅ zmergováno |
 | 4. Přizpůsobení inzerátu | `feat/tailor` | PR otevřen | CI běží |
-| 5. Angličtina | – | – | nezačato |
+| 5. Angličtina | `feat/english` | PR po merge fáze 4 | hotovo, celé e2e lokálně zelené |
 | 6. Placený přístup | – | – | nezačato |
 | 7. Ko-fi | – | – | nezačato |
 

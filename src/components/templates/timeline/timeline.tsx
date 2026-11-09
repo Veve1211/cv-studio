@@ -1,11 +1,13 @@
 import { splitPeriod } from "@/lib/cv/format";
 import { Field } from "../field";
+import { labels } from "../labels";
 import type { TemplateProps } from "../types";
 import s from "./timeline.module.css";
 
 const CONTACT_KEYS = ["email", "phone", "location", "web"] as const;
 
-export function Timeline({ cv }: TemplateProps) {
+export function Timeline({ cv, lang }: TemplateProps) {
+  const L = labels(lang);
   const hasSide = cv.education.length > 0 || cv.skills.length > 0 || cv.languages.length > 0;
   return (
     <div className={s.root}>
@@ -23,7 +25,7 @@ export function Timeline({ cv }: TemplateProps) {
 
       {cv.experience.length > 0 && (
         <section>
-          <h2 className={s.label}>Praxe</h2>
+          <h2 className={s.label}>{L.experience}</h2>
           <ol>
             {cv.experience.map((e, i) => {
               const { start, end } = splitPeriod(e.period);
@@ -71,7 +73,7 @@ export function Timeline({ cv }: TemplateProps) {
         <div className={s.side}>
           {cv.education.length > 0 && (
             <section>
-              <h2 className={s.label}>Vzdělání</h2>
+              <h2 className={s.label}>{L.education}</h2>
               {cv.education.map((e, i) => (
                 <div key={i} className={s.edu}>
                   <Field as="strong" path={`education.${i}.school`} value={e.school} />
@@ -83,7 +85,7 @@ export function Timeline({ cv }: TemplateProps) {
           )}
           {cv.skills.length > 0 && (
             <section>
-              <h2 className={s.label}>Dovednosti</h2>
+              <h2 className={s.label}>{L.skills}</h2>
               <ul className={s.rows}>
                 {cv.skills.map((skill, i) => (
                   <Field key={i} as="li" path={`skills.${i}`} value={skill} />
@@ -93,7 +95,7 @@ export function Timeline({ cv }: TemplateProps) {
           )}
           {cv.languages.length > 0 && (
             <section>
-              <h2 className={s.label}>Jazyky</h2>
+              <h2 className={s.label}>{L.languages}</h2>
               <ul className={s.rows}>
                 {cv.languages.map((l, i) => (
                   <li key={i}>

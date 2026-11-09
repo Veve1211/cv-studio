@@ -28,6 +28,11 @@ import { NextSteps } from "./next-steps";
 import { PreviewToolbar } from "./preview-toolbar";
 import { useGenerate } from "./use-generate";
 import { TailorPanel } from "./tailor-panel";
+import { LangSwitch } from "./lang-switch";
+import { useEnglish } from "./use-english";
+import type { CvLang } from "@/components/templates/labels";
+import { checkTranslation } from "@/lib/translate/translate";
+import { checkNumbersAndYears } from "@/lib/cv/grounding";
 import { useTailor } from "./use-tailor";
 
 const EXAMPLE_TEXTS: ReadonlySet<string> = new Set(EXAMPLES.map((e) => e.text));
@@ -53,6 +58,8 @@ export function CvStudio() {
     undo,
   } = useGenerate();
   const tailor = useTailor();
+  const english = useEnglish();
+  const [lang, setLang] = useState<CvLang>("cs");
   const [tailorOpen, setTailorOpen] = useState(false);
   /** The last job ad the user pasted (memory only), offered again for the letter. */
   const [jobAd, setJobAd] = useState("");
@@ -102,6 +109,52 @@ export function CvStudio() {
   }, [cv, source, letterState.letter, letterState.job, letterState.confirmed]);
   const previewRef = useRef<HTMLHeadingElement>(null);
 
+  // English version: both languages stay in memory, switching never calls the AI again.
+  const en = english.state;
+  const enActive = lang === "en" && en !== null;
+  const shownCv = enActive ? en.cv : cv;
+  const shownLetter = enActive ? en.letter : letterState.letter;
+  const englishStale = en !== null && (en.fromCv !== cv || en.fromLetter !== letterState.letter);
+  // Translation check: numbers and years must match the Czech version (names and
+  // companies are copied over in code, never translated).
+  const enUnverified = useMemo(() => {
+    const map = new Map<string, string[]>();
+    if (!en) return map;
+    for (const [path, missing] of checkTranslation(en.cv, en.fromCv)) {
+      if (!english.confirmed.has(path)) map.set(path, missing);
+    }
+    return map;
+  }, [en, english.confirmed]);
+  const enLetterUnverified = useMemo(() => {
+    const map = new Map<string, string[]>();
+    if (!en?.letter) return map;
+    const known = JSON.stringify([en.fromCv, en.fromLetter]);
+    en.letter.paragraphs.forEach((p, i) => {
+      const missing = checkNumbersAndYears(p, known);
+      if (missing.length && !english.confirmed.has(`letter:paragraphs.${i}`)) map.set(`paragraphs.${i}`, missing);
+    });
+    return map;
+  }, [en, english.confirmed]);
+  const enEditApi = useMemo(() => ({ onEdit: english.editCv }), [english.editCv]);
+  const enLetterEditApi = useMemo(() => ({ onEdit: english.editLetter }), [english.editLetter]);
+
+  function switchLang(next: CvLang) {
+    if (next === "cs" || !cv) {
+      setLang("cs");
+      return;
+    }
+    if (en) {
+      setLang("en");
+      return;
+    }
+    void english.translate(cv, letterState.letter).then((ok) => ok && setLang("en"));
+  }
+
+  function resetEnglish() {
+    english.clear();
+    setLang("cs");
+  }
+
   const [uploadNote, setUploadNote] = useState<string | null>(null);
   /** The user's own text, kept when an example replaced it (memory only). */
   const [replacedText, setReplacedText] = useState<string | null>(null);
@@ -137,6 +190,7 @@ export function CvStudio() {
     setView("preview");
     letterState.restore(null);
     tailor.clear();
+    resetEnglish();
     setDoc("cv");
     void generate(value).then((ok) => {
       if (!ok) setView("text");
@@ -149,14 +203,22 @@ export function CvStudio() {
   function downloadPdf() {
     if (!cv) return;
     if (!paywall.config?.enabled) {
-      printCv(cv.name, doc === "letter" ? "Motivacni-dopis" : undefined);
+      if (enActive) printCv(cv.name, doc === "letter" ? "Cover-letter" : "CV");
+      else printCv(cv.name, doc === "letter" ? "Motivacni-dopis" : undefined);
       return;
     }
     if (!paywall.paid) {
       setPaywallOpen(true);
       return;
     }
-    void paywall.downloadServerPdf({ cv, templateId, accent, letter: letterState.letter, doc });
+    void paywall.downloadServerPdf({
+      cv: shownCv ?? cv,
+      templateId,
+      accent,
+      letter: shownLetter,
+      doc,
+      lang: enActive ? "en" : "cs",
+    });
   }
 
   return (
@@ -287,6 +349,7 @@ export function CvStudio() {
                 loadSample(SAMPLE_CV);
                 letterState.restore(null);
                 tailor.clear();
+                resetEnglish();
                 setDoc("cv");
                 setView("preview");
               }}
@@ -321,11 +384,48 @@ export function CvStudio() {
                 canUndo={canUndo}
                 onUndo={undo}
                 onSummary={replaceSummary}
-                grounding={doc === "letter" ? letterUnverified.size : source === null ? null : unverified.size}
-                cvActions={doc === "cv"}
+                grounding={
+                  enActive
+                    ? doc === "letter"
+                      ? enLetterUnverified.size
+                      : enUnverified.size
+                    : doc === "letter"
+                      ? letterUnverified.size
+                      : source === null
+                        ? null
+                        : unverified.size
+                }
+                cvActions={doc === "cv" && !enActive}
               >
+                <LangSwitch value={enActive ? "en" : "cs"} onChange={switchLang} busy={english.busy} />
                 <DownloadPdfButton onClick={downloadPdf} busy={paywall.downloading} />
               </PreviewToolbar>
+              {english.busy && (
+                <p role="status" className="text-muted mx-auto mb-4 max-w-[794px] text-sm print:hidden">
+                  Překládám do angličtiny…
+                </p>
+              )}
+              {english.error && (
+                <p role="alert" className="mx-auto mb-4 max-w-[794px] rounded-xl bg-red-50 px-4 py-3 text-sm text-red-800 print:hidden">
+                  {english.error}{" "}
+                  <button type="button" onClick={() => switchLang("en")} className="font-semibold underline">
+                    Zkusit znovu
+                  </button>
+                </p>
+              )}
+              {enActive && englishStale && (
+                <p role="status" className="mx-auto mb-4 max-w-[794px] rounded-xl bg-amber-50 px-4 py-3 text-sm text-amber-900 print:hidden">
+                  Česká verze se od překladu změnila.{" "}
+                  <button
+                    type="button"
+                    disabled={english.busy}
+                    onClick={() => void english.translate(cv, letterState.letter)}
+                    className="font-semibold underline"
+                  >
+                    Přeložit znovu
+                  </button>
+                </p>
+              )}
               {paywall.notice && (
                 <p
                   role={paywall.notice.error ? "alert" : "status"}
@@ -394,7 +494,7 @@ export function CvStudio() {
                   })
                 }
               />
-              {tailor.state && doc === "cv" && (
+              {tailor.state && doc === "cv" && !enActive && (
                 <TailorPanel
                   state={tailor.state}
                   onRevert={() => {
@@ -423,16 +523,16 @@ export function CvStudio() {
                 watermark={paywall.locked}
                 zoom={zoom}
               >
-                {doc === "letter" && letterState.letter ? (
-                  <EditContext value={letterEditApi}>
-                    <GroundingContext value={letterUnverified}>
-                      <LetterPage cv={cv} letter={letterState.letter} variant={template.id} />
+                {doc === "letter" && shownLetter ? (
+                  <EditContext value={enActive ? enLetterEditApi : letterEditApi}>
+                    <GroundingContext value={enActive ? enLetterUnverified : letterUnverified}>
+                      <LetterPage cv={shownCv ?? cv} letter={shownLetter} variant={template.id} />
                     </GroundingContext>
                   </EditContext>
                 ) : (
-                  <EditContext value={editApi}>
-                    <GroundingContext value={unverified}>
-                      <template.Component cv={cv} />
+                  <EditContext value={enActive ? enEditApi : editApi}>
+                    <GroundingContext value={enActive ? enUnverified : unverified}>
+                      <template.Component cv={shownCv ?? cv} lang={enActive ? "en" : "cs"} />
                     </GroundingContext>
                   </EditContext>
                 )}
@@ -455,6 +555,15 @@ export function CvStudio() {
                     text: "AI přeskupí životopis tak, aby nahoře bylo to, co inzerát chce. Nic nepřidá.",
                     action: tailor.state ? "Přizpůsobit jinému inzerátu" : "Přizpůsobit inzerátu",
                     onClick: () => setTailorOpen(true),
+                  },
+                  {
+                    id: "english",
+                    icon: "🌍",
+                    title: "Anglická verze",
+                    text: "Přeloží životopis i dopis do angličtiny. Jména a firmy zůstanou, jak jsou.",
+                    action: english.busy ? "Překládám…" : enActive ? "Zpět na češtinu" : "Přeložit do angličtiny",
+                    busy: english.busy,
+                    onClick: () => switchLang(enActive ? "cs" : "en"),
                   },
                 ]}
               />
