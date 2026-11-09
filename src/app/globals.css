@@ -245,3 +245,54 @@ body {
     font: 14pt/1.5 var(--font-inter), sans-serif;
   }
 }
+
+/* ===== Grounding: facts not found in the user's text ===== */
+.cv-unverified,
+.cv-unverified-sample {
+  text-decoration-line: underline;
+  text-decoration-style: wavy;
+  text-decoration-color: #e5a800;
+  text-decoration-thickness: 1.5px;
+  text-underline-offset: 3px;
+  text-decoration-skip-ink: none;
+}
+
+.cv-unverified {
+  position: relative;
+  background-color: rgb(255 214 0 / 0.14);
+  border-radius: 2px;
+}
+
+/* Tooltip on hover / keyboard focus (also works on touch via focus) */
+.cv-unverified:hover::after,
+.cv-unverified:focus::after {
+  content: attr(data-warn);
+  position: absolute;
+  left: 0;
+  bottom: calc(100% + 6px);
+  z-index: 20;
+  width: max-content;
+  max-width: 70mm;
+  padding: 2mm 3mm;
+  border-radius: 2mm;
+  background: #0b1b33;
+  color: #fff;
+  font: 500 8.5pt/1.35 var(--font-inter), system-ui, sans-serif;
+  letter-spacing: 0;
+  text-transform: none;
+  text-decoration: none;
+  white-space: normal;
+  pointer-events: none;
+  box-shadow: 0 6px 20px rgb(11 27 51 / 0.25);
+}
+
+@media print {
+  .cv-unverified {
+    text-decoration: none !important;
+    background: none !important;
+  }
+
+  .cv-unverified::after {
+    content: none !important;
+  }
+}

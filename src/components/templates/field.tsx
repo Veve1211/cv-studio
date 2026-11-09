@@ -2,7 +2,9 @@
 
 import type { ElementType, KeyboardEvent, ReactNode } from "react";
 import { czechTypo, plainText } from "@/lib/cv/typography";
+import { UNVERIFIED_MESSAGE } from "@/lib/cv/grounding";
 import { useEdit } from "./edit-context";
+import { useUnverified } from "./grounding-context";
 
 interface FieldProps {
   as?: ElementType;
@@ -23,13 +25,23 @@ interface FieldProps {
  */
 export function Field({ as: Tag = "span", className, path, value, placeholder, render }: FieldProps) {
   const edit = useEdit();
+  const unverified = useUnverified(path);
   if (!value && !placeholder) return null;
   const display = czechTypo(value || placeholder || "");
   const content = render ? render(display) : display;
 
+  const warn = unverified
+    ? {
+        "data-unverified": "",
+        "data-warn": UNVERIFIED_MESSAGE,
+        "aria-description": `${UNVERIFIED_MESSAGE}: ${unverified.join(", ")}`,
+      }
+    : {};
+  const classes = `${className ?? ""}${unverified ? " cv-unverified" : ""}`;
+
   if (!edit) {
     return (
-      <Tag className={className} data-path={path}>
+      <Tag className={classes || undefined} data-path={path} {...warn}>
         {content}
       </Tag>
     );
@@ -44,12 +56,13 @@ export function Field({ as: Tag = "span", className, path, value, placeholder, r
     <Tag
       // Remount after each change so React never fights the browser's edited DOM.
       key={value}
-      className={`${className ?? ""} cv-editable`}
+      className={`${classes} cv-editable`}
       data-path={path}
+      {...warn}
       contentEditable="plaintext-only"
       suppressContentEditableWarning
       spellCheck
-      title="Klikni a přepiš"
+      title={unverified ? `${UNVERIFIED_MESSAGE}: ${unverified.join(", ")}` : "Klikni a přepiš"}
       onBlur={(e: React.FocusEvent<HTMLElement>) => commit(e.currentTarget)}
       onKeyDown={(e: KeyboardEvent<HTMLElement>) => {
         if (e.key === "Enter") {

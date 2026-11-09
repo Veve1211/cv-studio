@@ -9,10 +9,12 @@ interface PreviewToolbarProps {
   canUndo: boolean;
   onUndo: () => void;
   onSummary: (summary: string) => void;
+  /** Number of facts not found in the user's text; null = nothing to compare (sample). */
+  grounding?: number | null;
   children?: React.ReactNode;
 }
 
-export function PreviewToolbar({ cv, canUndo, onUndo, onSummary, children }: PreviewToolbarProps) {
+export function PreviewToolbar({ cv, canUndo, onUndo, onSummary, grounding = null, children }: PreviewToolbarProps) {
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState<{ text: string; error: boolean } | null>(null);
 
@@ -56,6 +58,26 @@ export function PreviewToolbar({ cv, canUndo, onUndo, onSummary, children }: Pre
         </button>
         {children}
       </div>
+      {grounding !== null && (
+        <p
+          data-testid="grounding-summary"
+          className={`rounded-xl px-4 py-2.5 text-sm ${
+            grounding > 0 ? "bg-amber-50 text-amber-900" : "bg-emerald-50 text-emerald-900"
+          }`}
+        >
+          {grounding > 0 ? (
+            <>
+              <span aria-hidden>⚠️ </span>
+              {groundingText(grounding)} Jsou <span className="cv-unverified-sample">podtržené žlutě</span> – zkontroluj
+              je, nebo je přepiš.
+            </>
+          ) : (
+            <>
+              <span aria-hidden>✓ </span>Firmy, školy, roky, čísla i dovednosti sedí s tvým textem.
+            </>
+          )}
+        </p>
+      )}
       <p
         role={message?.error ? "alert" : "status"}
         className={`min-h-5 text-sm ${message?.error ? "text-red-700" : "text-muted"}`}
@@ -64,4 +86,10 @@ export function PreviewToolbar({ cv, canUndo, onUndo, onSummary, children }: Pre
       </p>
     </div>
   );
+}
+
+function groundingText(n: number): string {
+  if (n === 1) return "1 údaj jsme v tvém textu nenašli.";
+  if (n < 5) return `${n} údaje jsme v tvém textu nenašli.`;
+  return `${n} údajů jsme v tvém textu nenašli.`;
 }

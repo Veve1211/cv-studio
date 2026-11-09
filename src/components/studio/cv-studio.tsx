@@ -11,6 +11,8 @@ import { AccentPicker } from "./accent-picker";
 import { LoadingPage } from "./loading-page";
 import { TemplatePicker } from "./template-picker";
 import { EditContext } from "@/components/templates/edit-context";
+import { GroundingContext } from "@/components/templates/grounding-context";
+import { checkGrounding } from "@/lib/cv/grounding";
 import { DownloadPdfButton, printCv } from "./download-pdf-button";
 import { PaywallDialog } from "./paywall-dialog";
 import { usePaywall } from "./use-paywall";
@@ -22,7 +24,8 @@ export function CvStudio() {
   const [templateId, setTemplateId] = useState<TemplateId>(DEFAULT_TEMPLATE);
   const [accent, setAccent] = useState(DEFAULT_ACCENT);
   const [localError, setLocalError] = useState<string | null>(null);
-  const { status, error, cv, canUndo, generate, loadSample, editText, update, undo } = useGenerate();
+  const { status, error, cv, source, confirmed, canUndo, generate, loadSample, editText, replaceSummary, undo } =
+    useGenerate();
   const [paywallOpen, setPaywallOpen] = useState(false);
   const paywall = usePaywall((snapshot) => {
     loadSample(snapshot.cv);
@@ -30,6 +33,15 @@ export function CvStudio() {
     setAccent(snapshot.accent);
   });
   const editApi = useMemo(() => ({ onEdit: editText }), [editText]);
+  // Facts the AI wrote that are not in the user's text (code check, never AI).
+  const unverified = useMemo(() => {
+    const map = new Map<string, string[]>();
+    if (!cv || source === null) return map;
+    for (const flag of checkGrounding(cv, source)) {
+      if (!confirmed.has(flag.path)) map.set(flag.path, flag.missing);
+    }
+    return map;
+  }, [cv, source, confirmed]);
   const previewRef = useRef<HTMLHeadingElement>(null);
   const textareaId = useId();
   const hintId = useId();
@@ -151,7 +163,8 @@ export function CvStudio() {
                 cv={cv}
                 canUndo={canUndo}
                 onUndo={undo}
-                onSummary={(summary) => update((c) => ({ ...c, summary }))}
+                onSummary={replaceSummary}
+                grounding={source === null ? null : unverified.size}
               >
                 <DownloadPdfButton
                   name={cv.name}
@@ -190,7 +203,9 @@ export function CvStudio() {
               )}
               <A4Preview accent={accent} paper={template.paper} templateId={template.id}>
                 <EditContext value={editApi}>
-                  <template.Component cv={cv} />
+                  <GroundingContext value={unverified}>
+                    <template.Component cv={cv} />
+                  </GroundingContext>
                 </EditContext>
               </A4Preview>
             </>
