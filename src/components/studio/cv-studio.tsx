@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
+import { useCallback, useId, useMemo, useRef, useState } from "react";
 import { A4Preview } from "@/components/preview/a4-preview";
 import { DEFAULT_TEMPLATE, getTemplate } from "@/components/templates";
 import type { TemplateId } from "@/components/templates/types";
@@ -10,6 +10,7 @@ import { DEFAULT_ACCENT } from "@/components/templates/palette";
 import { AccentPicker } from "./accent-picker";
 import { DropArea, UploadButton, useFileUpload, type UploadResult } from "./file-upload";
 import { LoadingPage } from "./loading-page";
+import { MobileBar, ZoomControls, type MobileView } from "./mobile-bar";
 import { TemplatePicker } from "./template-picker";
 import { EditContext } from "@/components/templates/edit-context";
 import { GroundingContext } from "@/components/templates/grounding-context";
@@ -28,8 +29,12 @@ export function CvStudio() {
   const { status, error, cv, source, confirmed, canUndo, generate, loadSample, editText, replaceSummary, undo } =
     useGenerate();
   const [paywallOpen, setPaywallOpen] = useState(false);
+  const [view, setView] = useState<MobileView>("text");
+  const [zoom, setZoom] = useState(1);
+  const formRef = useRef<HTMLFormElement>(null);
   const paywall = usePaywall((snapshot) => {
     loadSample(snapshot.cv);
+    setView("preview");
     setTemplateId(snapshot.templateId);
     setAccent(snapshot.accent);
   });
@@ -44,6 +49,7 @@ export function CvStudio() {
     return map;
   }, [cv, source, confirmed]);
   const previewRef = useRef<HTMLHeadingElement>(null);
+
   const [uploadNote, setUploadNote] = useState<string | null>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const onUploadedText = useCallback((result: UploadResult) => {
@@ -62,13 +68,6 @@ export function CvStudio() {
   const template = getTemplate(templateId);
   const shownError = localError ?? (status === "error" ? error : null);
 
-  // On small screens the preview sits below the form: bring it into view when ready.
-  useEffect(() => {
-    if (status !== "ready" && status !== "loading") return;
-    if (window.matchMedia("(max-width: 1023px)").matches) {
-      previewRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-    }
-  }, [status]);
 
   function onSubmit(event: React.FormEvent) {
     event.preventDefault();
@@ -78,7 +77,11 @@ export function CvStudio() {
       return;
     }
     setLocalError(null);
-    void generate(value);
+    // Phones: show the loading steps in the preview, back to the text on error.
+    setView("preview");
+    void generate(value).then((ok) => {
+      if (!ok) setView("text");
+    });
   }
 
   const loading = status === "loading";
@@ -98,10 +101,12 @@ export function CvStudio() {
   }
 
   return (
-    <div id="studio" className="grid w-full flex-1 scroll-mt-20 lg:scroll-mt-0 lg:grid-cols-[minmax(360px,440px)_1fr] print:block">
+    <div id="studio" className="grid w-full flex-1 scroll-mt-20 pb-24 lg:scroll-mt-0 lg:grid-cols-[minmax(360px,440px)_1fr] lg:pb-0 print:block print:pb-0">
       <DropArea
         onFile={(file) => void fileUpload.upload(file)}
-        className="border-line bg-white/70 px-4 py-8 backdrop-blur-xl sm:px-8 lg:sticky lg:top-0 lg:pt-24 lg:h-dvh lg:overflow-y-auto lg:border-r print:hidden"
+        className={`border-line bg-white/70 px-4 py-8 backdrop-blur-xl sm:px-8 lg:sticky lg:top-0 lg:pt-24 lg:h-dvh lg:overflow-y-auto lg:border-r print:hidden ${
+          view === "preview" ? "max-lg:hidden" : ""
+        }`}
       >
         <h2 id="studio-title" className="font-display text-3xl font-bold tracking-[-0.03em]">
           Tvůj životopis
@@ -110,7 +115,7 @@ export function CvStudio() {
           Žádný formulář. Vlož cokoliv: starý životopis, text z LinkedInu nebo jen odrážky.
         </p>
 
-        <form onSubmit={onSubmit} className="mt-6 flex flex-col gap-3" noValidate>
+        <form ref={formRef} onSubmit={onSubmit} className="mt-6 flex flex-col gap-3" noValidate>
           <div className="flex flex-wrap items-center justify-between gap-2">
             <label htmlFor={textareaId} className="text-sm font-semibold">
               Napiš o sobě cokoliv
@@ -169,7 +174,7 @@ export function CvStudio() {
             <button
               type="submit"
               disabled={loading}
-              className="btn-primary flex-1 rounded-full px-6 py-3.5 text-[15px] font-semibold transition disabled:cursor-wait disabled:opacity-60"
+              className="btn-primary flex-1 rounded-full px-6 py-3.5 text-[15px] font-semibold transition disabled:cursor-wait disabled:opacity-60 max-lg:hidden"
             >
               {loading ? "Vytvářím…" : "Vytvořit životopis"}
             </button>
@@ -178,6 +183,7 @@ export function CvStudio() {
               onClick={() => {
                 setLocalError(null);
                 loadSample(SAMPLE_CV);
+                setView("preview");
               }}
               className="border-line hover:border-brand-strong rounded-full border bg-white/80 px-5 py-3.5 text-[15px] font-medium transition"
             >
@@ -187,7 +193,12 @@ export function CvStudio() {
         </form>
       </DropArea>
 
-      <section aria-labelledby="preview-title" className="bg-canvas flex min-w-0 flex-col lg:pt-[4.5rem] print:block print:bg-transparent">
+      <section
+        aria-labelledby="preview-title"
+        className={`bg-canvas flex min-w-0 flex-col lg:pt-[4.5rem] print:block print:bg-transparent ${
+          view === "text" ? "max-lg:hidden" : ""
+        }`}
+      >
         <h2 id="preview-title" ref={previewRef} tabIndex={-1} className="sr-only">
           Náhled
         </h2>
@@ -235,11 +246,13 @@ export function CvStudio() {
                   onPay={() => paywall.startCheckout({ cv, templateId, accent })}
                 />
               )}
+              <ZoomControls zoom={zoom} onZoom={setZoom} />
               <A4Preview
                 accent={accent}
                 paper={template.paper}
                 templateId={template.id}
                 watermark={paywall.locked}
+                zoom={zoom}
               >
                 <EditContext value={editApi}>
                   <GroundingContext value={unverified}>
@@ -253,6 +266,19 @@ export function CvStudio() {
           )}
         </div>
       </section>
+      <MobileBar
+        view={view}
+        onView={setView}
+        hasCv={Boolean(cv) || loading}
+        primaryLabel={
+          loading ? "Vytvářím…" : view === "text" ? "Vytvořit životopis" : paywall.downloading ? "Připravuji PDF…" : "Stáhnout PDF"
+        }
+        primaryDisabled={loading || paywall.downloading || (view === "preview" && !cv)}
+        onPrimary={() => {
+          if (view === "text") formRef.current?.requestSubmit();
+          else downloadPdf();
+        }}
+      />
     </div>
   );
 }

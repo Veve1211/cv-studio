@@ -14,7 +14,8 @@ export function DownloadPdfButton({ onClick, busy = false }: DownloadPdfButtonPr
       type="button"
       onClick={onClick}
       disabled={busy}
-      className="btn-primary rounded-full px-5 py-2 text-sm font-semibold transition disabled:cursor-wait disabled:opacity-70"
+      // On phones the same action lives in the bottom bar (thumb reach).
+      className="btn-primary rounded-full px-5 py-2 text-sm font-semibold transition disabled:cursor-wait disabled:opacity-70 max-lg:hidden"
     >
       {busy ? "Připravuji PDF…" : "Stáhnout PDF"}
     </button>
