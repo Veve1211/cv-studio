@@ -2,20 +2,54 @@
 
 import { useEffect, useState } from "react";
 
-const STEPS = ["Čtu tvůj text", "Hledám praxi a vzdělání", "Ladím formulace", "Sázím do šablony"];
+export const LOADING_STEPS = ["Čtu tvůj text", "Hledám praxi a vzdělání", "Skládám životopis"] as const;
 
 /** Skeleton A4 with time-based steps (no fake percentages). */
 export function LoadingPage() {
   const [step, setStep] = useState(0);
 
   useEffect(() => {
-    const id = window.setInterval(() => setStep((s) => Math.min(s + 1, STEPS.length - 1)), 2600);
+    const id = window.setInterval(() => setStep((s) => Math.min(s + 1, LOADING_STEPS.length - 1)), 3000);
     return () => window.clearInterval(id);
   }, []);
 
   return (
     <div className="mx-auto w-full max-w-[560px]" role="status" aria-live="polite">
-      <div className="relative aspect-[210/297] w-full overflow-hidden rounded-sm bg-white shadow-[0_24px_60px_rgba(0,0,0,0.10)]">
+      <ol className="mb-6 space-y-3" aria-label="Postup">
+        {LOADING_STEPS.map((label, i) => {
+          const state = i < step ? "done" : i === step ? "active" : "todo";
+          return (
+            <li
+              key={label}
+              data-state={state}
+              className={`loading-step flex items-center gap-3 text-[15px] transition-all duration-500 ${
+                state === "todo" ? "translate-x-1 opacity-40" : "translate-x-0 opacity-100"
+              }`}
+            >
+              <span
+                aria-hidden
+                className={`relative grid size-7 place-items-center rounded-full text-xs font-bold transition-colors duration-500 ${
+                  state === "done"
+                    ? "bg-brand-strong text-white"
+                    : state === "active"
+                      ? "bg-brand text-ink"
+                      : "border-line border bg-white"
+                }`}
+              >
+                {state === "done" ? "✓" : i + 1}
+                {state === "active" && <span className="loading-ping absolute inset-0 rounded-full" />}
+              </span>
+              <span className={state === "active" ? "font-semibold" : ""}>
+                {label}
+                {state === "active" && <span className="loading-dots" aria-hidden />}
+              </span>
+              {state === "active" && <span className="sr-only">(probíhá)</span>}
+              {state === "done" && <span className="sr-only">(hotovo)</span>}
+            </li>
+          );
+        })}
+      </ol>
+      <div className="relative aspect-[210/297] w-full overflow-hidden rounded-sm bg-white shadow-[0_24px_60px_rgba(10,60,120,0.12)]">
         <div className="absolute inset-0 p-[9%]">
           <div className="skeleton h-[5%] w-[55%] rounded" />
           <div className="skeleton mt-[2%] h-[2%] w-[30%] rounded" />
@@ -38,28 +72,6 @@ export function LoadingPage() {
           </div>
         </div>
       </div>
-      <ol className="mt-5 space-y-2 text-sm">
-        {STEPS.map((label, i) => (
-          <li
-            key={label}
-            className={`flex items-center gap-3 transition-opacity ${i > step ? "opacity-35" : "opacity-100"}`}
-          >
-            <span
-              aria-hidden
-              className={`grid size-5 place-items-center rounded-full text-[11px] ${
-                i < step ? "bg-ink text-white" : i === step ? "border-2 border-ink" : "border border-ink/30"
-              }`}
-            >
-              {i < step ? "✓" : ""}
-            </span>
-            <span className={i === step ? "font-medium" : ""}>
-              {label}
-              {i === step && "…"}
-            </span>
-          </li>
-        ))}
-      </ol>
-      <span className="sr-only">Vytvářím životopis, chvilku strpení.</span>
     </div>
   );
 }
