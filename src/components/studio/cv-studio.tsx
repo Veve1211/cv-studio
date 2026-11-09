@@ -146,6 +146,19 @@ export function CvStudio() {
           view === "preview" ? "max-lg:hidden" : ""
         }`}
       >
+        {paywall.demoUntil !== null && (
+          <p
+            data-testid="demo-badge"
+            className="bg-brand-soft text-ink mb-4 w-fit rounded-full px-3.5 py-1.5 text-sm font-semibold"
+          >
+            <span aria-hidden>🎤 </span>Prezentační režim · vše odemčené do {formatTime(paywall.demoUntil)}
+          </p>
+        )}
+        {paywall.demoError && (
+          <p role="alert" className="mb-4 rounded-xl bg-red-50 px-4 py-3 text-sm text-red-800">
+            {paywall.demoError}
+          </p>
+        )}
         <h2 id="studio-title" className="font-display text-3xl font-bold tracking-[-0.03em]">
           Tvůj životopis
         </h2>
@@ -214,9 +227,18 @@ export function CvStudio() {
           )}
 
           {shownError && (
-            <p id={errorId} role="alert" className="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-800">
-              {shownError}
-            </p>
+            <div id={errorId} role="alert" className="flex flex-wrap items-center gap-x-3 gap-y-2 rounded-xl bg-red-50 px-4 py-3 text-sm text-red-800">
+              <span className="flex-1 basis-48">{shownError}</span>
+              {!localError && (
+                <button
+                  type="button"
+                  onClick={() => formRef.current?.requestSubmit()}
+                  className="min-h-11 rounded-full border border-red-200 bg-white px-4 font-semibold text-red-900 transition hover:border-red-400"
+                >
+                  Zkusit znovu
+                </button>
+              )}
+            </div>
           )}
           {fileUpload.error && (
             <p role="alert" className="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-800">
@@ -387,6 +409,10 @@ export function CvStudio() {
       />
     </div>
   );
+}
+
+function formatTime(unixSec: number): string {
+  return new Date(unixSec * 1000).toLocaleTimeString("cs-CZ", { hour: "2-digit", minute: "2-digit" });
 }
 
 function EmptyPreview() {

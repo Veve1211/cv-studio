@@ -40,6 +40,7 @@ export default defineConfig({
         E2E_MOCK_AI: "1",
         RATE_LIMIT_DISABLED: "1",
         STRIPE_SECRET_KEY: "sk_test_mock",
+        DEMO_ENABLED: "1",
         CHROMIUM_PATH: serverChromium,
         PORT: String(PAYWALL_PORT),
       },

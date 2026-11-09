@@ -16,6 +16,24 @@ export interface PaywallConfig {
   enabled: boolean;
   priceCzk: number;
   testMode: boolean;
+  /** Presentation mode: everything unlocked in this browser until this time (unix s). */
+  demoUntil?: number | null;
+}
+
+const FREE: PaywallConfig = { enabled: false, priceCzk: 0, testMode: false, demoUntil: null };
+
+/** ?demo=1 turns presentation mode on (server must have DEMO_ENABLED=1). */
+async function activateDemo(): Promise<string | null> {
+  const url = new URL(window.location.href);
+  if (url.searchParams.get("demo") !== "1") return null;
+  url.searchParams.delete("demo");
+  window.history.replaceState(null, "", url.pathname + url.search + url.hash);
+  try {
+    const res = await fetch("/api/demo", { method: "POST", cache: "no-store" });
+    return res.ok ? null : "Prezentační režim není na serveru zapnutý (chybí proměnná DEMO_ENABLED=1).";
+  } catch {
+    return "Prezentační režim se nepodařilo zapnout. Jsi online?";
+  }
 }
 
 export interface Snapshot {
@@ -40,15 +58,20 @@ export function usePaywall(onRestore: (snapshot: Snapshot) => void) {
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [downloading, setDownloading] = useState(false);
   const [notice, setNotice] = useState<{ text: string; error: boolean } | null>(null);
+  const [demoError, setDemoError] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
-    fetch("/api/checkout", { cache: "no-store" })
+    activateDemo()
+      .then((demoError) => {
+        if (demoError && !cancelled) setDemoError(demoError);
+        return fetch("/api/checkout", { cache: "no-store" });
+      })
       .then((r) => (r.ok ? r.json() : null))
       .then((data: PaywallConfig | null) => {
-        if (!cancelled) setConfig(data ?? { enabled: false, priceCzk: 0, testMode: false });
+        if (!cancelled) setConfig(data ?? FREE);
       })
-      .catch(() => !cancelled && setConfig({ enabled: false, priceCzk: 0, testMode: false }));
+      .catch(() => !cancelled && setConfig(FREE));
     return () => {
       cancelled = true;
     };
@@ -166,7 +189,8 @@ export function usePaywall(onRestore: (snapshot: Snapshot) => void) {
     [sessionId],
   );
 
-  return { config, locked, paid, downloading, notice, setNotice, startCheckout, downloadServerPdf };
+  const demoUntil = config?.demoUntil ?? null;
+  return { config, demoUntil, demoError, locked, paid, downloading, notice, setNotice, startCheckout, downloadServerPdf };
 }
 
 function readStash(): Snapshot | null {

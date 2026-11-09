@@ -171,7 +171,9 @@ function checkTerms(value: string, src: SourceIndex): string[] {
   const missing: string[] = [];
   const re = /(^|[.!?…]\s+|\s|[(„"/])([A-ZÁČĎÉĚÍŇÓŘŠŤÚŮÝŽ][\p{L}0-9+#.]*)/gu;
   for (const m of value.matchAll(re)) {
-    const sentenceStart = m.index === 0 || /[.!?…]\s+$/.test(m[1]);
+    // Look at the text itself: the previous capitalised word may have eaten the full stop.
+    const before = value.slice(0, m.index + m[1].length).trimEnd();
+    const sentenceStart = before === "" || /[.!?…]$/.test(before);
     const word = m[2].replace(/[.]+$/, "");
     const isAcronym = /^[A-ZÁČĎÉĚÍŇÓŘŠŤÚŮÝŽ0-9+#]{2,}$/.test(word);
     if (sentenceStart && !isAcronym) continue;

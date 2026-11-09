@@ -4,10 +4,9 @@ import { CvSchema } from "@/lib/cv/schema";
 import { firstIssue, jsonError, readJson } from "@/lib/http";
 import { generateLetter } from "@/lib/letter/generate";
 import { MAX_JOB_CHARS, MIN_JOB_CHARS } from "@/lib/letter/schema";
-import { clientKey, createRateLimiter } from "@/lib/rate-limit";
-import { cookieLimit } from "@/lib/rate-limit-cookie";
+import { createAiLimit } from "@/lib/ai-limit";
 
-const limiter = createRateLimiter({ limit: 10, windowMs: 15 * 60 * 1000 });
+const limit = createAiLimit("letter", 10);
 
 const BodySchema = z.object({
   cv: CvSchema,
@@ -25,20 +24,13 @@ export async function POST(request: Request) {
   const parsed = BodySchema.safeParse(body);
   if (!parsed.success) return jsonError(firstIssue(parsed.error), 400);
 
-  if (!limiter(clientKey(request)).ok) return jsonError("Moc pokusů za sebou. Zkus to prosím za chvíli znovu.", 429);
-
-  // Survives restarts: the count also lives in a signed HttpOnly cookie.
-  const cookie = cookieLimit(request, { scope: "letter", limit: 10, windowSec: 15 * 60 });
-  if (!cookie.ok) {
-    return jsonError("Moc pokusů za sebou. Zkus to prosím za chvíli znovu.", 429, {
-      "Retry-After": String(cookie.retryAfterSec),
-    });
-  }
+  const rate = limit(request);
+  if (rate.error) return rate.error;
 
   try {
     const letter = await generateLetter(parsed.data.cv, parsed.data.job);
     const headers = new Headers({ "Cache-Control": "no-store" });
-    if (cookie.setCookie) headers.append("Set-Cookie", cookie.setCookie);
+    if (rate.setCookie) headers.append("Set-Cookie", rate.setCookie);
     return Response.json({ letter }, { headers });
   } catch (error) {
     if (error instanceof CvError) return jsonError(error.message, error.status);

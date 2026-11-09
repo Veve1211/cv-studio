@@ -1,4 +1,4 @@
-import { EXAMPLES } from "./examples";
+import { CHAOS_CV, EXAMPLES } from "./examples";
 import type { Cv } from "./schema";
 
 /**
@@ -15,6 +15,7 @@ export interface GroundingFixture {
 const contact = (c: Partial<Cv["contact"]> = {}): Cv["contact"] => ({ email: "", phone: "", location: "", web: "", ...c });
 
 export const GROUNDING_FIXTURES: GroundingFixture[] = [
+  { name: "chaotický text (prezentace)", input: EXAMPLES.find((e) => e.id === "chaos")!.text, faithful: CHAOS_CV },
   {
     name: "krátký",
     input: "Petr Malý, Plzeň. Řidič rozvozu u firmy Rohlík 3 roky. Mám řidičák B a C.",

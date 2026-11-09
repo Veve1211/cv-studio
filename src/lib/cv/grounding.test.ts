@@ -23,9 +23,16 @@ describe("sameWord (Czech declension)", () => {
   });
 });
 
+describe("sentence starts", () => {
+  it("does not flag a capitalised word after a sentence that ended with a name", () => {
+    const cv = { ...GROUNDING_FIXTURES[0].faithful, summary: "Spravuje Instagram. Chce se posunout dál." };
+    expect(paths(cv, "delam Instagram kavarny")).not.toContain("summary");
+  });
+});
+
 describe("grounding fixtures", () => {
-  it("has 10 valid fixtures", () => {
-    expect(GROUNDING_FIXTURES).toHaveLength(10);
+  it("has 11 valid fixtures", () => {
+    expect(GROUNDING_FIXTURES).toHaveLength(11);
     for (const f of GROUNDING_FIXTURES) expect(CvSchema.safeParse(f.faithful).success, f.name).toBe(true);
   });
 
