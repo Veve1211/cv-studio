@@ -10,20 +10,40 @@ interface LetterDialogProps {
   error: string | null;
   onClose: () => void;
   onSubmit: (job: string) => void;
+  /** Texts, so the same dialog also serves "Přizpůsobit inzerátu". */
+  title?: string;
+  intro?: string;
+  submitLabel?: string;
+  busyLabel?: string;
 }
 
-export function LetterDialog({ open, initialJob, busy, error, onClose, onSubmit }: LetterDialogProps) {
+/** Asks for the job ad (memory only). Used for the cover letter and for tailoring. */
+export function LetterDialog({
+  open,
+  initialJob,
+  busy,
+  error,
+  onClose,
+  onSubmit,
+  title = "Motivační dopis k inzerátu",
+  intro = "Vlož text inzerátu. AI napíše dopis jen z údajů ve tvém životopise – nic si o tobě nevymyslí.",
+  submitLabel = "Napsat motivační dopis",
+  busyLabel = "Píšu dopis…",
+}: LetterDialogProps) {
   const ref = useRef<HTMLDialogElement>(null);
   const [job, setJob] = useState(initialJob);
   const [localError, setLocalError] = useState<string | null>(null);
   const fieldId = useId();
+  const titleId = useId();
 
   useEffect(() => {
     const dialog = ref.current;
     if (!dialog) return;
+    // Offer the ad the user already pasted elsewhere (memory only).
+    if (open && !dialog.open && initialJob) setJob((current) => current || initialJob);
     if (open && !dialog.open) dialog.showModal();
     if (!open && dialog.open) dialog.close();
-  }, [open]);
+  }, [open, initialJob]);
 
   const shown = localError ?? error;
 
@@ -31,7 +51,7 @@ export function LetterDialog({ open, initialJob, busy, error, onClose, onSubmit 
     <dialog
       ref={ref}
       onClose={onClose}
-      aria-labelledby="letter-title"
+      aria-labelledby={titleId}
       className="m-auto w-[min(94vw,560px)] rounded-3xl p-0 shadow-2xl backdrop:bg-[rgb(11_27_51/0.45)] print:hidden"
     >
       <form
@@ -46,12 +66,10 @@ export function LetterDialog({ open, initialJob, busy, error, onClose, onSubmit 
           onSubmit(job.trim());
         }}
       >
-        <h2 id="letter-title" className="font-display text-2xl font-bold tracking-tight">
-          Motivační dopis k inzerátu
+        <h2 id={titleId} className="font-display text-2xl font-bold tracking-tight">
+          {title}
         </h2>
-        <p className="text-muted text-[15px] leading-relaxed">
-          Vlož text inzerátu. AI napíše dopis jen z údajů ve tvém životopise – nic si o tobě nevymyslí.
-        </p>
+        <p className="text-muted text-[15px] leading-relaxed">{intro}</p>
         <label htmlFor={fieldId} className="text-sm font-semibold">
           Text inzerátu
         </label>
@@ -78,7 +96,7 @@ export function LetterDialog({ open, initialJob, busy, error, onClose, onSubmit 
             disabled={busy}
             className="btn-primary min-h-11 flex-1 rounded-full px-6 font-semibold disabled:cursor-wait disabled:opacity-60"
           >
-            {busy ? "Píšu dopis…" : "Napsat motivační dopis"}
+            {busy ? busyLabel : submitLabel}
           </button>
           <button
             type="button"

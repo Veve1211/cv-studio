@@ -27,6 +27,8 @@ import { usePaywall } from "./use-paywall";
 import { NextSteps } from "./next-steps";
 import { PreviewToolbar } from "./preview-toolbar";
 import { useGenerate } from "./use-generate";
+import { TailorPanel } from "./tailor-panel";
+import { useTailor } from "./use-tailor";
 
 const EXAMPLE_TEXTS: ReadonlySet<string> = new Set(EXAMPLES.map((e) => e.text));
 
@@ -35,8 +37,25 @@ export function CvStudio() {
   const [templateId, setTemplateId] = useState<TemplateId>(DEFAULT_TEMPLATE);
   const [accent, setAccent] = useState(DEFAULT_ACCENT);
   const [localError, setLocalError] = useState<string | null>(null);
-  const { status, error, cv, source, confirmed, canUndo, generate, loadSample, editText, replaceSummary, undo } =
-    useGenerate();
+  const {
+    status,
+    error,
+    cv,
+    source,
+    confirmed,
+    canUndo,
+    generate,
+    loadSample,
+    editText,
+    replaceSummary,
+    applyReordered,
+    update,
+    undo,
+  } = useGenerate();
+  const tailor = useTailor();
+  const [tailorOpen, setTailorOpen] = useState(false);
+  /** The last job ad the user pasted (memory only), offered again for the letter. */
+  const [jobAd, setJobAd] = useState("");
   const [paywallOpen, setPaywallOpen] = useState(false);
   const letterState = useLetter();
   const [doc, setDoc] = useState<DocKind>("cv");
@@ -117,6 +136,7 @@ export function CvStudio() {
     // Phones: show the loading steps in the preview, back to the text on error.
     setView("preview");
     letterState.restore(null);
+    tailor.clear();
     setDoc("cv");
     void generate(value).then((ok) => {
       if (!ok) setView("text");
@@ -266,6 +286,7 @@ export function CvStudio() {
                 setLocalError(null);
                 loadSample(SAMPLE_CV);
                 letterState.restore(null);
+                tailor.clear();
                 setDoc("cv");
                 setView("preview");
               }}
@@ -332,8 +353,31 @@ export function CvStudio() {
                 />
               )}
               <LetterDialog
+                open={tailorOpen}
+                initialJob={jobAd || letterState.job}
+                busy={tailor.busy}
+                error={tailor.error}
+                title="Přizpůsobit inzerátu"
+                intro="Vlož text inzerátu. AI jen přeskupí tvůj životopis a upraví shrnutí na danou pozici. Nic nového nepřidá."
+                submitLabel="Přizpůsobit životopis"
+                busyLabel="Přizpůsobuji…"
+                onClose={() => {
+                  setTailorOpen(false);
+                  tailor.setError(null);
+                }}
+                onSubmit={(job) => {
+                  setJobAd(job);
+                  void tailor.run(cv, job).then((result) => {
+                    if (!result) return;
+                    applyReordered(result.cv, result.remap);
+                    setTailorOpen(false);
+                    setDoc("cv");
+                  });
+                }}
+              />
+              <LetterDialog
                 open={letterOpen}
-                initialJob={letterState.job}
+                initialJob={letterState.job || jobAd}
                 busy={letterState.busy}
                 error={letterState.error}
                 onClose={() => {
@@ -342,6 +386,7 @@ export function CvStudio() {
                 }}
                 onSubmit={(job) =>
                   void letterState.generate(cv, job).then((ok) => {
+                    setJobAd(job);
                     if (ok) {
                       setLetterOpen(false);
                       setDoc("letter");
@@ -349,6 +394,17 @@ export function CvStudio() {
                   })
                 }
               />
+              {tailor.state && doc === "cv" && (
+                <TailorPanel
+                  state={tailor.state}
+                  onRevert={() => {
+                    const before = tailor.state?.before;
+                    if (before) update(() => before);
+                    tailor.clear();
+                  }}
+                  onLetter={() => setLetterOpen(true)}
+                />
+              )}
               {letterState.letter && <DocTabs value={doc} onChange={setDoc} />}
               <ZoomControls zoom={zoom} onZoom={setZoom} />
               {!hintDismissed && (
@@ -391,6 +447,14 @@ export function CvStudio() {
                     text: "Vložíš inzerát a AI napíše dopis jen z údajů v tvém životopise.",
                     action: letterState.letter ? "Napsat nový dopis" : "Napsat motivační dopis",
                     onClick: () => setLetterOpen(true),
+                  },
+                  {
+                    id: "tailor",
+                    icon: "🎯",
+                    title: "Přizpůsobit inzerátu",
+                    text: "AI přeskupí životopis tak, aby nahoře bylo to, co inzerát chce. Nic nepřidá.",
+                    action: tailor.state ? "Přizpůsobit jinému inzerátu" : "Přizpůsobit inzerátu",
+                    onClick: () => setTailorOpen(true),
                   },
                 ]}
               />
