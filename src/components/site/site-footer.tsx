@@ -1,8 +1,11 @@
 import Link from "next/link";
 import { isPaywallEnabled } from "@/lib/payments/checkout";
+import { kofiUrl } from "@/lib/site";
+import { KofiLink } from "./kofi-link";
 
 export function SiteFooter() {
   const paid = isPaywallEnabled();
+  const kofi = kofiUrl();
   return (
     <footer className="border-line text-muted border-t bg-white/60 px-4 backdrop-blur pt-8 pb-28 lg:pb-8 text-sm sm:px-8 print:hidden">
       <div className="mx-auto flex max-w-6xl flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -22,6 +25,12 @@ export function SiteFooter() {
                 Reklamace
               </Link>
             </>
+          )}
+          {kofi && (
+            <KofiLink
+              href={kofi}
+              className="border-line hover:border-brand-strong text-ink rounded-full border bg-white px-3 py-1 font-semibold transition"
+            />
           )}
         </nav>
       </div>

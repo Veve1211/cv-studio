@@ -10,7 +10,7 @@ Po obnovení: zjisti čas, přečti tento soubor, `git status`, `git log`, otev�
 | 3. 3 nové šablony (Aura, Švýcar, Bento) | `feat/templates` | #21 | ✅ zmergováno |
 | 4. Přizpůsobení inzerátu | `feat/tailor` | #22 | ✅ zmergováno |
 | 5. Angličtina | `feat/english` | #23 | ✅ zmergováno |
-| 6. Placený přístup | `feat/access` | PR otevřen | CI běží (lokálně celé e2e zelené) |
-| 7. Ko-fi | – | – | nezačato |
+| 6. Placený přístup | `feat/access` | #24 | ✅ zmergováno |
+| 7. Ko-fi + NIGHT_REPORT_3.md | `feat/kofi` | PR otevřen | CI běží |
 
-Další konkrétní krok: zmergovat fázi 6 po zeleném CI; přeskládat `feat/kofi` (fáze 7, hotová) + PR; pak NIGHT_REPORT_3.md (koncept v /tmp/claude-0/report).
+Další konkrétní krok: zmergovat fázi 7 + report po zeleném CI. Pak hotovo; případně jen drobné opravy.
