@@ -52,3 +52,36 @@ describe("POST /api/cv", () => {
     expect((await res.json()).error).toContain("klíč");
   });
 });
+
+describe("POST /api/cv – restart-proof limit", () => {
+  it("keeps blocking after a server restart thanks to the signed cookie", async () => {
+    vi.resetModules();
+    vi.stubEnv("E2E_MOCK_AI", "1");
+    vi.stubEnv("RATE_LIMIT_SECRET", "s3cret");
+    const body = JSON.stringify({ text: "Jsem designérka z Brna a mám šest let praxe." });
+    let cookie = "";
+    let { POST } = await import("./route");
+    for (let i = 0; i < 10; i++) {
+      // a new IP each time, so only the cookie can count
+      const res = await POST(
+        new Request("http://localhost/api/cv", {
+          method: "POST",
+          headers: { "content-type": "application/json", "x-forwarded-for": `10.0.0.${i}`, cookie },
+          body,
+        }),
+      );
+      expect(res.status).toBe(200);
+      cookie = res.headers.get("set-cookie")!.split(";")[0];
+    }
+    vi.resetModules(); // "restart": the in-memory limiter is gone
+    ({ POST } = await import("./route"));
+    const res = await POST(
+      new Request("http://localhost/api/cv", {
+        method: "POST",
+        headers: { "content-type": "application/json", "x-forwarded-for": "10.0.1.1", cookie },
+        body,
+      }),
+    );
+    expect(res.status).toBe(429);
+  });
+});

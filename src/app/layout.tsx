@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import { headers } from "next/headers";
 import { Analytics } from "@/components/site/analytics";
 import { StructuredData } from "@/components/site/structured-data";
 import { SITE_DESCRIPTION, SITE_NAME, SITE_TITLE, siteUrl } from "@/lib/site";
@@ -27,13 +28,15 @@ export const viewport: Viewport = {
   themeColor: "#f2f8ff",
 };
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
+export default async function RootLayout({ children }: LayoutProps<"/">) {
+  // Reading the request makes every page dynamic, so each gets its own CSP nonce.
+  const nonce = (await headers()).get("x-nonce") ?? undefined;
   return (
     <html lang="cs" className={`${fontVariables} h-full antialiased`}>
       <body className="min-h-full flex flex-col">
-        <StructuredData />
+        <StructuredData nonce={nonce} />
         {children}
-        <Analytics />
+        <Analytics nonce={nonce} />
       </body>
     </html>
   );

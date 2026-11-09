@@ -5,6 +5,7 @@ import { firstIssue, jsonError, readJson } from "@/lib/http";
 import { generateLetter } from "@/lib/letter/generate";
 import { MAX_JOB_CHARS, MIN_JOB_CHARS } from "@/lib/letter/schema";
 import { clientKey, createRateLimiter } from "@/lib/rate-limit";
+import { cookieLimit } from "@/lib/rate-limit-cookie";
 
 const limiter = createRateLimiter({ limit: 10, windowMs: 15 * 60 * 1000 });
 
@@ -26,9 +27,19 @@ export async function POST(request: Request) {
 
   if (!limiter(clientKey(request)).ok) return jsonError("Moc pokusů za sebou. Zkus to prosím za chvíli znovu.", 429);
 
+  // Survives restarts: the count also lives in a signed HttpOnly cookie.
+  const cookie = cookieLimit(request, { scope: "letter", limit: 10, windowSec: 15 * 60 });
+  if (!cookie.ok) {
+    return jsonError("Moc pokusů za sebou. Zkus to prosím za chvíli znovu.", 429, {
+      "Retry-After": String(cookie.retryAfterSec),
+    });
+  }
+
   try {
     const letter = await generateLetter(parsed.data.cv, parsed.data.job);
-    return Response.json({ letter }, { headers: { "Cache-Control": "no-store" } });
+    const headers = new Headers({ "Cache-Control": "no-store" });
+    if (cookie.setCookie) headers.append("Set-Cookie", cookie.setCookie);
+    return Response.json({ letter }, { headers });
   } catch (error) {
     if (error instanceof CvError) return jsonError(error.message, error.status);
     return jsonError("Něco se pokazilo. Zkus to prosím znovu.", 500);

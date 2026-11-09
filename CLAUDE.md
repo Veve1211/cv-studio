@@ -11,7 +11,7 @@
 - Jazyk UI: čeština, tón přátelský. Mobile first.
 
 ## Stack
-- Next.js 16 (App Router, `src/`, Cache Components zapnuté), React 19, TypeScript, Tailwind 4
+- Next.js 16 (App Router, `src/`, Cache Components vypnuté kvůli CSP nonce), React 19, TypeScript, Tailwind 4
 - Claude API (`@anthropic-ai/sdk`, model `claude-opus-5-5`), validace `zod`
 - Stripe Checkout (jen test mode, volitelné): bez `STRIPE_SECRET_KEY` je PDF zdarma a o platbě se nic neukazuje
 - Bez databáze, bez účtů. Hosting Railway (`npm start`, port z `PORT`).
@@ -62,3 +62,6 @@
 - 2026-11-09: průvodce: 3 příklady pod polem (`src/lib/cv/examples.ts`, sdílené s testovacími vstupy kontroly vymýšlení), „↩ Vrátit můj text“ když příklad přepsal vlastní text; načítání = 3 kroky (Čtu text → Hledám praxi → Skládám životopis); nápověda „Klikni do textu a přepiš ho“ zmizí po prvním kliknutí do životopisu (jen v paměti)
 - 2026-11-09: motivační dopis: `POST /api/letter` (životopis + text inzerátu, max 10 000 znaků) → `{recipient, greeting, paragraphs, closing}`; o uchazeči jen fakta z CV, z inzerátu jen firma/pozice/požadavky; `LetterPage` má varianty podle šablony (písmo, akcent, papír); přepínač Životopis / Motivační dopis; úpravy přes stejné `Field`; kontrola vymýšlení přes `checkFreeText` (čísla, roky, jména vs. CV + vstupní text + inzerát); PDF stejně jako CV (tisk / server, jedna platba pokryje oba dokumenty), dopis přežije přesměrování na Stripe
 - 2026-11-09: sdílení/SEO: `opengraph-image.tsx` (1200×630, písma `assets/fonts/*.ttf` + OFL licence), `sitemap.ts`, `robots.ts` (zakazuje `/api/`, `/tisk`), JSON-LD `WebApplication`, title šablona „%s – Cvéčko“; absolutní URL z `APP_URL`; analytika bez cookies jen s `ANALYTICS_URL` (https, Plausible/Umami) + `ANALYTICS_ID` – čte se při buildu, po nastavení na Railway je potřeba nový deploy
+- 2026-11-09: plná CSP s nonce v `src/proxy.ts` (`src/lib/csp.ts`): skripty jen s nonce + `'strict-dynamic'`, `object-src 'none'`, `frame-ancestors 'none'`; styly `'unsafe-inline'` (React `style=""` atributy nonce nepokryje); kvůli nonce jsou všechny stránky dynamické (layout čte `headers()`, `cacheComponents` vypnuté); zod v `jitless` režimu (jinak zkouší `Function("")` → hlášení CSP); e2e hlídá i tichá porušení přes DevTools
+- 2026-11-09: rate limit přežije restart: k limitu podle IP v paměti navíc podepsaný HttpOnly cookie (`cvk_rl_<scope>`, HMAC z `RATE_LIMIT_SECRET`/jiného serverového tajemství) pro `/api/cv`, `/api/letter`, `/api/summary`; kdo cookie smaže, narazí na limit podle IP (bez sdíleného úložiště nejde 100 %)
+- 2026-11-09: Lighthouse (lokálně, mobil): úvod 97/100/100/100, zásady 100/100/100/100; desktop 100 všude

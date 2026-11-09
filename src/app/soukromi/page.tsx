@@ -55,7 +55,12 @@ export default function PrivacyPage() {
           </ul>
 
           <h2>Cookies a měření</h2>
-          <p>Nepoužíváme analytické ani reklamní cookies a nesledujeme tě.</p>
+          <p>
+            Nepoužíváme analytické ani reklamní cookies a nesledujeme tě. Jediný cookie je technický: počítá, kolikrát
+            jsi za posledních 15 minut požádal(a) AI o text, aby nikdo nemohl službu zahltit. Neobsahuje žádné osobní
+            údaje (jen číslo a čas) a po 15 minutách sám zmizí. Pokud je zapnuté měření návštěvnosti, používá nástroj
+            bez cookies, který neukládá IP adresy ani nic, podle čeho by šlo poznat konkrétního člověka.
+          </p>
 
           <h2>Ochrana proti zneužití</h2>
           <p>

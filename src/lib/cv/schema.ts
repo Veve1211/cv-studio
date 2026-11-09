@@ -1,5 +1,9 @@
 import { z } from "zod";
 
+// Our strict CSP forbids eval: tell zod not to probe `new Function` (it would only log
+// a CSP violation and fall back anyway).
+z.config({ jitless: true });
+
 /** Trimmed string with a generous upper bound (guards against runaway output). */
 const text = (max: number) => z.string().trim().max(max);
 
