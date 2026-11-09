@@ -1,20 +1,25 @@
 @import "tailwindcss";
 
 :root {
-  --background: #f4f2ee;
-  --foreground: #16161a;
+  --background: #f2f8ff;
+  --foreground: #0b1b33;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --color-ink: #16161a;
-  --color-muted: #5f5e66;
-  --color-line: #e3e0d9;
-  --color-canvas: #ebe8e1;
-  --color-paper-soft: #fbfaf7;
+  --color-ink: #0b1b33;
+  --color-ink-soft: #2c3e5a;
+  --color-muted: #4b5d78;
+  --color-line: #d5e5f6;
+  --color-canvas: #e3effc;
+  --color-paper-soft: #f8fbff;
+  --color-brand: #8fd0ff;
+  --color-brand-hover: #6fc0fb;
+  --color-brand-soft: #dceeff;
+  --color-brand-strong: #0a5fb8;
   --font-sans: var(--font-inter), system-ui, sans-serif;
-  --font-display: var(--font-fraunces), Georgia, serif;
+  --font-display: var(--font-space-grotesk), var(--font-inter), system-ui, sans-serif;
   --font-mono: var(--font-jetbrains-mono), ui-monospace, monospace;
 }
 
@@ -25,12 +30,38 @@ body {
 }
 
 :focus-visible {
-  outline: 2px solid var(--color-ink);
+  outline: 2px solid var(--color-brand-strong);
   outline-offset: 2px;
 }
 
+/* Primary call-to-action: light blue pill with dark navy text (contrast > 10:1) */
+.btn-primary {
+  background-color: var(--color-brand);
+  color: var(--color-ink);
+  box-shadow: 0 1px 0 rgb(255 255 255 / 0.6) inset, 0 8px 24px -10px rgb(10 95 184 / 0.55);
+  transition: background-color 0.15s, transform 0.15s, box-shadow 0.15s;
+}
+
+.btn-primary:hover {
+  background-color: var(--color-brand-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 1px 0 rgb(255 255 255 / 0.6) inset, 0 12px 28px -10px rgb(10 95 184 / 0.6);
+}
+
+.btn-primary:disabled {
+  transform: none;
+}
+
+/* Soft light-blue glow behind the landing hero */
+.hero-glow {
+  background:
+    radial-gradient(60% 55% at 85% 20%, rgb(143 208 255 / 0.55), transparent 70%),
+    radial-gradient(45% 50% at 10% 85%, rgb(186 225 255 / 0.6), transparent 70%),
+    linear-gradient(180deg, #eaf5ff 0%, var(--background) 100%);
+}
+
 .skeleton {
-  background: linear-gradient(90deg, #eeece7 0%, #f7f6f2 50%, #eeece7 100%);
+  background: linear-gradient(90deg, #e4effb 0%, #f4f9ff 50%, #e4effb 100%);
   background-size: 200% 100%;
   animation: shimmer 1.4s ease-in-out infinite;
 }

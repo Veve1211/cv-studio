@@ -26,7 +26,7 @@ export function TemplatePicker({ value, onChange, accent, cv }: TemplatePickerPr
             <label
               key={t.id}
               className={`group relative flex w-[118px] shrink-0 cursor-pointer flex-col gap-1.5 rounded-xl p-1.5 transition ${
-                checked ? "bg-white shadow-[0_0_0_2px_var(--color-ink)]" : "hover:bg-white/60"
+                checked ? "bg-white shadow-[0_0_0_2px_var(--color-brand-strong)]" : "hover:bg-white/60"
               }`}
             >
               <input

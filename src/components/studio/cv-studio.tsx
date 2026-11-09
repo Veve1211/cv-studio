@@ -94,7 +94,7 @@ export function CvStudio() {
             placeholder={
               "Klidně neučesaně, třeba:\n\nJana, Ostrava. 4 roky v účtárně u firmy Ocel a.s., předtím 2 roky na recepci v hotelu. Umím Excel, Pohodu, angličtina B2. Vystudovala jsem obchodní akademii…"
             }
-            className="border-line bg-paper-soft focus:border-ink min-h-[260px] w-full resize-y rounded-2xl border px-4 py-3.5 text-[15px] leading-relaxed outline-none transition-colors lg:min-h-[340px]"
+            className="border-line bg-paper-soft focus:border-brand-strong min-h-[260px] w-full resize-y rounded-2xl border px-4 py-3.5 text-[15px] leading-relaxed outline-none transition-colors lg:min-h-[340px]"
           />
           <div className="text-muted flex justify-between text-xs">
             <span id={hintId}>
@@ -116,7 +116,7 @@ export function CvStudio() {
             <button
               type="submit"
               disabled={loading}
-              className="bg-ink hover:bg-ink/90 flex-1 rounded-full px-6 py-3.5 text-[15px] font-semibold text-white transition disabled:cursor-wait disabled:opacity-60"
+              className="btn-primary flex-1 rounded-full px-6 py-3.5 text-[15px] font-semibold transition disabled:cursor-wait disabled:opacity-60"
             >
               {loading ? "Vytvářím…" : "Vytvořit životopis"}
             </button>
@@ -126,7 +126,7 @@ export function CvStudio() {
                 setLocalError(null);
                 loadSample(SAMPLE_CV);
               }}
-              className="border-line hover:border-ink rounded-full border px-5 py-3.5 text-[15px] font-medium transition"
+              className="border-line hover:border-brand-strong rounded-full border px-5 py-3.5 text-[15px] font-medium transition"
             >
               Ukázka
             </button>

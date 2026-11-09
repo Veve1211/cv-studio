@@ -22,7 +22,7 @@ export function DownloadPdfButton({ name, beforePrint }: DownloadPdfButtonProps)
     <button
       type="button"
       onClick={onClick}
-      className="bg-ink hover:bg-ink/90 rounded-full px-5 py-2 text-sm font-semibold text-white transition"
+      className="btn-primary rounded-full px-5 py-2 text-sm font-semibold transition"
     >
       Stáhnout PDF
     </button>

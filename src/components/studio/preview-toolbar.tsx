@@ -42,7 +42,7 @@ export function PreviewToolbar({ cv, canUndo, onUndo, onSummary, children }: Pre
           type="button"
           onClick={onUndo}
           disabled={!canUndo}
-          className="border-line hover:border-ink rounded-full border bg-white px-4 py-2 text-sm font-medium transition disabled:cursor-not-allowed disabled:opacity-40"
+          className="border-line hover:border-brand-strong rounded-full border bg-white px-4 py-2 text-sm font-medium transition disabled:cursor-not-allowed disabled:opacity-40"
         >
           Zpět
         </button>
@@ -50,7 +50,7 @@ export function PreviewToolbar({ cv, canUndo, onUndo, onSummary, children }: Pre
           type="button"
           onClick={improve}
           disabled={busy}
-          className="border-line hover:border-ink rounded-full border bg-white px-4 py-2 text-sm font-medium transition disabled:cursor-wait disabled:opacity-60"
+          className="border-line hover:border-brand-strong rounded-full border bg-white px-4 py-2 text-sm font-medium transition disabled:cursor-wait disabled:opacity-60"
         >
           {busy ? "Vylepšuji…" : "✨ Vylepšit shrnutí"}
         </button>
