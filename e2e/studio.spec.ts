@@ -74,12 +74,18 @@ test.describe("studio", () => {
     expect(size.h).toBeGreaterThanOrEqual(1122);
   });
 
-  test("on mobile the preview is below the form", async ({ page, isMobile }) => {
+  test("on mobile, Text / Náhled switch between the form and the preview", async ({ page, isMobile }) => {
     test.skip(!isMobile, "mobile layout only");
     await page.goto("/");
+    const bar = page.getByRole("navigation", { name: "Ovládání na mobilu" });
+    await expect(bar.getByRole("button", { name: "Náhled" })).toBeDisabled();
     await page.getByRole("button", { name: "Ukázka" }).click();
-    const form = await page.getByLabel("Napiš o sobě cokoliv").boundingBox();
-    const preview = await page.locator("#cv-page").boundingBox();
-    expect(preview!.y).toBeGreaterThan(form!.y + form!.height);
+    // The sample switches to the preview on its own.
+    await expect(page.locator("#cv-page")).toBeVisible();
+    await expect(page.getByLabel("Napiš o sobě cokoliv")).toBeHidden();
+    await expect(bar.getByRole("button", { name: "Náhled" })).toHaveAttribute("aria-pressed", "true");
+    await bar.getByRole("button", { name: "Text" }).click();
+    await expect(page.getByLabel("Napiš o sobě cokoliv")).toBeVisible();
+    await expect(page.locator("#cv-page")).toBeHidden();
   });
 });

@@ -33,8 +33,9 @@ export function useGenerate() {
     setStatus("ready");
   }, []);
 
+  /** Resolves true when a CV was generated. */
   const generate = useCallback(
-    async (text: string) => {
+    async (text: string): Promise<boolean> => {
       abortRef.current?.abort();
       const controller = new AbortController();
       abortRef.current = controller;
@@ -45,10 +46,12 @@ export function useGenerate() {
         const parsed = CvSchema.safeParse((data as { cv?: unknown } | null)?.cv);
         if (!parsed.success) throw new Error("Server vrátil nečekaná data. Zkus to prosím znovu.");
         replace(parsed.data, text);
+        return true;
       } catch (err) {
-        if (controller.signal.aborted) return;
+        if (controller.signal.aborted) return false;
         setError((err as Error).message);
         setStatus("error");
+        return false;
       }
     },
     [replace],

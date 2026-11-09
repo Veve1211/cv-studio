@@ -12,16 +12,27 @@ interface A4PreviewProps {
   templateId: string;
   /** Unpaid preview: show a "Náhled" watermark (the clean PDF only comes from the server). */
   watermark?: boolean;
+  /** 1 = fit the width; > 1 zooms in and the preview scrolls inside its own box. */
+  zoom?: number;
 }
 
 /**
  * Renders a real 210 × 297 mm page and scales it down to fit the available width,
  * so the preview is exactly what gets printed to PDF.
  */
-export function A4Preview({ children, accent, paper, templateId, watermark = false }: A4PreviewProps) {
+export function A4Preview({
+  children,
+  accent,
+  paper,
+  templateId,
+  watermark = false,
+  zoom = 1,
+}: A4PreviewProps) {
   const outerRef = useRef<HTMLDivElement>(null);
   const pageRef = useRef<HTMLElement>(null);
   const [box, setBox] = useState({ scale: 1, width: 0, height: 0 });
+  const zoomRef = useRef(zoom);
+  const updateRef = useRef<(() => void) | null>(null);
 
   useLayoutEffect(() => {
     const outer = outerRef.current;
@@ -29,9 +40,10 @@ export function A4Preview({ children, accent, paper, templateId, watermark = fal
     if (!outer || !page) return;
     const update = () => {
       const pageWidth = page.offsetWidth;
-      const scale = Math.min(1, outer.clientWidth / pageWidth);
+      const scale = Math.min(1, outer.clientWidth / pageWidth) * zoomRef.current;
       setBox({ scale, width: pageWidth * scale, height: page.offsetHeight * scale });
     };
+    updateRef.current = update;
     update();
     const ro = new ResizeObserver(update);
     ro.observe(outer);
@@ -39,8 +51,17 @@ export function A4Preview({ children, accent, paper, templateId, watermark = fal
     return () => ro.disconnect();
   }, []);
 
+  useLayoutEffect(() => {
+    zoomRef.current = zoom;
+    updateRef.current?.();
+  }, [zoom]);
+
   return (
-    <div ref={outerRef} className="cv-preview-outer w-full">
+    <div
+      ref={outerRef}
+      data-testid="preview-scroller"
+      className={`cv-preview-outer w-full ${zoom > 1 ? "overflow-x-auto overscroll-x-contain pb-2" : ""}`}
+    >
       {/* Paint the paper colour into the printed page margins too (only hex values from our registry). */}
       {/^#[0-9a-f]{6}$/i.test(paper) && <style>{`@page { background: ${paper}; }`}</style>}
       <div
