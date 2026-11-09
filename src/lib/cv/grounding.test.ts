@@ -108,3 +108,12 @@ describe("specific checks", () => {
     expect(paths(cv, source)).toEqual(["skills.1"]);
   });
 });
+
+describe("checkFreeText (cover letters)", () => {
+  it("flags numbers and names that are in neither the CV nor the job ad", async () => {
+    const { checkFreeText } = await import("./grounding");
+    const source = "Účetní v Ocel a.s. 2019–2023, Pohoda, Excel. Inzerát: Hledáme účetní do firmy Kovo Brno.";
+    expect(checkFreeText("Čtyři roky jsem v Ocel a.s. vedla účetnictví v Pohodě a ráda bych pracovala pro Kovo.", source)).toEqual([]);
+    expect(checkFreeText("Ušetřila jsem firmě 30 % nákladů v systému Helios.", source)).toEqual(["30", "Helios"]);
+  });
+});

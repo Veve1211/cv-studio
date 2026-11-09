@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { LetterPage } from "@/components/letter/letter-page";
 import { getTemplate } from "@/components/templates";
 import pageStyles from "@/components/templates/page.module.css";
 import { pageStyle } from "@/components/templates/page-style";
@@ -42,7 +43,11 @@ export function PrintView() {
         className={pageStyles.page}
         style={pageStyle(accent, template.paper)}
       >
-        <template.Component cv={data.cv} />
+        {data.letter ? (
+          <LetterPage cv={data.cv} letter={data.letter} variant={template.id} />
+        ) : (
+          <template.Component cv={data.cv} />
+        )}
       </article>
     </>
   );

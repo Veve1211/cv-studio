@@ -11,10 +11,20 @@ interface PreviewToolbarProps {
   onSummary: (summary: string) => void;
   /** Number of facts not found in the user's text; null = nothing to compare (sample). */
   grounding?: number | null;
+  /** Hide CV-only actions (undo, summary) while the cover letter is shown. */
+  cvActions?: boolean;
   children?: React.ReactNode;
 }
 
-export function PreviewToolbar({ cv, canUndo, onUndo, onSummary, grounding = null, children }: PreviewToolbarProps) {
+export function PreviewToolbar({
+  cv,
+  canUndo,
+  onUndo,
+  onSummary,
+  grounding = null,
+  cvActions = true,
+  children,
+}: PreviewToolbarProps) {
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState<{ text: string; error: boolean } | null>(null);
 
@@ -38,6 +48,8 @@ export function PreviewToolbar({ cv, canUndo, onUndo, onSummary, grounding = nul
     <div className="mx-auto mb-5 flex w-full max-w-[794px] flex-col gap-2 print:hidden">
       <div className="flex flex-wrap items-center gap-2">
         <span className="mr-auto" />
+        {cvActions && (
+          <>
         <button
           type="button"
           onClick={onUndo}
@@ -54,6 +66,8 @@ export function PreviewToolbar({ cv, canUndo, onUndo, onSummary, grounding = nul
         >
           {busy ? "Vylepšuji…" : "✨ Vylepšit shrnutí"}
         </button>
+          </>
+        )}
         {children}
       </div>
       {grounding !== null && (
