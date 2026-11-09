@@ -6,6 +6,7 @@ import { getAccent, type Accent } from "@/components/templates/palette";
 import type { TemplateId } from "@/components/templates/types";
 import { postJson } from "@/lib/client-api";
 import { CvSchema, type Cv } from "@/lib/cv/schema";
+import { pdfFileTitle } from "@/lib/pdf";
 
 const STASH_KEY = "cvecko:checkout";
 
@@ -29,6 +30,9 @@ export interface Snapshot {
 export function usePaywall(onRestore: (snapshot: Snapshot) => void) {
   const [config, setConfig] = useState<PaywallConfig | null>(null);
   const [paid, setPaid] = useState(false);
+  /** Verified, paid Stripe session (memory only) – the server needs it for every PDF. */
+  const [sessionId, setSessionId] = useState<string | null>(null);
+  const [downloading, setDownloading] = useState(false);
   const [notice, setNotice] = useState<{ text: string; error: boolean } | null>(null);
 
   useEffect(() => {
@@ -49,7 +53,7 @@ export function usePaywall(onRestore: (snapshot: Snapshot) => void) {
     const params = new URLSearchParams(window.location.search);
     const result = params.get("checkout");
     if (!result) return;
-    const sessionId = params.get("session_id") ?? "";
+    const sessionIdParam = params.get("session_id") ?? "";
     window.history.replaceState(null, "", window.location.pathname);
 
     async function handleReturn() {
@@ -60,9 +64,10 @@ export function usePaywall(onRestore: (snapshot: Snapshot) => void) {
         return;
       }
       try {
-        const data = await postJson("/api/checkout/verify", { sessionId });
+        const data = await postJson("/api/checkout/verify", { sessionId: sessionIdParam });
         if ((data as { paid?: unknown } | null)?.paid === true) {
           setPaid(true);
+          setSessionId(sessionIdParam);
           setNotice({ text: "Zaplaceno, děkujeme! Teď si můžeš stáhnout PDF.", error: false });
         } else {
           setNotice({ text: "Platbu se nepodařilo ověřit. Pokud ti byly strženy peníze, napiš nám.", error: true });
@@ -103,7 +108,52 @@ export function usePaywall(onRestore: (snapshot: Snapshot) => void) {
     window.location.assign(url);
   }, []);
 
-  return { config, locked, paid, notice, setNotice, startCheckout };
+  /** Clean PDF rendered on the server after the payment is verified there again. */
+  const downloadServerPdf = useCallback(
+    async (snapshot: Snapshot) => {
+      if (!sessionId) return;
+      setDownloading(true);
+      try {
+        const res = await fetch("/api/pdf", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            sessionId,
+            cv: snapshot.cv,
+            templateId: snapshot.templateId,
+            accentId: snapshot.accent.id,
+          }),
+        });
+        if (!res.ok) {
+          const data: unknown = await res.json().catch(() => null);
+          const message =
+            data && typeof data === "object" && "error" in data && typeof data.error === "string"
+              ? data.error
+              : "PDF se nepodařilo stáhnout. Zkus to prosím znovu.";
+          throw new Error(message);
+        }
+        const blob = await res.blob();
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = `${pdfFileTitle(snapshot.cv.name)}.pdf`;
+        document.body.append(link);
+        link.click();
+        link.remove();
+        setTimeout(() => URL.revokeObjectURL(url), 10_000);
+      } catch (err) {
+        setNotice({
+          text: err instanceof TypeError ? "Nepodařilo se spojit se serverem. Jsi online?" : (err as Error).message,
+          error: true,
+        });
+      } finally {
+        setDownloading(false);
+      }
+    },
+    [sessionId],
+  );
+
+  return { config, locked, paid, downloading, notice, setNotice, startCheckout, downloadServerPdf };
 }
 
 function readStash(): Snapshot | null {

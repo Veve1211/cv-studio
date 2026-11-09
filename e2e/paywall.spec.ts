@@ -1,4 +1,6 @@
+import { readFileSync } from "node:fs";
 import { expect, test } from "@playwright/test";
+import { SAMPLE_CV } from "../src/lib/cv/sample";
 import { PAYWALL_PORT } from "../playwright.config";
 import { loadSample, pickRadio } from "./helpers";
 import { pdfPages, squash } from "./pdf";
@@ -54,8 +56,36 @@ test.describe("with a Stripe key (test mode)", () => {
     await expect(page.getByRole("radio", { name: "Kobaltová" })).toBeChecked();
     expect(await page.evaluate(() => sessionStorage.getItem("cvecko:checkout"))).toBeNull();
 
+    // Paid: a clean PDF comes from the server (no print dialog, no watermark).
+    await expect(page.locator("#cv-page")).not.toHaveAttribute("data-watermark");
+    const downloadPromise = page.waitForEvent("download");
     await page.getByRole("button", { name: "Stáhnout PDF" }).first().click();
-    expect(await prints(page)).toBe(1);
+    const download = await downloadPromise;
+    expect(download.suggestedFilename()).toBe("Zivotopis-Tereza-Upravena.pdf");
+    expect(await prints(page)).toBe(0);
+    const pages = await pdfPages(readFileSync(await download.path()));
+    expect(pages).toHaveLength(1);
+    expect(pages[0]).toContain(squash("Tereza Upravená"));
+    expect(pages[0]).not.toContain(squash("NÁHLED"));
+  });
+
+  test("the unpaid preview carries a watermark", async ({ page }) => {
+    await loadSample(page);
+    await expect(page.locator("#cv-page")).toHaveAttribute("data-watermark", "");
+  });
+
+  test("the internal print page is not reachable from outside", async ({ request }) => {
+    const res = await request.get("/tisk");
+    expect(res.status()).toBe(404);
+    const forged = await request.get("/tisk", { headers: { "x-cvecko-print": "0".repeat(64) } });
+    expect(forged.status()).toBe(404);
+  });
+
+  test("the PDF API refuses unpaid sessions", async ({ request }) => {
+    const res = await request.post("/api/pdf", {
+      data: { sessionId: "cs_test_forged", cv: SAMPLE_CV, templateId: "minimal", accentId: "sky" },
+    });
+    expect(res.status()).toBe(402);
   });
 
   test("Ctrl+P does not bypass the paywall", async ({ page, isMobile }) => {

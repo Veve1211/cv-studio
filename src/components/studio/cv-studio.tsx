@@ -83,6 +83,20 @@ export function CvStudio() {
 
   const loading = status === "loading";
 
+  /** No paywall: browser print. Paywall: dialog first, then a clean PDF from the server. */
+  function downloadPdf() {
+    if (!cv) return;
+    if (!paywall.config?.enabled) {
+      printCv(cv.name);
+      return;
+    }
+    if (!paywall.paid) {
+      setPaywallOpen(true);
+      return;
+    }
+    void paywall.downloadServerPdf({ cv, templateId, accent });
+  }
+
   return (
     <div id="studio" className="grid w-full flex-1 scroll-mt-20 lg:scroll-mt-0 lg:grid-cols-[minmax(360px,440px)_1fr] print:block">
       <DropArea
@@ -193,14 +207,7 @@ export function CvStudio() {
                 onSummary={replaceSummary}
                 grounding={source === null ? null : unverified.size}
               >
-                <DownloadPdfButton
-                  name={cv.name}
-                  beforePrint={() => {
-                    if (!paywall.locked) return true;
-                    setPaywallOpen(true);
-                    return false;
-                  }}
-                />
+                <DownloadPdfButton onClick={downloadPdf} busy={paywall.downloading} />
               </PreviewToolbar>
               {paywall.notice && (
                 <p
@@ -211,7 +218,7 @@ export function CvStudio() {
                 >
                   {paywall.notice.text}
                   {paywall.paid && (
-                    <button type="button" onClick={() => printCv(cv.name)} className="ml-2 font-semibold underline">
+                    <button type="button" onClick={downloadPdf} className="ml-2 font-semibold underline">
                       Stáhnout PDF
                     </button>
                   )}
@@ -228,7 +235,12 @@ export function CvStudio() {
                   onPay={() => paywall.startCheckout({ cv, templateId, accent })}
                 />
               )}
-              <A4Preview accent={accent} paper={template.paper} templateId={template.id}>
+              <A4Preview
+                accent={accent}
+                paper={template.paper}
+                templateId={template.id}
+                watermark={paywall.locked}
+              >
                 <EditContext value={editApi}>
                   <GroundingContext value={unverified}>
                     <template.Component cv={cv} />

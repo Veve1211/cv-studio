@@ -10,13 +10,15 @@ interface A4PreviewProps {
   accent: Accent;
   paper: string;
   templateId: string;
+  /** Unpaid preview: show a "Náhled" watermark (the clean PDF only comes from the server). */
+  watermark?: boolean;
 }
 
 /**
  * Renders a real 210 × 297 mm page and scales it down to fit the available width,
  * so the preview is exactly what gets printed to PDF.
  */
-export function A4Preview({ children, accent, paper, templateId }: A4PreviewProps) {
+export function A4Preview({ children, accent, paper, templateId, watermark = false }: A4PreviewProps) {
   const outerRef = useRef<HTMLDivElement>(null);
   const pageRef = useRef<HTMLElement>(null);
   const [box, setBox] = useState({ scale: 1, width: 0, height: 0 });
@@ -50,7 +52,8 @@ export function A4Preview({ children, accent, paper, templateId }: A4PreviewProp
           id="cv-page"
           data-template={templateId}
           aria-label="Náhled životopisu"
-          className={`${pageStyles.page} cv-page absolute left-0 top-0 origin-top-left shadow-[0_2px_6px_rgba(0,0,0,0.06),0_24px_60px_rgba(0,0,0,0.12)]`}
+          data-watermark={watermark ? "" : undefined}
+          className={`${pageStyles.page} cv-page${watermark ? " cv-watermark" : ""} absolute left-0 top-0 origin-top-left shadow-[0_2px_6px_rgba(0,0,0,0.06),0_24px_60px_rgba(0,0,0,0.12)]`}
           style={{ transform: `scale(${box.scale})`, ...pageStyle(accent, paper) }}
         >
           {children}
