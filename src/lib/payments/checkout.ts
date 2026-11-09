@@ -1,6 +1,7 @@
 import Stripe from "stripe";
 
 export const PRICE_CZK = 99;
+export const PAID_VALID_DAYS = 30;
 const PRODUCT_TAG = "cv-pdf";
 const SESSION_ID = /^cs_(test|live)_[A-Za-z0-9]{1,200}$/;
 
@@ -21,7 +22,7 @@ export interface CheckoutClient {
   checkout: {
     sessions: {
       create(params: Stripe.Checkout.SessionCreateParams): Promise<{ url: string | null }>;
-      retrieve(id: string): Promise<{ payment_status: string; metadata: Record<string, string> | null }>;
+      retrieve(id: string): Promise<{ payment_status: string; metadata: Record<string, string> | null; created?: number }>;
     };
   };
 }
@@ -63,7 +64,9 @@ export async function verifyCheckout(sessionId: string, stripe?: CheckoutClient)
   if (!stripe && isMock()) return sessionId === MOCK_SESSION_ID;
   try {
     const session = await (stripe ?? getClient()).checkout.sessions.retrieve(sessionId);
-    return session.payment_status === "paid" && session.metadata?.product === PRODUCT_TAG;
+    // One payment unlocks downloads (also after edits) for 30 days.
+    const fresh = session.created === undefined || Date.now() / 1000 - session.created < PAID_VALID_DAYS * 86_400;
+    return session.payment_status === "paid" && session.metadata?.product === PRODUCT_TAG && fresh;
   } catch {
     return false;
   }

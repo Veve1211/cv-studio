@@ -44,6 +44,10 @@ export default function PrivacyPage() {
               nevidíme.
             </li>
             <li>
+              Zaplacené PDF vytvoří náš server: životopis pošleš jen pro tento jeden požadavek, server z něj v paměti
+              udělá PDF a hned ho zapomene.
+            </li>
+            <li>
               Kvůli přesměrování na platební bránu se životopis na tu chvíli uloží do úložiště tvého prohlížeče (jen
               v tomto okně) a po návratu se hned smaže.
             </li>

@@ -296,3 +296,14 @@ body {
     content: none !important;
   }
 }
+
+/* ===== Unpaid preview watermark (paid PDF is rendered clean on the server) ===== */
+.cv-watermark::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='360' height='240'%3E%3Ctext x='50%25' y='50%25' fill='%230a5fb8' fill-opacity='0.09' font-family='Arial,sans-serif' font-size='30' font-weight='700' text-anchor='middle' transform='rotate(-28 180 120)'%3EN%C3%81HLED %C2%B7 Cv%C3%A9%C4%8Dko%3C/text%3E%3C/svg%3E");
+  background-repeat: repeat;
+}
