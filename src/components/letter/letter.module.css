@@ -167,6 +167,69 @@
   font-size: 18pt;
 }
 
+.aura {
+  font-family: var(--font-manrope), var(--font-inter), sans-serif;
+}
+
+.aura .head {
+  margin: -22mm -24mm 12mm;
+  padding: 22mm 24mm 10mm;
+  background:
+    radial-gradient(70% 120% at 8% 0%, color-mix(in srgb, var(--accent) 32%, #fff) 0%, transparent 70%),
+    radial-gradient(55% 110% at 92% 10%, color-mix(in srgb, var(--accent) 16%, #fff) 0%, transparent 72%),
+    linear-gradient(180deg, color-mix(in srgb, var(--accent) 7%, #fff) 0%, #fff 100%);
+}
+
+.aura .name {
+  font-size: 30pt;
+  font-weight: 800;
+  letter-spacing: -0.035em;
+}
+
+.aura .headline {
+  color: var(--muted);
+  font-weight: 600;
+}
+
+.swiss {
+  font-family: var(--font-inter-tight), var(--font-inter), sans-serif;
+}
+
+.swiss .head {
+  border-top: 3pt solid var(--ink);
+  padding-top: 5mm;
+}
+
+.swiss .name {
+  font-size: 34pt;
+  letter-spacing: -0.05em;
+  line-height: 0.95;
+}
+
+.swiss .headline {
+  font-weight: 600;
+}
+
+.bento .head {
+  background: var(--accent);
+  color: var(--on-accent, #fff);
+  border-radius: 5mm;
+  padding: 9mm 8mm 8mm;
+  margin: -10mm -12mm 12mm;
+}
+
+.bento .name {
+  font-family: var(--font-space-grotesk), sans-serif;
+  font-size: 30pt;
+  letter-spacing: -0.04em;
+}
+
+.bento .headline,
+.bento .contact {
+  color: inherit;
+  opacity: 0.92;
+}
+
 /* 297 mm minus the printed bottom margin, so a one-page letter stays one page */
 @media print {
   .root {

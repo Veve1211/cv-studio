@@ -3,7 +3,7 @@ import { isPaywallEnabled, PRICE_CZK } from "@/lib/payments/checkout";
 const INCLUDED = [
   "Životopis i motivační dopis v jedné platbě",
   "PDF ve formátu A4, připravené k odeslání",
-  "Všech 5 šablon a 7 barev",
+  "Všech 8 šablon a 7 barev",
   "Úpravy textu kdykoli před stažením",
 ];
 

@@ -1,5 +1,6 @@
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
+import { TEMPLATES } from "../src/components/templates";
 import { loadSample, pickRadio } from "./helpers";
 
 async function scan(page: import("@playwright/test").Page) {
@@ -14,7 +15,7 @@ test.describe("accessibility (axe, WCAG 2.1 AA)", () => {
     await scan(page);
   });
 
-  for (const name of ["Časopis", "Časová osa", "Minimal", "Blok", "Terminál"]) {
+  for (const name of TEMPLATES.map((t) => t.name)) {
     test(`with a generated CV in ${name}`, async ({ page }) => {
       await loadSample(page);
       await pickRadio(page, name);

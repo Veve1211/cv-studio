@@ -1,11 +1,35 @@
+import { Aura } from "./aura/aura";
+import { Bento } from "./bento/bento";
 import { Block } from "./block/block";
 import { Magazine } from "./magazine/magazine";
 import { Minimal } from "./minimal/minimal";
+import { Swiss } from "./swiss/swiss";
 import { Terminal } from "./terminal/terminal";
 import { Timeline } from "./timeline/timeline";
 import type { TemplateDef, TemplateId } from "./types";
 
 export const TEMPLATES: TemplateDef[] = [
+  {
+    id: "aura",
+    name: "Aura",
+    description: "Jemná světelná záře v hlavičce, velké jméno, hodně vzduchu",
+    Component: Aura,
+    paper: "#ffffff",
+  },
+  {
+    id: "swiss",
+    name: "Švýcar",
+    description: "Přísná mřížka, číslované sekce a obří roky v jedné barvě",
+    Component: Swiss,
+    paper: "#ffffff",
+  },
+  {
+    id: "bento",
+    name: "Bento",
+    description: "Obsah v kartách různých velikostí jako moderní dashboard",
+    Component: Bento,
+    paper: "#ffffff",
+  },
   {
     id: "magazine",
     name: "Časopis",
@@ -30,7 +54,7 @@ export const TEMPLATES: TemplateDef[] = [
   {
     id: "block",
     name: "Blok",
-    description: "Barevné plochy a velká typografie, švýcarský styl",
+    description: "Barevné plochy a velká typografie",
     Component: Block,
     paper: "#ffffff",
   },
@@ -43,7 +67,7 @@ export const TEMPLATES: TemplateDef[] = [
   },
 ];
 
-export const DEFAULT_TEMPLATE: TemplateId = "magazine";
+export const DEFAULT_TEMPLATE: TemplateId = "aura";
 
 export function getTemplate(id: TemplateId): TemplateDef {
   return TEMPLATES.find((t) => t.id === id) ?? TEMPLATES[0];

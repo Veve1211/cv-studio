@@ -6,9 +6,9 @@ import { ACCENTS } from "@/components/templates/palette";
 import { SAMPLE_CV } from "@/lib/cv/sample";
 
 const SHOWCASE = [
-  { id: "magazine", accent: ACCENTS[1], tilt: "-rotate-3 translate-y-4" },
-  { id: "block", accent: ACCENTS[0], tilt: "z-10 scale-105" },
-  { id: "timeline", accent: ACCENTS[3], tilt: "rotate-3 translate-y-4" },
+  { id: "swiss", accent: ACCENTS[1], tilt: "-rotate-3 translate-y-4" },
+  { id: "aura", accent: ACCENTS[0], tilt: "z-10 scale-105" },
+  { id: "bento", accent: ACCENTS[2], tilt: "rotate-3 translate-y-4" },
 ] as const;
 
 /** Client component: templates render client-only fields (and functions can't cross the server boundary). */

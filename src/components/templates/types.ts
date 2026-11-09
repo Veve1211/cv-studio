@@ -1,9 +1,12 @@
 import type { Cv } from "@/lib/cv/schema";
+import type { CvLang } from "./labels";
 
-export type TemplateId = "magazine" | "timeline" | "minimal" | "block" | "terminal";
+export type TemplateId = "aura" | "swiss" | "bento" | "magazine" | "timeline" | "minimal" | "block" | "terminal";
 
 export interface TemplateProps {
   cv: Cv;
+  /** Language of section headings (default Czech). */
+  lang?: CvLang;
 }
 
 export interface TemplateDef {

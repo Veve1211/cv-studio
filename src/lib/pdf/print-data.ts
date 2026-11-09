@@ -2,7 +2,7 @@ import { z } from "zod";
 import { CvSchema } from "@/lib/cv/schema";
 import { LetterDocSchema } from "@/lib/letter/schema";
 
-export const TEMPLATE_IDS = ["magazine", "timeline", "minimal", "block", "terminal"] as const;
+export const TEMPLATE_IDS = ["aura", "swiss", "bento", "magazine", "timeline", "minimal", "block", "terminal"] as const;
 
 /** Everything the print page needs; validated on the server and again in the page. */
 export const PrintDataSchema = z.object({

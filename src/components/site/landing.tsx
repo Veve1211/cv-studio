@@ -3,7 +3,7 @@ import { LandingShowcase } from "./landing-showcase";
 const STEPS = [
   ["Vlož text", "Starý životopis, LinkedIn nebo jen odrážky. Klidně neučesaně.", "M5 5h14v14H5zM8 9h8M8 12h8M8 15h5"],
   ["AI ho učeše", "Vytáhne praxi, vzdělání i dovednosti. Nic si nevymýšlí.", "M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8zM18 15l.8 2.2L21 18l-2.2.8L18 21l-.8-2.2L15 18l2.2-.8z"],
-  ["Vyber vzhled", "Pět neokoukaných šablon, sedm barev. Přepiš, co chceš.", "M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM13 13h7v7h-7z"],
+  ["Vyber vzhled", "Osm neokoukaných šablon, sedm barev. Přepiš, co chceš.", "M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM13 13h7v7h-7z"],
 ] as const;
 
 export function Landing() {
