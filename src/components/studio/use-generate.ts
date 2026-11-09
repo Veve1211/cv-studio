@@ -18,10 +18,16 @@ export function useGenerate() {
   const [error, setError] = useState<string | null>(null);
   const [cv, setCv] = useState<Cv | null>(null);
   const [history, setHistory] = useState<Cv[]>([]);
+  /** The text the CV was generated from (memory only) – used to spot invented facts. */
+  const [source, setSource] = useState<string | null>(null);
+  /** Paths the user rewrote themselves: their text, nothing to verify. */
+  const [confirmed, setConfirmed] = useState<ReadonlySet<string>>(new Set());
   const abortRef = useRef<AbortController | null>(null);
 
-  const replace = useCallback((next: Cv) => {
+  const replace = useCallback((next: Cv, from: string | null) => {
     setCv(next);
+    setSource(from);
+    setConfirmed(new Set());
     setHistory([]);
     setError(null);
     setStatus("ready");
@@ -38,7 +44,7 @@ export function useGenerate() {
         const data = await postJson("/api/cv", { text }, controller.signal);
         const parsed = CvSchema.safeParse((data as { cv?: unknown } | null)?.cv);
         if (!parsed.success) throw new Error("Server vrátil nečekaná data. Zkus to prosím znovu.");
-        replace(parsed.data);
+        replace(parsed.data, text);
       } catch (err) {
         if (controller.signal.aborted) return;
         setError((err as Error).message);
@@ -51,7 +57,7 @@ export function useGenerate() {
   const loadSample = useCallback(
     (sample: Cv) => {
       abortRef.current?.abort();
-      replace(structuredClone(sample));
+      replace(structuredClone(sample), null);
     },
     [replace],
   );
@@ -68,7 +74,26 @@ export function useGenerate() {
     [cv],
   );
 
-  const editText = useCallback((path: string, value: string) => update((c) => setCvText(c, path, value)), [update]);
+  const editText = useCallback(
+    (path: string, value: string) => {
+      update((c) => setCvText(c, path, value));
+      setConfirmed((prev) => new Set(prev).add(path));
+    },
+    [update],
+  );
+
+  /** New AI summary: it must be verified again. */
+  const replaceSummary = useCallback(
+    (summary: string) => {
+      update((c) => ({ ...c, summary }));
+      setConfirmed((prev) => {
+        const next = new Set(prev);
+        next.delete("summary");
+        return next;
+      });
+    },
+    [update],
+  );
 
   const undo = useCallback(() => {
     if (history.length === 0) return;
@@ -76,5 +101,18 @@ export function useGenerate() {
     setHistory(history.slice(0, -1));
   }, [history]);
 
-  return { status, error, cv, canUndo: history.length > 0, generate, loadSample, editText, update, undo };
+  return {
+    status,
+    error,
+    cv,
+    source,
+    confirmed,
+    canUndo: history.length > 0,
+    generate,
+    loadSample,
+    editText,
+    replaceSummary,
+    update,
+    undo,
+  };
 }
