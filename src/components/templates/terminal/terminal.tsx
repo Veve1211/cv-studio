@@ -1,4 +1,5 @@
 import { Field } from "../field";
+import { labels } from "../labels";
 import type { TemplateProps } from "../types";
 import s from "./terminal.module.css";
 
@@ -21,7 +22,8 @@ function slug(name: string): string {
   );
 }
 
-export function Terminal({ cv }: TemplateProps) {
+export function Terminal({ cv, lang }: TemplateProps) {
+  const L = labels(lang);
   const contacts = CONTACTS.filter(([k]) => cv.contact[k]);
   return (
     <div className={s.root}>
@@ -56,7 +58,7 @@ export function Terminal({ cv }: TemplateProps) {
 
         {cv.experience.length > 0 && (
           <section className={s.section}>
-            <h2 className={s.h2}>praxe</h2>
+            <h2 className={s.h2}>{L.experience.toLowerCase()}</h2>
             {cv.experience.map((e, i) => (
               <article key={i} className={s.job}>
                 <div className={s.jobHead}>
@@ -79,7 +81,7 @@ export function Terminal({ cv }: TemplateProps) {
 
         {cv.education.length > 0 && (
           <section className={s.section}>
-            <h2 className={s.h2}>vzdělání</h2>
+            <h2 className={s.h2}>{L.education.toLowerCase()}</h2>
             {cv.education.map((e, i) => (
               <div key={i} className={s.job}>
                 <div className={s.jobHead}>
@@ -97,7 +99,7 @@ export function Terminal({ cv }: TemplateProps) {
           <div className={`${s.section} ${s.cols}`}>
             {cv.skills.length > 0 && (
               <section>
-                <h2 className={s.h2}>dovednosti</h2>
+                <h2 className={s.h2}>{L.skills.toLowerCase()}</h2>
                 <ul className={s.tags}>
                   {cv.skills.map((skill, i) => (
                     <Field key={i} as="li" path={`skills.${i}`} value={skill} />
@@ -107,7 +109,7 @@ export function Terminal({ cv }: TemplateProps) {
             )}
             {cv.languages.length > 0 && (
               <section>
-                <h2 className={s.h2}>jazyky</h2>
+                <h2 className={s.h2}>{L.languages.toLowerCase()}</h2>
                 <dl className={s.kv} style={{ marginTop: 0 }}>
                   {cv.languages.map((l, i) => (
                     <div key={i} style={{ display: "contents" }}>

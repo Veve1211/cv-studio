@@ -44,6 +44,8 @@ export interface Snapshot {
   letter?: LetterDoc | null;
   /** Which document is shown / downloaded. */
   doc?: DocKind;
+  /** Language of the section headings. */
+  lang?: "cs" | "en";
 }
 
 /**
@@ -157,6 +159,7 @@ export function usePaywall(onRestore: (snapshot: Snapshot) => void) {
             cv: snapshot.cv,
             templateId: snapshot.templateId,
             accentId: snapshot.accent.id,
+            lang: snapshot.lang ?? "cs",
             ...(snapshot.doc === "letter" && snapshot.letter ? { letter: snapshot.letter } : {}),
           }),
         });

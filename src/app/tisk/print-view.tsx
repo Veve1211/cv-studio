@@ -46,7 +46,7 @@ export function PrintView() {
         {data.letter ? (
           <LetterPage cv={data.cv} letter={data.letter} variant={template.id} />
         ) : (
-          <template.Component cv={data.cv} />
+          <template.Component cv={data.cv} lang={data.lang ?? "cs"} />
         )}
       </article>
     </>

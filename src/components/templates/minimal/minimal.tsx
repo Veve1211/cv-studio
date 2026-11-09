@@ -1,5 +1,6 @@
 import { contactItems } from "@/lib/cv/format";
 import { Field } from "../field";
+import { labels } from "../labels";
 import type { TemplateProps } from "../types";
 import s from "./minimal.module.css";
 
@@ -12,7 +13,8 @@ function Row({ label, children }: { label: string; children: React.ReactNode }) 
   );
 }
 
-export function Minimal({ cv }: TemplateProps) {
+export function Minimal({ cv, lang }: TemplateProps) {
+  const L = labels(lang);
   const contacts = contactItems(cv);
   return (
     <div className={s.root}>
@@ -31,13 +33,13 @@ export function Minimal({ cv }: TemplateProps) {
       </header>
 
       {cv.summary && (
-        <Row label="Profil">
+        <Row label={L.profile}>
           <Field as="p" className={s.summary} path="summary" value={cv.summary} />
         </Row>
       )}
 
       {cv.experience.length > 0 && (
-        <Row label="Praxe">
+        <Row label={L.experience}>
           {cv.experience.map((e, i) => (
             <div key={i} className={s.item}>
               <div className={s.itemHead}>
@@ -61,7 +63,7 @@ export function Minimal({ cv }: TemplateProps) {
       )}
 
       {cv.education.length > 0 && (
-        <Row label="Vzdělání">
+        <Row label={L.education}>
           {cv.education.map((e, i) => (
             <div key={i} className={s.item}>
               <div className={s.itemHead}>
@@ -78,7 +80,7 @@ export function Minimal({ cv }: TemplateProps) {
       )}
 
       {cv.skills.length > 0 && (
-        <Row label="Dovednosti">
+        <Row label={L.skills}>
           <ul className={s.tags}>
             {cv.skills.map((skill, i) => (
               <Field key={i} as="li" className={s.tag} path={`skills.${i}`} value={skill} />
@@ -88,7 +90,7 @@ export function Minimal({ cv }: TemplateProps) {
       )}
 
       {cv.languages.length > 0 && (
-        <Row label="Jazyky">
+        <Row label={L.languages}>
           <ul className={s.tags}>
             {cv.languages.map((l, i) => (
               <li key={i} className={s.tag}>

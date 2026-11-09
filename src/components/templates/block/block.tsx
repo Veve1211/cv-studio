@@ -1,4 +1,5 @@
 import { Field } from "../field";
+import { labels } from "../labels";
 import type { TemplateProps } from "../types";
 import s from "./block.module.css";
 
@@ -13,7 +14,8 @@ function Title({ n, children }: { n: number; children: React.ReactNode }) {
   );
 }
 
-export function Block({ cv }: TemplateProps) {
+export function Block({ cv, lang }: TemplateProps) {
+  const L = labels(lang);
   let n = 0;
   const hasFoot = cv.skills.length > 0 || cv.languages.length > 0;
   return (
@@ -37,7 +39,7 @@ export function Block({ cv }: TemplateProps) {
       <div className={s.body}>
         {cv.experience.length > 0 && (
           <section className={s.section}>
-            <Title n={++n}>Praxe</Title>
+            <Title n={++n}>{L.experience}</Title>
             <div>
               {cv.experience.map((e, i) => (
                 <article key={i} className={s.job}>
@@ -59,7 +61,7 @@ export function Block({ cv }: TemplateProps) {
 
         {cv.education.length > 0 && (
           <section className={s.section}>
-            <Title n={++n}>Vzdělání</Title>
+            <Title n={++n}>{L.education}</Title>
             <div className={s.grid}>
               {cv.education.map((e, i) => (
                 <div key={i} className={s.cell}>
@@ -78,7 +80,7 @@ export function Block({ cv }: TemplateProps) {
         <footer className={s.foot}>
           {cv.skills.length > 0 && (
             <section>
-              <h2 className={s.footTitle}>Dovednosti</h2>
+              <h2 className={s.footTitle}>{L.skills}</h2>
               <ul className={s.skills}>
                 {cv.skills.map((skill, i) => (
                   <Field key={i} as="li" path={`skills.${i}`} value={skill} />
@@ -88,7 +90,7 @@ export function Block({ cv }: TemplateProps) {
           )}
           {cv.languages.length > 0 && (
             <section>
-              <h2 className={s.footTitle}>Jazyky</h2>
+              <h2 className={s.footTitle}>{L.languages}</h2>
               <ul className={s.langs}>
                 {cv.languages.map((l, i) => (
                   <li key={i}>

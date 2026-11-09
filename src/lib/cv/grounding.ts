@@ -222,6 +222,12 @@ export function checkFreeText(text: string, source: string): string[] {
   return [...new Set([...checkYears(text, src), ...checkNumbers(text, src), ...checkTerms(text, src)])];
 }
 
+/** Only years and numbers (for translations, where words legitimately change). */
+export function checkNumbersAndYears(text: string, source: string): string[] {
+  const src = new SourceIndex(source);
+  return [...new Set([...checkYears(text, src), ...checkNumbers(text, src)])];
+}
+
 /** All facts in the CV that the source text does not support. */
 export function checkGrounding(cv: Cv, source: string): GroundingFlag[] {
   const src = new SourceIndex(source);
