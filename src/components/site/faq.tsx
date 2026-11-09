@@ -1,4 +1,5 @@
-import { isPaywallEnabled, PRICE_CZK } from "@/lib/payments/checkout";
+import { plans } from "@/lib/access";
+import { isPaywallEnabled } from "@/lib/payments/checkout";
 
 interface QA {
   q: string;
@@ -29,14 +30,19 @@ export function faqItems(paid: boolean): QA[] {
     },
   ];
   if (paid) {
+    const [, short, year] = plans();
     items.push(
       {
         q: "Kolik to stojí?",
-        a: `Náhled a úpravy jsou zdarma. PDF stojí ${PRICE_CZK} Kč jednorázově – bez předplatného a bez registrace. Jedna platba pokryje životopis i motivační dopis.`,
+        a: `Náhled a úpravy jsou zdarma. Plný přístup (PDF bez vodoznaku, motivační dopis, přizpůsobení inzerátu a angličtina) je na 1 den zdarma, na 14 dní za ${short.priceCzk} Kč nebo na rok za ${year.priceCzk} Kč. Platíš jednorázově, nic se automaticky neobnovuje a nepotřebuješ účet.`,
+      },
+      {
+        q: "Jak se dostanu k přístupu na jiném zařízení?",
+        a: "Po zaplacení dostaneš krátký přístupový kód. Na jiném zařízení klikni na „Mám kód“ a vlož ho.",
       },
       {
         q: "Co když nebudu spokojen(á)?",
-        a: "Zaplatíš až po tom, co výsledek vidíš v náhledu. Když se ti PDF nepodaří stáhnout nebo s ním bude něco v nepořádku, ozvi se nám a peníze ti vrátíme.",
+        a: "Zaplatíš až po tom, co výsledek vidíš v náhledu. Postup při reklamaci najdeš na stránce Reklamace.",
       },
     );
   }

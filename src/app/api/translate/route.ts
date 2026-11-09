@@ -3,6 +3,7 @@ import { createAiLimit } from "@/lib/ai-limit";
 import { CvError } from "@/lib/cv/generate";
 import { CvSchema } from "@/lib/cv/schema";
 import { jsonError, readJson } from "@/lib/http";
+import { requireAccess } from "@/lib/require-access";
 import { LetterSchema } from "@/lib/letter/schema";
 import { translateToEnglish } from "@/lib/translate/translate";
 
@@ -14,6 +15,9 @@ export async function POST(request: Request) {
   const body = await readJson(request, 128_000);
   const parsed = body === null ? null : BodySchema.safeParse(body);
   if (!parsed?.success) return jsonError("Neplatný požadavek.", 400);
+
+  const locked = requireAccess(request);
+  if (locked) return locked;
 
   const rate = limit(request);
   if (rate.error) return rate.error;

@@ -86,10 +86,10 @@ test.describe("cover letter with the paywall", () => {
   test.use({ baseURL: `http://localhost:${PAYWALL_PORT}` });
   test.skip(({ isMobile }) => isMobile, "server rendering does not depend on the viewport");
 
-  test("the server renders the letter after payment", async ({ request }) => {
+  test("the server renders the letter with full access", async ({ request }) => {
+    expect((await request.post("/api/access/trial")).status()).toBe(200);
     const res = await request.post("/api/pdf", {
       data: {
-        sessionId: "cs_test_mock",
         cv: SAMPLE_CV,
         templateId: "magazine",
         accentId: "sky",
