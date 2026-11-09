@@ -4,11 +4,13 @@ import { useCallback, useId, useMemo, useRef, useState } from "react";
 import { A4Preview } from "@/components/preview/a4-preview";
 import { DEFAULT_TEMPLATE, getTemplate } from "@/components/templates";
 import type { TemplateId } from "@/components/templates/types";
+import { EXAMPLES } from "@/lib/cv/examples";
 import { SAMPLE_CV } from "@/lib/cv/sample";
 import { MAX_INPUT_CHARS, MIN_INPUT_CHARS } from "@/lib/cv/schema";
 import { DEFAULT_ACCENT } from "@/components/templates/palette";
 import { AccentPicker } from "./accent-picker";
 import { DropArea, UploadButton, useFileUpload, type UploadResult } from "./file-upload";
+import { ExampleChips } from "./example-chips";
 import { LoadingPage } from "./loading-page";
 import { MobileBar, ZoomControls, type MobileView } from "./mobile-bar";
 import { TemplatePicker } from "./template-picker";
@@ -20,6 +22,8 @@ import { PaywallDialog } from "./paywall-dialog";
 import { usePaywall } from "./use-paywall";
 import { PreviewToolbar } from "./preview-toolbar";
 import { useGenerate } from "./use-generate";
+
+const EXAMPLE_TEXTS: ReadonlySet<string> = new Set(EXAMPLES.map((e) => e.text));
 
 export function CvStudio() {
   const [text, setText] = useState("");
@@ -51,6 +55,10 @@ export function CvStudio() {
   const previewRef = useRef<HTMLHeadingElement>(null);
 
   const [uploadNote, setUploadNote] = useState<string | null>(null);
+  /** The user's own text, kept when an example replaced it (memory only). */
+  const [replacedText, setReplacedText] = useState<string | null>(null);
+  /** "Klikni do textu…" disappears after the first click into the CV. */
+  const [hintDismissed, setHintDismissed] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const onUploadedText = useCallback((result: UploadResult) => {
     setText(result.text);
@@ -130,6 +138,7 @@ export function CvStudio() {
               setText(e.target.value);
               if (localError) setLocalError(null);
               if (uploadNote) setUploadNote(null);
+              if (replacedText !== null) setReplacedText(null);
             }}
             maxLength={MAX_INPUT_CHARS}
             onKeyDown={(e) => {
@@ -153,6 +162,26 @@ export function CvStudio() {
               {text.length.toLocaleString("cs-CZ")} / {MAX_INPUT_CHARS.toLocaleString("cs-CZ")}
             </span>
           </div>
+          <ExampleChips
+            onPick={(example) => {
+              if (text.trim() && text !== example && !EXAMPLE_TEXTS.has(text)) setReplacedText(text);
+              setText(example);
+              setLocalError(null);
+              setUploadNote(null);
+            }}
+          />
+          {replacedText !== null && (
+            <button
+              type="button"
+              onClick={() => {
+                setText(replacedText);
+                setReplacedText(null);
+              }}
+              className="text-brand-strong self-start text-sm font-semibold underline underline-offset-4"
+            >
+              ↩ Vrátit můj text
+            </button>
+          )}
 
           {shownError && (
             <p id={errorId} role="alert" className="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-800">
@@ -247,6 +276,15 @@ export function CvStudio() {
                 />
               )}
               <ZoomControls zoom={zoom} onZoom={setZoom} />
+              {!hintDismissed && (
+                <p role="note" className="edit-hint bg-ink mx-auto mb-3 w-fit rounded-full px-4 py-2 text-sm font-medium text-white shadow-lg print:hidden">
+                  <span aria-hidden>👆 </span>Klikni do textu a přepiš ho
+                </p>
+              )}
+              <div
+                onPointerDownCapture={() => setHintDismissed(true)}
+                onFocusCapture={() => setHintDismissed(true)}
+              >
               <A4Preview
                 accent={accent}
                 paper={template.paper}
@@ -260,6 +298,7 @@ export function CvStudio() {
                   </GroundingContext>
                 </EditContext>
               </A4Preview>
+              </div>
             </>
           ) : (
             <EmptyPreview />

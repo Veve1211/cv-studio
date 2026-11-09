@@ -37,9 +37,7 @@ export function PreviewToolbar({ cv, canUndo, onUndo, onSummary, grounding = nul
   return (
     <div className="mx-auto mb-5 flex w-full max-w-[794px] flex-col gap-2 print:hidden">
       <div className="flex flex-wrap items-center gap-2">
-        <p className="text-muted mr-auto text-sm">
-          <span aria-hidden>✎</span> Klikni do textu v životopise a přepiš ho.
-        </p>
+        <span className="mr-auto" />
         <button
           type="button"
           onClick={onUndo}

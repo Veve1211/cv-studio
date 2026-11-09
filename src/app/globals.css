@@ -307,3 +307,45 @@ body {
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='360' height='240'%3E%3Ctext x='50%25' y='50%25' fill='%230a5fb8' fill-opacity='0.09' font-family='Arial,sans-serif' font-size='30' font-weight='700' text-anchor='middle' transform='rotate(-28 180 120)'%3EN%C3%81HLED %C2%B7 Cv%C3%A9%C4%8Dko%3C/text%3E%3C/svg%3E");
   background-repeat: repeat;
 }
+
+/* ===== Loading steps ===== */
+.loading-ping {
+  box-shadow: 0 0 0 0 rgb(10 95 184 / 0.45);
+  animation: loading-ping 1.6s ease-out infinite;
+}
+
+@keyframes loading-ping {
+  to {
+    box-shadow: 0 0 0 10px rgb(10 95 184 / 0);
+  }
+}
+
+.loading-dots::after {
+  content: "…";
+  display: inline-block;
+  width: 1.2em;
+  animation: loading-dots 1.2s steps(4, end) infinite;
+  overflow: hidden;
+  vertical-align: bottom;
+}
+
+@keyframes loading-dots {
+  from {
+    width: 0;
+  }
+  to {
+    width: 1.2em;
+  }
+}
+
+/* ===== One-time edit hint ===== */
+.edit-hint {
+  animation: edit-hint-in 0.4s ease-out both;
+}
+
+@keyframes edit-hint-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}

@@ -1,3 +1,4 @@
+import { EXAMPLES } from "./examples";
 import type { Cv } from "./schema";
 
 /**
@@ -145,7 +146,7 @@ Jazyky: angličtina (C1), němčina (B1)`,
   {
     name: "absolventka",
     input:
-      "Klára Veselá, čerstvá absolventka Bc. Psychologie na Masarykově univerzitě (2021–2024). Stáž v Nadaci Terezy Maxové 2023, dobrovolnice v Linka bezpečí. Umím SPSS, angličtina C1. klara.vesela@example.com, Brno",
+      EXAMPLES.find((e) => e.id === "graduate")!.text,
     faithful: {
       name: "Klára Veselá",
       headline: "Absolventka psychologie",
@@ -163,7 +164,7 @@ Jazyky: angličtina (C1), němčina (B1)`,
   {
     name: "návrat po rodičovské",
     input:
-      "Martina Šťastná, Liberec. 2014–2020 asistentka ředitele ve Preciosa a.s. (diář, cesty, porady), pak rodičovská 2020–2024. Teď chci zpátky. Word, Excel, Outlook, angličtina B2, řidičák B. Gymnázium Liberec 2009.",
+      EXAMPLES.find((e) => e.id === "parental")!.text,
     faithful: {
       name: "Martina Šťastná",
       headline: "Asistentka ředitele",
@@ -185,7 +186,7 @@ Jazyky: angličtina (C1), němčina (B1)`,
   {
     name: "změna oboru",
     input:
-      "Ondřej Kučera. 8 let jsem učil matematiku na ZŠ Hálkova Olomouc (2015–2023). Pak jsem dal kurz Czechitas Data Academy 2024 a dělám si projekty v SQL, Python a Power BI. Chci dělat datového analytika. ondrej@example.com, github.com/ondrejk-example",
+      EXAMPLES.find((e) => e.id === "career-change")!.text,
     faithful: {
       name: "Ondřej Kučera",
       headline: "Datový analytik",
