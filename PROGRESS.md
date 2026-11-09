@@ -7,7 +7,7 @@ Po obnovení: zjisti čas, přečti tento soubor, `git status`, `git log`, otev�
 | --- | --- | --- | --- |
 | 1. Prezentační režim | `feat/demo-mode` | #19 | ✅ zmergováno |
 | 2. Zjednodušení | `feat/simplify` | PR otevřen | CI běží |
-| 3. 3 nové šablony (Aura, Švýcar, Bento) | – | – | nezačato |
+| 3. 3 nové šablony (Aura, Švýcar, Bento) | `feat/templates` (nad fází 2) | – | hotovo lokálně (PDF 1/2 strany, axe, server PDF zelené) |
 | 4. Přizpůsobení inzerátu | – | – | nezačato |
 | 5. Angličtina | – | – | nezačato |
 | 6. Placený přístup | – | – | nezačato |

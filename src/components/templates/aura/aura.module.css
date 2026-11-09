@@ -4,14 +4,14 @@
   --line: #e4e9f1;
   color: var(--ink);
   font-family: var(--font-manrope), var(--font-inter), sans-serif;
-  font-size: 9.2pt;
-  line-height: 1.55;
+  font-size: 9pt;
+  line-height: 1.5;
 }
 
 /* Soft light glow in the accent colour behind the name (pale enough for dark text). */
 .head {
   position: relative;
-  padding: 22mm 20mm 13mm;
+  padding: 17mm 20mm 10mm;
   isolation: isolate;
 }
 
@@ -26,7 +26,7 @@
 }
 
 .name {
-  font-size: 40pt;
+  font-size: 38pt;
   font-weight: 800;
   line-height: 1;
   letter-spacing: -0.035em;
@@ -45,20 +45,20 @@
   display: flex;
   flex-wrap: wrap;
   gap: 1.5mm 7mm;
-  margin-top: 6mm !important;
+  margin-top: 5mm !important;
   font-size: 8.6pt;
   font-weight: 500;
 }
 
 .body {
-  padding: 4mm 20mm 16mm;
+  padding: 2mm 20mm 12mm;
 }
 
 .row {
   display: grid;
   grid-template-columns: 34mm 1fr;
   gap: 6mm;
-  padding: 6mm 0;
+  padding: 4.5mm 0;
   border-top: 0.7pt solid var(--line);
 }
 
@@ -76,14 +76,14 @@
 }
 
 .summary {
-  font-size: 11pt;
-  line-height: 1.6;
+  font-size: 10.5pt;
+  line-height: 1.55;
   font-weight: 500;
 }
 
 .item {
   break-inside: avoid;
-  margin-bottom: 5mm;
+  margin-bottom: 4mm;
 }
 
 .item:last-child {
