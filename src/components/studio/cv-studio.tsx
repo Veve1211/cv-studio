@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useId, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
 import { A4Preview } from "@/components/preview/a4-preview";
 import { DEFAULT_TEMPLATE, getTemplate } from "@/components/templates";
 import type { TemplateId } from "@/components/templates/types";
@@ -8,6 +8,7 @@ import { SAMPLE_CV } from "@/lib/cv/sample";
 import { MAX_INPUT_CHARS, MIN_INPUT_CHARS } from "@/lib/cv/schema";
 import { DEFAULT_ACCENT } from "@/components/templates/palette";
 import { AccentPicker } from "./accent-picker";
+import { DropArea, UploadButton, useFileUpload, type UploadResult } from "./file-upload";
 import { LoadingPage } from "./loading-page";
 import { TemplatePicker } from "./template-picker";
 import { EditContext } from "@/components/templates/edit-context";
@@ -43,6 +44,17 @@ export function CvStudio() {
     return map;
   }, [cv, source, confirmed]);
   const previewRef = useRef<HTMLHeadingElement>(null);
+  const [uploadNote, setUploadNote] = useState<string | null>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const onUploadedText = useCallback((result: UploadResult) => {
+    setText(result.text);
+    setLocalError(null);
+    setUploadNote(
+      `Načteno ze souboru ${result.fileName}.${result.truncated ? " Text byl moc dlouhý, zkrátili jsme ho." : ""} Zkontroluj ho a klikni na „Vytvořit životopis“. Soubor nikam neukládáme.`,
+    );
+    textareaRef.current?.focus();
+  }, []);
+  const fileUpload = useFileUpload(onUploadedText);
   const textareaId = useId();
   const hintId = useId();
   const errorId = useId();
@@ -73,8 +85,8 @@ export function CvStudio() {
 
   return (
     <div id="studio" className="grid w-full flex-1 scroll-mt-20 lg:scroll-mt-0 lg:grid-cols-[minmax(360px,440px)_1fr] print:block">
-      <section
-        aria-labelledby="studio-title"
+      <DropArea
+        onFile={(file) => void fileUpload.upload(file)}
         className="border-line bg-white/70 px-4 py-8 backdrop-blur-xl sm:px-8 lg:sticky lg:top-0 lg:pt-24 lg:h-dvh lg:overflow-y-auto lg:border-r print:hidden"
       >
         <h2 id="studio-title" className="font-display text-3xl font-bold tracking-[-0.03em]">
@@ -85,15 +97,20 @@ export function CvStudio() {
         </p>
 
         <form onSubmit={onSubmit} className="mt-6 flex flex-col gap-3" noValidate>
-          <label htmlFor={textareaId} className="text-sm font-semibold">
-            Napiš o sobě cokoliv
-          </label>
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <label htmlFor={textareaId} className="text-sm font-semibold">
+              Napiš o sobě cokoliv
+            </label>
+            <UploadButton busy={fileUpload.busy} onFile={(file) => void fileUpload.upload(file)} />
+          </div>
           <textarea
+            ref={textareaRef}
             id={textareaId}
             value={text}
             onChange={(e) => {
               setText(e.target.value);
               if (localError) setLocalError(null);
+              if (uploadNote) setUploadNote(null);
             }}
             maxLength={MAX_INPUT_CHARS}
             onKeyDown={(e) => {
@@ -123,6 +140,16 @@ export function CvStudio() {
               {shownError}
             </p>
           )}
+          {fileUpload.error && (
+            <p role="alert" className="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-800">
+              {fileUpload.error}
+            </p>
+          )}
+          {uploadNote && (
+            <p role="status" className="bg-brand-soft text-ink rounded-xl px-4 py-3 text-sm">
+              {uploadNote}
+            </p>
+          )}
 
           <div className="mt-1 flex flex-wrap gap-2">
             <button
@@ -144,7 +171,7 @@ export function CvStudio() {
             </button>
           </div>
         </form>
-      </section>
+      </DropArea>
 
       <section aria-labelledby="preview-title" className="bg-canvas flex min-w-0 flex-col lg:pt-[4.5rem] print:block print:bg-transparent">
         <h2 id="preview-title" ref={previewRef} tabIndex={-1} className="sr-only">

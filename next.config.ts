@@ -4,6 +4,8 @@ const nextConfig: NextConfig = {
   cacheComponents: true,
   partialPrefetching: true,
   poweredByHeader: false,
+  // Loaded at runtime from node_modules (pdf.js spawns its own fake worker in Node).
+  serverExternalPackages: ["pdfjs-dist", "mammoth"],
   async headers() {
     return [
       {
