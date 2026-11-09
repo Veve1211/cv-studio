@@ -60,7 +60,7 @@ export function CvStudio() {
   const loading = status === "loading";
 
   return (
-    <div id="studio" className="grid w-full flex-1 lg:grid-cols-[minmax(360px,440px)_1fr] print:block">
+    <div id="studio" className="grid w-full flex-1 scroll-mt-16 lg:grid-cols-[minmax(360px,440px)_1fr] print:block">
       <section
         aria-labelledby="studio-title"
         className="border-line bg-white px-4 py-8 sm:px-8 lg:sticky lg:top-0 lg:h-dvh lg:overflow-y-auto lg:border-r print:hidden"
@@ -84,6 +84,10 @@ export function CvStudio() {
               if (localError) setLocalError(null);
             }}
             maxLength={MAX_INPUT_CHARS}
+            onKeyDown={(e) => {
+              // Ctrl/Cmd + Enter submits, plain Enter stays a new line.
+              if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) e.currentTarget.form?.requestSubmit();
+            }}
             rows={14}
             aria-describedby={`${hintId}${shownError ? ` ${errorId}` : ""}`}
             aria-invalid={Boolean(shownError) || undefined}
@@ -93,7 +97,10 @@ export function CvStudio() {
             className="border-line bg-paper-soft focus:border-ink min-h-[260px] w-full resize-y rounded-2xl border px-4 py-3.5 text-[15px] leading-relaxed outline-none transition-colors lg:min-h-[340px]"
           />
           <div className="text-muted flex justify-between text-xs">
-            <span id={hintId}>Text nikam neukládáme. AI ho jen učeše, nic si nevymýšlí.</span>
+            <span id={hintId}>
+              Text nikam neukládáme. AI ho jen učeše, nic si nevymýšlí.
+              <span className="hidden lg:inline"> Odeslat: Ctrl + Enter.</span>
+            </span>
             <span aria-live="off" className="shrink-0 whitespace-nowrap pl-3 tabular-nums">
               {text.length.toLocaleString("cs-CZ")} / {MAX_INPUT_CHARS.toLocaleString("cs-CZ")}
             </span>

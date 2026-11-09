@@ -1,7 +1,8 @@
 "use client";
 
-import { useLayoutEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
+import { useLayoutEffect, useRef, useState, type ReactNode } from "react";
 import pageStyles from "@/components/templates/page.module.css";
+import { pageStyle } from "@/components/templates/page-style";
 import type { Accent } from "@/components/templates/palette";
 
 interface A4PreviewProps {
@@ -9,10 +10,6 @@ interface A4PreviewProps {
   accent: Accent;
   paper: string;
   templateId: string;
-}
-
-export function pageStyle(accent: Accent, paper: string): CSSProperties {
-  return { background: paper, "--accent": accent.value, "--on-accent": accent.on } as CSSProperties;
 }
 
 /**
