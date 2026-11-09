@@ -4,6 +4,7 @@ import { CvSchema } from "@/lib/cv/schema";
 import { improveSummary } from "@/lib/cv/summary";
 import { jsonError, readJson } from "@/lib/http";
 import { clientKey, createRateLimiter } from "@/lib/rate-limit";
+import { cookieLimit } from "@/lib/rate-limit-cookie";
 
 const limiter = createRateLimiter({ limit: 20, windowMs: 15 * 60 * 1000 });
 const BodySchema = z.object({ cv: CvSchema });
@@ -25,9 +26,19 @@ export async function POST(request: Request) {
     });
   }
 
+  // Survives restarts: the count also lives in a signed HttpOnly cookie.
+  const cookie = cookieLimit(request, { scope: "summary", limit: 20, windowSec: 15 * 60 });
+  if (!cookie.ok) {
+    return jsonError("Moc pokusů za sebou. Zkus to prosím za chvíli znovu.", 429, {
+      "Retry-After": String(cookie.retryAfterSec),
+    });
+  }
+
   try {
     const summary = await improveSummary(cv);
-    return Response.json({ summary }, { headers: { "Cache-Control": "no-store" } });
+    const headers = new Headers({ "Cache-Control": "no-store" });
+    if (cookie.setCookie) headers.append("Set-Cookie", cookie.setCookie);
+    return Response.json({ summary }, { headers });
   } catch (error) {
     if (error instanceof CvError) return jsonError(error.message, error.status);
     return jsonError("Něco se pokazilo. Zkus to prosím znovu.", 500);

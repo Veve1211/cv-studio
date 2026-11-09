@@ -1,8 +1,8 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  cacheComponents: true,
-  partialPrefetching: true,
+  // Cache Components / partial prerendering are off: a per-request CSP nonce needs
+  // every page rendered dynamically (see src/proxy.ts).
   poweredByHeader: false,
   // Loaded at runtime from node_modules: pdf.js and mammoth (upload), headless Chromium (paid PDF).
   serverExternalPackages: ["pdfjs-dist", "mammoth", "puppeteer-core", "@sparticuz/chromium"],
