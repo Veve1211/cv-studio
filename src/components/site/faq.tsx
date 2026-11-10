@@ -10,7 +10,7 @@ export function faqItems(paid: boolean): QA[] {
   const items: QA[] = [
     {
       q: "Co se stane s textem, který vložím?",
-      a: "Pošle se jen ve chvíli, kdy klikneš na „Vytvořit životopis“, a to rovnou do AI (Claude), která z něj poskládá životopis. Na našem serveru se neukládá ani nezapisuje do logů. Hotový životopis drží jen tvůj prohlížeč – když stránku zavřeš, zmizí.",
+      a: "Pošle se jen ve chvíli, kdy klikneš na „Vytvořit životopis“ (nebo sám spustíš dopis, přizpůsobení inzerátu či překlad), a to rovnou do AI (Claude), která z něj poskládá životopis. Na našem serveru se neukládá ani nezapisuje do logů. Hotový životopis drží jen tvůj prohlížeč – když stránku zavřeš, zmizí.",
     },
     {
       q: "Co AI dělá a co ne?",

@@ -23,3 +23,9 @@ Všech 7 fází je hotových a zmergovaných do `dev`.
   `RAILPACK_DEPLOY_APT_PACKAGES`; stejný seznam je teď v repu v `railpack.json` (viz README, Nasazení).
 - Dialog platby: pod vypnutým tlačítkem „Zaplatit“ je nápověda „Pro pokračování zaškrtni oba souhlasy.“
 - Ceník na landingu: „Za 99 Kč“ / „Za 299 Kč“ vedou do aplikace s nápovědou „Nejdřív si vytvoř životopis…“ a tarif je v dialogu platby předvybraný (platí se až při stažení PDF).
+
+## Kontrola před odevzdáním (10. 11. 2026)
+
+- Průchod očima zákazníka (Playwright, 1440 px a 390 px, ukázková data, Stripe mock): bez chyb v konzoli, bez mrtvých odkazů, bez horizontálního scrollu, všechny šablony bez přetečení.
+- Opraveno: zásady ochrany osobních údajů a FAQ psaly, že se text posílá jen při „Vytvořit životopis“ / „Vylepšit shrnutí“ a že je jen jeden cookie. Doplněny dopis, inzerát, překlad a cookie s přístupem; nadpis „Platba za PDF“ → „Platba“.
+- Náhled odkazu (title, description, og:*, twitter:*, og:image 1200×630) je v pořádku, absolutní adresy se berou z `APP_URL`.
