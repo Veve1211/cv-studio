@@ -58,7 +58,8 @@ export function Pricing() {
               ))}
             </ul>
             <a
-              href="#studio"
+              // Paid plans go to the app with the plan preselected; paying happens at the PDF download.
+              href={plan.id === "trial" ? "#studio" : `/?tarif=${plan.id}#studio`}
               className={`mt-6 inline-flex min-h-11 items-center justify-center rounded-full px-6 font-semibold ${
                 best ? "btn-primary" : "border-line hover:border-brand-strong border bg-white"
               }`}

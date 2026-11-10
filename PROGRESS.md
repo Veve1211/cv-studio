@@ -22,3 +22,4 @@ Všech 7 fází je hotových a zmergovaných do `dev`.
 - PDF na serveru padalo: Chromium nemělo systémové knihovny (`libnspr4.so`). Opraveno na Railway proměnnou
   `RAILPACK_DEPLOY_APT_PACKAGES`; stejný seznam je teď v repu v `railpack.json` (viz README, Nasazení).
 - Dialog platby: pod vypnutým tlačítkem „Zaplatit“ je nápověda „Pro pokračování zaškrtni oba souhlasy.“
+- Ceník na landingu: „Za 99 Kč“ / „Za 299 Kč“ vedou do aplikace s nápovědou „Nejdřív si vytvoř životopis…“ a tarif je v dialogu platby předvybraný (platí se až při stažení PDF).

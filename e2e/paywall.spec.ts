@@ -205,3 +205,21 @@ test.describe("with a Stripe key (test mode)", () => {
     expect(await prints(page)).toBe(0);
   });
 });
+
+test.describe("pricing buttons on the landing page", () => {
+  test.use({ baseURL: `http://localhost:${PAYWALL_PORT}` });
+
+  test("explain that paying happens at the PDF download and preselect the plan", async ({ page }) => {
+    await page.goto("/");
+    await page.getByTestId("plan-14d").getByRole("link", { name: "Za 99 Kč" }).click();
+    const hint = page.getByTestId("plan-hint");
+    await expect(hint).toHaveText("Nejdřív si vytvoř životopis. Zaplatíš až při stažení PDF, tarif máš předvybraný.");
+    expect(page.url()).not.toContain("tarif=");
+
+    await page.getByRole("button", { name: "Ukázka" }).click();
+    await page.getByRole("button", { name: "Stáhnout PDF" }).filter({ visible: true }).first().click();
+    const dialog = page.getByRole("dialog", { name: "Odemkni plný přístup" });
+    await expect(dialog.getByLabel(/14 dní/)).toBeChecked();
+    await expect(dialog.getByRole("button", { name: "Zaplatit 99 Kč" })).toBeVisible();
+  });
+});

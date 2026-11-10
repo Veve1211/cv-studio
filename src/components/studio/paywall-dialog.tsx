@@ -8,13 +8,15 @@ interface PaywallDialogProps {
   config: PaywallConfig;
   /** What the user tried to do, e.g. "Stáhnout PDF bez vodoznaku". */
   reason: string;
+  /** Plan picked on the landing page pricing, preselected here. */
+  initialPlan?: "14d" | "year";
   onClose: () => void;
   onPay: (plan: "14d" | "year") => Promise<void>;
   onUnlock: (kind: "trial" | "code", code?: string) => Promise<void>;
 }
 
 /** Full access: one free day, 14 days or a year (one-off, no subscription), or "Mám kód". */
-export function PaywallDialog({ open, config, reason, onClose, onPay, onUnlock }: PaywallDialogProps) {
+export function PaywallDialog({ open, config, reason, initialPlan, onClose, onPay, onUnlock }: PaywallDialogProps) {
   const ref = useRef<HTMLDialogElement>(null);
   const [plan, setPlan] = useState<"14d" | "year">("year");
   const [terms, setTerms] = useState(false);
@@ -30,9 +32,10 @@ export function PaywallDialog({ open, config, reason, onClose, onPay, onUnlock }
   useEffect(() => {
     const dialog = ref.current;
     if (!dialog) return;
+    if (open && !dialog.open && initialPlan) setPlan(initialPlan);
     if (open && !dialog.open) dialog.showModal();
     if (!open && dialog.open) dialog.close();
-  }, [open]);
+  }, [open, initialPlan]);
 
   const paidPlans = config.plans.filter((p) => p.id !== "trial");
   const trial = config.plans.find((p) => p.id === "trial");
