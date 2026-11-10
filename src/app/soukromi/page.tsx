@@ -24,8 +24,10 @@ export default function PrivacyPage() {
           <h2>Co se děje s textem, který vložíš</h2>
           <ul>
             <li>
-              Text se odešle jen ve chvíli, kdy klikneš na „Vytvořit životopis“ (nebo „Vylepšit shrnutí“), a to
-              přímo do služby Claude od společnosti Anthropic, která z něj sestaví životopis.
+              Text se odešle jen ve chvíli, kdy klikneš na „Vytvořit životopis“, a to přímo do služby Claude od
+              společnosti Anthropic, která z něj sestaví životopis. Stejně tak se životopis (a případně text inzerátu)
+              odešle, jen když sám klikneš na „Vylepšit shrnutí“, motivační dopis, přizpůsobení inzerátu nebo
+              anglickou verzi.
             </li>
             <li>Na našem serveru se text ani životopis neukládá a nezapisuje do žádných logů.</li>
             <li>
@@ -38,7 +40,7 @@ export default function PrivacyPage() {
             </li>
           </ul>
 
-          <h2>Platba za PDF</h2>
+          <h2>Platba</h2>
           <ul>
             <li>
               Pokud je platba zapnutá, probíhá přes Stripe. Údaje o kartě zadáváš přímo u Stripe, my je nikdy
@@ -56,9 +58,10 @@ export default function PrivacyPage() {
 
           <h2>Cookies a měření</h2>
           <p>
-            Nepoužíváme analytické ani reklamní cookies a nesledujeme tě. Jediný cookie je technický: počítá, kolikrát
-            jsi za posledních 15 minut požádal(a) AI o text, aby nikdo nemohl službu zahltit. Neobsahuje žádné osobní
-            údaje (jen číslo a čas) a po 15 minutách sám zmizí. Pokud je zapnuté měření návštěvnosti, používá nástroj
+            Nepoužíváme analytické ani reklamní cookies a nesledujeme tě. Používáme jen technické cookies bez osobních
+            údajů: jeden počítá, kolikrát jsi za posledních 15 minut požádal(a) AI o text, aby nikdo nemohl službu
+            zahltit (po 15 minutách sám zmizí). Pokud máš plný přístup, další cookie si pamatuje jen datum, do kdy
+            platí (a že už jsi využil(a) den zdarma). Žádný z nich neobsahuje tvůj text ani životopis. Pokud je zapnuté měření návštěvnosti, používá nástroj
             bez cookies, který neukládá IP adresy ani nic, podle čeho by šlo poznat konkrétního člověka.
           </p>
 
