@@ -10,13 +10,24 @@ interface PaywallDialogProps {
   reason: string;
   /** Plan picked on the landing page pricing, preselected here. */
   initialPlan?: "14d" | "year";
+  /** Came from "Vyzkoušet zdarma" in the pricing: highlight the free day. */
+  highlightTrial?: boolean;
   onClose: () => void;
   onPay: (plan: "14d" | "year") => Promise<void>;
   onUnlock: (kind: "trial" | "code", code?: string) => Promise<void>;
 }
 
 /** Full access: one free day, 14 days or a year (one-off, no subscription), or "Mám kód". */
-export function PaywallDialog({ open, config, reason, initialPlan, onClose, onPay, onUnlock }: PaywallDialogProps) {
+export function PaywallDialog({
+  open,
+  config,
+  reason,
+  initialPlan,
+  highlightTrial = false,
+  onClose,
+  onPay,
+  onUnlock,
+}: PaywallDialogProps) {
   const ref = useRef<HTMLDialogElement>(null);
   const [plan, setPlan] = useState<"14d" | "year">("year");
   const [terms, setTerms] = useState(false);
@@ -69,7 +80,9 @@ export function PaywallDialog({ open, config, reason, initialPlan, onClose, onPa
             Odemkni plný přístup
           </h2>
           <p className="text-muted mt-1.5 text-[15px] leading-relaxed">
-            {reason} je součástí plného přístupu. Náhled a úpravy máš dál zdarma.
+            {reason
+              ? `${reason} je součástí plného přístupu. Náhled a úpravy máš dál zdarma.`
+              : "Vyber si, na jak dlouho chceš plný přístup. Náhled a úpravy máš dál zdarma."}
           </p>
         </div>
 
@@ -78,7 +91,11 @@ export function PaywallDialog({ open, config, reason, initialPlan, onClose, onPa
             type="button"
             disabled={busy}
             onClick={() => void run(() => onUnlock("trial"))}
-            className="border-brand-strong bg-brand-soft min-h-12 rounded-2xl border-2 px-4 text-left font-semibold transition disabled:opacity-60"
+            data-highlight={highlightTrial ? "" : undefined}
+            autoFocus={highlightTrial}
+            className={`border-brand-strong bg-brand-soft min-h-12 rounded-2xl border-2 px-4 text-left font-semibold transition disabled:opacity-60 ${
+              highlightTrial ? "ring-brand-strong/30 shadow-lg ring-4" : ""
+            }`}
           >
             🎁 Vyzkoušet 1 den zdarma
             <span className="text-muted block text-sm font-normal">Bez karty, jednou na prohlížeč.</span>

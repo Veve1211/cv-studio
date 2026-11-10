@@ -69,7 +69,7 @@ export function CvStudio({ kofiUrl = null }: { kofiUrl?: string | null }) {
   const [askSupport, setAskSupport] = useState(false);
   const [paywallReason, setPaywallReason] = useState("PDF bez vodoznaku");
   /** Plan clicked in the landing page pricing (?tarif=), preselected at the PDF download. */
-  const [pickedPlan, setPickedPlan] = useState<"14d" | "year" | null>(null);
+  const [pickedPlan, setPickedPlan] = useState<"trial" | "14d" | "year" | null>(null);
   useEffect(() => {
     const url = new URL(window.location.href);
     const tarif = url.searchParams.get("tarif");
@@ -229,6 +229,42 @@ export function CvStudio({ kofiUrl = null }: { kofiUrl?: string | null }) {
     action();
   }
 
+  /**
+   * A plan clicked in the landing page pricing. Handled in place (no reload), so an
+   * already created CV is kept: CV + no access → payment dialog with the plan picked,
+   * full access → "Už máš plný přístup", no CV yet → hint to create it first.
+   */
+  function onPricingClick(plan: "trial" | "14d" | "year") {
+    setPickedPlan(plan);
+    const config = paywall.config;
+    if (cv && config?.enabled && config.access) {
+      paywall.setNotice({ text: `Už máš plný přístup do ${formatDate(config.access.until)}.`, error: false });
+      setView("preview");
+    } else if (cv && config?.enabled) {
+      setPaywallReason("");
+      setPaywallOpen(true);
+      return;
+    } else if (!cv) {
+      setView("text");
+    }
+    document.getElementById("studio")?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+  const pricingClickRef = useRef(onPricingClick);
+  useEffect(() => {
+    pricingClickRef.current = onPricingClick;
+  });
+  useEffect(() => {
+    function onClick(event: MouseEvent) {
+      const link = (event.target as Element | null)?.closest?.("a[data-plan]");
+      const plan = link?.getAttribute("data-plan");
+      if (plan !== "trial" && plan !== "14d" && plan !== "year") return;
+      event.preventDefault();
+      pricingClickRef.current(plan);
+    }
+    document.addEventListener("click", onClick);
+    return () => document.removeEventListener("click", onClick);
+  }, []);
+
   /** No paywall: browser print. Paywall: dialog first, then a clean PDF from the server. */
   function downloadPdf() {
     if (!cv) return;
@@ -280,9 +316,11 @@ export function CvStudio({ kofiUrl = null }: { kofiUrl?: string | null }) {
             </span>
           </p>
         )}
-        {pickedPlan && paywall.config?.enabled && (
+        {pickedPlan && paywall.config?.enabled && !cv && (
           <p role="status" data-testid="plan-hint" className="bg-brand-soft text-ink mb-4 rounded-2xl px-4 py-3 text-sm">
-            Nejdřív si vytvoř životopis. Zaplatíš až při stažení PDF, tarif máš předvybraný.
+            {paywall.config.access
+              ? `Už máš plný přístup do ${formatDate(paywall.config.access.until)}. Vytvoř si životopis a stáhni PDF.`
+              : "Nejdřív si vytvoř životopis. Zaplatíš až při stažení PDF, tarif máš předvybraný."}
           </p>
         )}
         {paywall.demoError && (
@@ -509,10 +547,25 @@ export function CvStudio({ kofiUrl = null }: { kofiUrl?: string | null }) {
                   open={paywallOpen}
                   config={paywall.config}
                   reason={paywallReason}
-                  initialPlan={pickedPlan ?? undefined}
+                  initialPlan={pickedPlan === "14d" || pickedPlan === "year" ? pickedPlan : undefined}
+                  highlightTrial={pickedPlan === "trial"}
                   onClose={() => setPaywallOpen(false)}
                   onPay={(plan) => paywall.startCheckout({ cv, templateId, accent, letter: letterState.letter, doc }, plan)}
-                  onUnlock={paywall.unlock}
+                  onUnlock={async (kind, code) => {
+                    await paywall.unlock(kind, code);
+                    // Unlocked from "Stáhnout PDF": continue with the download right away.
+                    if (paywallReason === "PDF bez vodoznaku") {
+                      setAskSupport(true);
+                      void paywall.downloadServerPdf({
+                        cv: shownCv ?? cv,
+                        templateId,
+                        accent,
+                        letter: shownLetter,
+                        doc,
+                        lang: enActive ? "en" : "cs",
+                      });
+                    }
+                  }}
                 />
               )}
               <LetterDialog
