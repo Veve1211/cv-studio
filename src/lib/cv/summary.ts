@@ -26,6 +26,7 @@ export const MOCK_SUMMARY =
 export async function improveSummary(cv: Cv, client?: MessagesClient): Promise<string> {
   if (!client && isMockMode()) return MOCK_SUMMARY;
   const raw = await requestStructured(client ?? getClient(), {
+    label: "summary",
     system: SUMMARY_SYSTEM_PROMPT,
     userContent: `Životopis:\n\n<zivotopis>\n${JSON.stringify(cv)}\n</zivotopis>`,
     schema: SUMMARY_JSON_SCHEMA,

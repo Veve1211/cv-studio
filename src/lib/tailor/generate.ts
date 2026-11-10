@@ -31,6 +31,7 @@ export function mockTailor(cv: Cv): Tailor {
 export async function generateTailor(cv: Cv, job: string, client?: MessagesClient): Promise<Tailor> {
   if (!client && isMockMode()) return mockTailor(cv);
   const raw = await requestStructured(client ?? getClient(), {
+    label: "tailor",
     system: TAILOR_SYSTEM_PROMPT,
     userContent: `Životopis uchazeče:\n<zivotopis>\n${JSON.stringify(cv)}\n</zivotopis>\n\nText inzerátu:\n<inzerat>\n${job}\n</inzerat>`,
     schema: TAILOR_JSON_SCHEMA,

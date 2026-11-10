@@ -59,7 +59,10 @@ export function Pricing() {
             </ul>
             <a
               // Paid plans go to the app with the plan preselected; paying happens at the PDF download.
+              // Without JavaScript a plain link; with it the studio handles the click in place
+              // (no reload, so an already created CV is kept) – see cv-studio.tsx.
               href={plan.id === "trial" ? "#studio" : `/?tarif=${plan.id}#studio`}
+              data-plan={plan.id}
               className={`mt-6 inline-flex min-h-11 items-center justify-center rounded-full px-6 font-semibold ${
                 best ? "btn-primary" : "border-line hover:border-brand-strong border bg-white"
               }`}

@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import { postJson } from "@/lib/client-api";
 import { setTextAt } from "@/lib/cv/path";
 import type { Cv } from "@/lib/cv/schema";
@@ -12,14 +12,19 @@ export function useLetter() {
   const [job, setJob] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  /** The request in flight; a new one (or closing the dialog) cancels it. */
+  const abortRef = useRef<AbortController | null>(null);
   /** Paths the user rewrote (not checked for invented facts any more). */
   const [confirmed, setConfirmed] = useState<ReadonlySet<string>>(new Set());
 
   const generate = useCallback(async (cv: Cv, jobText: string): Promise<boolean> => {
+    abortRef.current?.abort();
+    const controller = new AbortController();
+    abortRef.current = controller;
     setBusy(true);
     setError(null);
     try {
-      const data = await postJson("/api/letter", { cv, job: jobText });
+      const data = await postJson("/api/letter", { cv, job: jobText }, controller.signal);
       const parsed = LetterSchema.safeParse((data as { letter?: unknown } | null)?.letter);
       if (!parsed.success) throw new Error("Server vrátil nečekaná data. Zkus to prosím znovu.");
       setLetter({ ...parsed.data, dateLine: letterDateLine(cv.contact.location) });
@@ -27,11 +32,21 @@ export function useLetter() {
       setConfirmed(new Set());
       return true;
     } catch (err) {
-      setError((err as Error).message);
+      if (!controller.signal.aborted) setError((err as Error).message);
       return false;
     } finally {
-      setBusy(false);
+      if (abortRef.current === controller) {
+        abortRef.current = null;
+        setBusy(false);
+      }
     }
+  }, []);
+
+  /** Stops waiting for the AI (dialog closed); the buttons work again right away. */
+  const cancel = useCallback(() => {
+    abortRef.current?.abort();
+    abortRef.current = null;
+    setBusy(false);
   }, []);
 
   const editText = useCallback((path: string, value: string) => {
@@ -44,5 +59,5 @@ export function useLetter() {
     setConfirmed(new Set());
   }, []);
 
-  return { letter, job, busy, error, setError, confirmed, generate, editText, restore };
+  return { letter, job, busy, error, setError, confirmed, generate, cancel, editText, restore };
 }

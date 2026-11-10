@@ -223,3 +223,49 @@ test.describe("pricing buttons on the landing page", () => {
     await expect(dialog.getByRole("button", { name: "Zaplatit 99 Kč" })).toBeVisible();
   });
 });
+
+test.describe("pricing buttons when a CV already exists", () => {
+  test.use({ baseURL: `http://localhost:${PAYWALL_PORT}` });
+
+  test("open the payment dialog right away with the plan picked, keeping the CV", async ({ page }) => {
+    await loadSample(page);
+    await page.getByTestId("plan-year").getByRole("link").click();
+    const dialog = page.getByRole("dialog", { name: "Odemkni plný přístup" });
+    await expect(dialog).toBeVisible();
+    await expect(dialog).toContainText("Vyber si, na jak dlouho chceš plný přístup");
+    await expect(dialog.getByLabel(/1 rok/)).toBeChecked();
+    await expect(page.getByTestId("plan-hint")).toHaveCount(0);
+    await dialog.getByRole("button", { name: "Zrušit" }).click();
+    await expect(page.locator('#cv-page [data-path="name"]')).toHaveText("Tereza Nováková");
+
+    await page.getByTestId("plan-14d").getByRole("link").click();
+    await expect(dialog.getByLabel(/14 dní/)).toBeChecked();
+  });
+
+  test("“Vyzkoušet zdarma” highlights the free day", async ({ page }) => {
+    await loadSample(page);
+    await page.getByTestId("plan-trial").getByRole("link").click();
+    const dialog = page.getByRole("dialog", { name: "Odemkni plný přístup" });
+    await expect(dialog.getByRole("button", { name: /Vyzkoušet 1 den zdarma/ })).toHaveAttribute("data-highlight", "");
+  });
+
+  test("with full access they say so and offer the PDF instead of a dialog", async ({ page }) => {
+    expect((await page.request.post("/api/access/trial")).status()).toBe(200);
+    await loadSample(page);
+    await page.getByTestId("plan-year").getByRole("link").click();
+    await expect(page.getByRole("dialog")).toHaveCount(0);
+    const notice = page.getByRole("status").filter({ hasText: "Už máš plný přístup do" });
+    await expect(notice).toBeVisible();
+    await expect(notice.getByRole("button", { name: "Stáhnout PDF" })).toBeVisible();
+  });
+
+  test("the free day unlocked from “Stáhnout PDF” downloads the PDF right away", async ({ page, isMobile }) => {
+    test.skip(isMobile, "the download is the same on phones");
+    await loadSample(page);
+    await page.getByRole("button", { name: "Stáhnout PDF" }).first().click();
+    const downloadPromise = page.waitForEvent("download");
+    await page.getByRole("dialog").getByRole("button", { name: /Vyzkoušet 1 den zdarma/ }).click();
+    const download = await downloadPromise;
+    expect(download.suggestedFilename()).toBe("Zivotopis-Tereza-Novakova.pdf");
+  });
+});

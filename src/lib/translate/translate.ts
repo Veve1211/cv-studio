@@ -85,6 +85,7 @@ const RESPONSE_SCHEMA = {
 export async function translateToEnglish(cv: Cv, letter: Letter | null, client?: MessagesClient): Promise<Translation> {
   if (!client && isMockMode()) return mockTranslation(cv, letter);
   const raw = (await requestStructured(client ?? getClient(), {
+    label: "translate",
     system: TRANSLATE_SYSTEM_PROMPT,
     userContent: `Životopis:\n<zivotopis>\n${JSON.stringify(cv)}\n</zivotopis>\n\nMotivační dopis:\n<dopis>\n${
       letter ? JSON.stringify(letter) : "(žádný)"
