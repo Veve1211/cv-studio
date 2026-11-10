@@ -42,6 +42,7 @@ export default defineConfig({
         STRIPE_SECRET_KEY: "sk_test_mock",
         DEMO_ENABLED: "1",
         KOFI_URL: "https://ko-fi.com/cvecko-example",
+        SMOKE_TOKEN: "e2e-smoke-token",
         CHROMIUM_PATH: serverChromium,
         PORT: String(PAYWALL_PORT),
       },
