@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import { postJson } from "@/lib/client-api";
 import { setCvText, setTextAt } from "@/lib/cv/path";
 import { CvSchema, type Cv } from "@/lib/cv/schema";
@@ -24,16 +24,21 @@ export function useEnglish() {
   const [state, setState] = useState<EnglishState | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  /** The request in flight; a new one (or closing the dialog) cancels it. */
+  const abortRef = useRef<AbortController | null>(null);
   const [confirmed, setConfirmed] = useState<ReadonlySet<string>>(new Set());
 
   const translate = useCallback(async (cv: Cv, letter: LetterDoc | null): Promise<boolean> => {
+    abortRef.current?.abort();
+    const controller = new AbortController();
+    abortRef.current = controller;
     setBusy(true);
     setError(null);
     try {
       const plainLetter = letter
         ? { recipient: letter.recipient, greeting: letter.greeting, paragraphs: letter.paragraphs, closing: letter.closing }
         : null;
-      const data = (await postJson("/api/translate", { cv, letter: plainLetter })) as { cv?: unknown; letter?: unknown };
+      const data = (await postJson("/api/translate", { cv, letter: plainLetter }, controller.signal)) as { cv?: unknown; letter?: unknown };
       const en = CvSchema.safeParse(data?.cv);
       if (!en.success) throw new Error("Server vrátil nečekaná data. Zkus to prosím znovu.");
       const enLetter = letter ? LetterSchema.safeParse(data?.letter) : null;
@@ -47,11 +52,21 @@ export function useEnglish() {
       setConfirmed(new Set());
       return true;
     } catch (err) {
-      setError((err as Error).message);
+      if (!controller.signal.aborted) setError((err as Error).message);
       return false;
     } finally {
-      setBusy(false);
+      if (abortRef.current === controller) {
+        abortRef.current = null;
+        setBusy(false);
+      }
     }
+  }, []);
+
+  /** Stops waiting for the AI (dialog closed); the buttons work again right away. */
+  const cancel = useCallback(() => {
+    abortRef.current?.abort();
+    abortRef.current = null;
+    setBusy(false);
   }, []);
 
   const editCv = useCallback((path: string, value: string) => {
@@ -69,5 +84,5 @@ export function useEnglish() {
     setError(null);
   }, []);
 
-  return { state, busy, error, setError, confirmed, translate, editCv, editLetter, clear };
+  return { state, busy, error, setError, confirmed, translate, cancel, editCv, editLetter, clear };
 }

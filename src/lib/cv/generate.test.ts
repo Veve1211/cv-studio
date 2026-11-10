@@ -114,3 +114,19 @@ describe("schemas", () => {
     expect(Object.keys(CV_JSON_SCHEMA.properties).sort()).toEqual(Object.keys(CvSchema.shape).sort());
   });
 });
+
+describe("AI timeout", () => {
+  it("ends a hanging AI request with a Czech message and logs it without the user's text", async () => {
+    const { requestStructured, AI_TIMEOUT_MESSAGE } = await import("./generate");
+    const errors = vi.spyOn(console, "error").mockImplementation(() => {});
+    const hanging: MessagesClient = { beta: { messages: { create: () => new Promise(() => {}) } } };
+    const secret = "Jana Tajná, rodné číslo 123";
+    await expect(
+      requestStructured(hanging, { system: "s", userContent: secret, schema: {}, maxTokens: 10, label: "letter" }, 50),
+    ).rejects.toMatchObject({ message: AI_TIMEOUT_MESSAGE, status: 504 });
+    const logged = errors.mock.calls.flat().join(" ");
+    expect(logged).toContain("AI timeout: letter");
+    expect(logged).not.toContain("Jana");
+    errors.mockRestore();
+  });
+});

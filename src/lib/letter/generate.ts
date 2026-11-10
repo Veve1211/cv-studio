@@ -29,6 +29,7 @@ export const MOCK_LETTER: Letter = {
 export async function generateLetter(cv: Cv, job: string, client?: MessagesClient): Promise<Letter> {
   if (!client && isMockMode()) return structuredClone(MOCK_LETTER);
   const raw = await requestStructured(client ?? getClient(), {
+    label: "letter",
     system: LETTER_SYSTEM_PROMPT,
     userContent: `Životopis uchazeče:\n<zivotopis>\n${JSON.stringify(cv)}\n</zivotopis>\n\nText inzerátu:\n<inzerat>\n${job}\n</inzerat>`,
     schema: LETTER_JSON_SCHEMA,

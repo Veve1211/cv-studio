@@ -4,6 +4,7 @@ import { CvSchema } from "@/lib/cv/schema";
 import { firstIssue, jsonError, readJson } from "@/lib/http";
 import { requireAccess } from "@/lib/require-access";
 import { generateTailor } from "@/lib/tailor/generate";
+import { prepareJobText } from "@/lib/letter/clean-job";
 import { MAX_JOB_CHARS, MIN_JOB_CHARS } from "@/lib/letter/schema";
 import { createAiLimit } from "@/lib/ai-limit";
 
@@ -32,7 +33,7 @@ export async function POST(request: Request) {
   if (rate.error) return rate.error;
 
   try {
-    const tailor = await generateTailor(parsed.data.cv, parsed.data.job);
+    const tailor = await generateTailor(parsed.data.cv, prepareJobText(parsed.data.job).text);
     const headers = new Headers({ "Cache-Control": "no-store" });
     if (rate.setCookie) headers.append("Set-Cookie", rate.setCookie);
     return Response.json({ tailor }, { headers });

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { postJson } from "@/lib/client-api";
 import { MoreItem, MoreMenu } from "./more-menu";
 import type { Cv } from "@/lib/cv/schema";
@@ -31,20 +31,29 @@ export function PreviewToolbar({
 }: PreviewToolbarProps) {
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState<{ text: string; error: boolean } | null>(null);
+  const abortRef = useRef<AbortController | null>(null);
+  // Leaving the CV (new CV, letter view) cancels a summary still in flight.
+  useEffect(() => () => abortRef.current?.abort(), []);
 
   async function improve() {
+    abortRef.current?.abort();
+    const controller = new AbortController();
+    abortRef.current = controller;
     setBusy(true);
     setMessage(null);
     try {
-      const data = await postJson("/api/summary", { cv });
+      const data = await postJson("/api/summary", { cv }, controller.signal);
       const summary = (data as { summary?: unknown } | null)?.summary;
       if (typeof summary !== "string" || !summary.trim()) throw new Error("Shrnutí se nepodařilo vylepšit.");
       onSummary(summary.trim());
       setMessage({ text: "Shrnutí je vylepšené. Nelíbí se? Klikni na Zpět.", error: false });
     } catch (err) {
-      setMessage({ text: (err as Error).message, error: true });
+      if (!controller.signal.aborted) setMessage({ text: (err as Error).message, error: true });
     } finally {
-      setBusy(false);
+      if (abortRef.current === controller) {
+        abortRef.current = null;
+        setBusy(false);
+      }
     }
   }
 
@@ -95,6 +104,11 @@ export function PreviewToolbar({
         className={`min-h-5 text-sm ${message?.error ? "text-red-700" : "text-muted"}`}
       >
         {message?.text}
+        {message?.error && (
+          <button type="button" onClick={improve} className="ml-2 font-semibold underline underline-offset-2">
+            Zkusit znovu
+          </button>
+        )}
       </p>
     </div>
   );

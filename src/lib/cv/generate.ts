@@ -48,9 +48,16 @@ export function getClient(): MessagesClient {
     throw new CvError("AI teď není dostupná (server nemá nastavený klíč). Mezitím si můžeš prohlédnout Ukázku.", 503);
   }
   // Bounded wait: a stuck request must end in a friendly error, not a spinner forever.
-  defaultClient ??= new Anthropic({ timeout: 120_000, maxRetries: 1 }) as unknown as MessagesClient;
+  // No retries: a retry would push the user past the browser's limit.
+  defaultClient ??= new Anthropic({ timeout: AI_TIMEOUT_MS, maxRetries: 0 }) as unknown as MessagesClient;
   return defaultClient;
 }
+
+/** Server-side limit for one AI answer; the browser gives up a bit later (client-api.ts). */
+export const AI_TIMEOUT_MS = 55_000;
+export const AI_TIMEOUT_MESSAGE = "AI teď neodpověděla. Zkus to prosím znovu.";
+
+class AiTimeout extends Error {}
 
 export function isMockMode(): boolean {
   return process.env.E2E_MOCK_AI === "1";
@@ -62,11 +69,19 @@ export function isMockMode(): boolean {
  */
 export async function requestStructured(
   client: MessagesClient,
-  params: { system: string; userContent: string; schema: object; maxTokens: number },
+  params: { system: string; userContent: string; schema: object; maxTokens: number; label?: string },
+  timeoutMs = AI_TIMEOUT_MS,
 ): Promise<unknown> {
+  const label = params.label ?? "ai";
+  const started = Date.now();
   let response;
+  let timer: ReturnType<typeof setTimeout> | undefined;
   try {
-    response = await client.beta.messages.create({
+    // Our own guard on top of the SDK timeout: whatever happens, the request ends.
+    const guard = new Promise<never>((_, reject) => {
+      timer = setTimeout(() => reject(new AiTimeout()), timeoutMs);
+    });
+    const call = client.beta.messages.create({
       model: MODEL,
       max_tokens: params.maxTokens,
       // If the model declines, the API transparently retries on a fallback model.
@@ -79,8 +94,19 @@ export async function requestStructured(
       system: params.system,
       messages: [{ role: "user", content: params.userContent }],
     });
+    call.catch(() => {}); // a late rejection after the guard fired must not crash the process
+    response = await Promise.race([call, guard]);
   } catch (error) {
+    const ms = Date.now() - started;
+    // Logged without any user text: only which action, how long and what kind of failure.
+    if (error instanceof AiTimeout || error instanceof Anthropic.APIConnectionTimeoutError) {
+      console.error(`AI timeout: ${label} after ${ms} ms`);
+      throw new CvError(AI_TIMEOUT_MESSAGE, 504);
+    }
+    console.error(`AI request failed: ${label} after ${ms} ms (${error instanceof Error ? error.name : typeof error})`);
     throw mapApiError(error);
+  } finally {
+    clearTimeout(timer);
   }
 
   if (response.stop_reason === "refusal") {
@@ -125,6 +151,7 @@ export async function generateCv(text: string, client?: MessagesClient): Promise
     return structuredClone(text.trim() === EXAMPLES[0].text.trim() ? CHAOS_CV : SAMPLE_CV);
   }
   const raw = await requestStructured(client ?? getClient(), {
+    label: "cv",
     system: SYSTEM_PROMPT,
     userContent: wrapUserText(text),
     schema: CV_JSON_SCHEMA,

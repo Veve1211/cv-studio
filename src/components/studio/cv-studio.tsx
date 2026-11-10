@@ -526,6 +526,7 @@ export function CvStudio({ kofiUrl = null }: { kofiUrl?: string | null }) {
                 busyLabel="Přizpůsobuji…"
                 onClose={() => {
                   setTailorOpen(false);
+                  tailor.cancel();
                   tailor.setError(null);
                 }}
                 onSubmit={(job) => {
@@ -545,6 +546,7 @@ export function CvStudio({ kofiUrl = null }: { kofiUrl?: string | null }) {
                 error={letterState.error}
                 onClose={() => {
                   setLetterOpen(false);
+                  letterState.cancel();
                   letterState.setError(null);
                 }}
                 onSubmit={(job) =>
