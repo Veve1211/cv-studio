@@ -52,10 +52,16 @@ test.describe("with a Stripe key (test mode)", () => {
     // Consent with the terms and with starting right away is required before paying.
     await dialog.getByLabel(/14 dní/).check();
     const pay = dialog.getByRole("button", { name: "Zaplatit 99 Kč" });
+    const hint = dialog.getByText("Pro pokračování zaškrtni oba souhlasy.");
     await expect(pay).toBeDisabled();
+    await expect(hint).toBeVisible();
+    await expect(pay).toHaveAccessibleDescription("Pro pokračování zaškrtni oba souhlasy.");
     await dialog.getByLabel(/obchodními podmínkami/).check();
     await expect(pay).toBeDisabled();
+    await expect(hint).toBeVisible();
     await dialog.getByLabel(/přístup začal hned/).check();
+    await expect(hint).toBeHidden();
+    await expect(pay).toBeEnabled();
 
     // The fake checkout redirects straight back as "paid".
     await pay.click();
@@ -197,5 +203,23 @@ test.describe("with a Stripe key (test mode)", () => {
     await page.getByRole("button", { name: "Stáhnout PDF" }).filter({ visible: true }).first().click();
     await expect(page.getByRole("dialog", { name: "Odemkni plný přístup" })).toBeVisible();
     expect(await prints(page)).toBe(0);
+  });
+});
+
+test.describe("pricing buttons on the landing page", () => {
+  test.use({ baseURL: `http://localhost:${PAYWALL_PORT}` });
+
+  test("explain that paying happens at the PDF download and preselect the plan", async ({ page }) => {
+    await page.goto("/");
+    await page.getByTestId("plan-14d").getByRole("link", { name: "Za 99 Kč" }).click();
+    const hint = page.getByTestId("plan-hint");
+    await expect(hint).toHaveText("Nejdřív si vytvoř životopis. Zaplatíš až při stažení PDF, tarif máš předvybraný.");
+    expect(page.url()).not.toContain("tarif=");
+
+    await page.getByRole("button", { name: "Ukázka" }).click();
+    await page.getByRole("button", { name: "Stáhnout PDF" }).filter({ visible: true }).first().click();
+    const dialog = page.getByRole("dialog", { name: "Odemkni plný přístup" });
+    await expect(dialog.getByLabel(/14 dní/)).toBeChecked();
+    await expect(dialog.getByRole("button", { name: "Zaplatit 99 Kč" })).toBeVisible();
   });
 });

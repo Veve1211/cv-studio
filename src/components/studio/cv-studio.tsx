@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useId, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
 import { A4Preview } from "@/components/preview/a4-preview";
 import { DEFAULT_TEMPLATE, getTemplate } from "@/components/templates";
 import type { TemplateId } from "@/components/templates/types";
@@ -68,6 +68,17 @@ export function CvStudio({ kofiUrl = null }: { kofiUrl?: string | null }) {
   /** Gentle "support us" note after a PDF download (only with KOFI_URL). */
   const [askSupport, setAskSupport] = useState(false);
   const [paywallReason, setPaywallReason] = useState("PDF bez vodoznaku");
+  /** Plan clicked in the landing page pricing (?tarif=), preselected at the PDF download. */
+  const [pickedPlan, setPickedPlan] = useState<"14d" | "year" | null>(null);
+  useEffect(() => {
+    const url = new URL(window.location.href);
+    const tarif = url.searchParams.get("tarif");
+    if (tarif !== "14d" && tarif !== "year") return;
+    url.searchParams.delete("tarif");
+    window.history.replaceState(null, "", url.pathname + url.search + url.hash);
+    // Deferred so the state update is not synchronous inside the effect.
+    queueMicrotask(() => setPickedPlan(tarif));
+  }, []);
 
   const letterState = useLetter();
   const [doc, setDoc] = useState<DocKind>("cv");
@@ -267,6 +278,11 @@ export function CvStudio({ kofiUrl = null }: { kofiUrl?: string | null }) {
             <span className="text-muted block">
               Kód pro jiné zařízení: <code className="text-ink font-mono font-semibold">{paywall.config.access.code}</code>
             </span>
+          </p>
+        )}
+        {pickedPlan && paywall.config?.enabled && (
+          <p role="status" data-testid="plan-hint" className="bg-brand-soft text-ink mb-4 rounded-2xl px-4 py-3 text-sm">
+            Nejdřív si vytvoř životopis. Zaplatíš až při stažení PDF, tarif máš předvybraný.
           </p>
         )}
         {paywall.demoError && (
@@ -493,6 +509,7 @@ export function CvStudio({ kofiUrl = null }: { kofiUrl?: string | null }) {
                   open={paywallOpen}
                   config={paywall.config}
                   reason={paywallReason}
+                  initialPlan={pickedPlan ?? undefined}
                   onClose={() => setPaywallOpen(false)}
                   onPay={(plan) => paywall.startCheckout({ cv, templateId, accent, letter: letterState.letter, doc }, plan)}
                   onUnlock={paywall.unlock}

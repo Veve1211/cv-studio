@@ -8,13 +8,15 @@ interface PaywallDialogProps {
   config: PaywallConfig;
   /** What the user tried to do, e.g. "Stáhnout PDF bez vodoznaku". */
   reason: string;
+  /** Plan picked on the landing page pricing, preselected here. */
+  initialPlan?: "14d" | "year";
   onClose: () => void;
   onPay: (plan: "14d" | "year") => Promise<void>;
   onUnlock: (kind: "trial" | "code", code?: string) => Promise<void>;
 }
 
 /** Full access: one free day, 14 days or a year (one-off, no subscription), or "Mám kód". */
-export function PaywallDialog({ open, config, reason, onClose, onPay, onUnlock }: PaywallDialogProps) {
+export function PaywallDialog({ open, config, reason, initialPlan, onClose, onPay, onUnlock }: PaywallDialogProps) {
   const ref = useRef<HTMLDialogElement>(null);
   const [plan, setPlan] = useState<"14d" | "year">("year");
   const [terms, setTerms] = useState(false);
@@ -24,13 +26,16 @@ export function PaywallDialog({ open, config, reason, onClose, onPay, onUnlock }
   const [error, setError] = useState<string | null>(null);
   const titleId = useId();
   const codeId = useId();
+  const consentHintId = useId();
+  const missingConsent = !terms || !startNow;
 
   useEffect(() => {
     const dialog = ref.current;
     if (!dialog) return;
+    if (open && !dialog.open && initialPlan) setPlan(initialPlan);
     if (open && !dialog.open) dialog.showModal();
     if (!open && dialog.open) dialog.close();
-  }, [open]);
+  }, [open, initialPlan]);
 
   const paidPlans = config.plans.filter((p) => p.id !== "trial");
   const trial = config.plans.find((p) => p.id === "trial");
@@ -146,7 +151,8 @@ export function PaywallDialog({ open, config, reason, onClose, onPay, onUnlock }
           <button
             type="button"
             onClick={() => void run(() => onPay(plan), true)}
-            disabled={busy || !terms || !startNow || !chosen}
+            disabled={busy || missingConsent || !chosen}
+            aria-describedby={missingConsent ? consentHintId : undefined}
             className="btn-primary min-h-11 flex-1 rounded-full px-6 font-semibold transition disabled:cursor-not-allowed disabled:opacity-50"
           >
             {busy ? "Chvilku…" : chosen ? `Zaplatit ${chosen.priceCzk} Kč` : "Zaplatit"}
@@ -159,6 +165,11 @@ export function PaywallDialog({ open, config, reason, onClose, onPay, onUnlock }
             Zrušit
           </button>
         </div>
+        {missingConsent && (
+          <p id={consentHintId} className="text-muted -mt-2 text-sm">
+            Pro pokračování zaškrtni oba souhlasy.
+          </p>
+        )}
 
         <details className="border-line border-t pt-3">
           <summary className="cursor-pointer text-sm font-semibold">Mám kód</summary>
