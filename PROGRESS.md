@@ -29,3 +29,7 @@ Všech 7 fází je hotových a zmergovaných do `dev`.
 - Průchod očima zákazníka (Playwright, 1440 px a 390 px, ukázková data, Stripe mock): bez chyb v konzoli, bez mrtvých odkazů, bez horizontálního scrollu, všechny šablony bez přetečení.
 - Opraveno: zásady ochrany osobních údajů a FAQ psaly, že se text posílá jen při „Vytvořit životopis“ / „Vylepšit shrnutí“ a že je jen jeden cookie. Doplněny dopis, inzerát, překlad a cookie s přístupem; nadpis „Platba za PDF“ → „Platba“.
 - Náhled odkazu (title, description, og:*, twitter:*, og:image 1200×630) je v pořádku, absolutní adresy se berou z `APP_URL`.
+
+## Hlídač po nasazení (10. 11. 2026)
+
+- `/api/health` (verze = `RAILWAY_GIT_COMMIT_SHA`; s `x-smoke-token` = `SMOKE_TOKEN` vyrobí testovací PDF) a workflow „Smoke test staging“.

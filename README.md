@@ -72,3 +72,16 @@ Build `npm run build`, start `npm start` (port z `PORT`). Proměnné prostředí
 `railpack.json` přidává do běhového obrazu systémové knihovny (`libnss3`, `libnspr4`, …), které potřebuje headless
 Chromium pro PDF na serveru. Bez nich PDF padá s chybou `libnspr4.so: cannot open shared object file`. Dřív to řešila
 jen proměnná `RAILPACK_DEPLOY_APT_PACKAGES` na Railway, teď je seznam přímo v repu.
+
+## Hlídač po nasazení
+
+CI hlídá kód, ale ne prostředí: PDF na Railway jednou padalo kvůli chybějící systémové knihovně, přestože testy byly
+zelené. Proto workflow **Smoke test staging** (`.github/workflows/smoke.yml`) ověřuje přímo živý staging:
+
+- počká, až `/api/health` hlásí poslední commit z `dev` (max ~10 min),
+- úvodní stránka vrací 200 a obsahuje „Cvéčko“,
+- `/api/health` s hlavičkou `x-smoke-token` vyrobí v Chromiu testovací PDF z ukázkového (vymyšleného) životopisu.
+
+Bez správného tokenu `/api/health` jen řekne, že běží, a jakou verzi má; Chromium se nespustí. Žádná AI, žádná osobní
+data. Spouští se ručně, jednou denně a po úspěšném nasazení (pokud Railway hlásí nasazení do GitHubu).
+Nastavení: `SMOKE_TOKEN` na Railway, stejný secret `SMOKE_TOKEN` a proměnná `STAGING_URL` na GitHubu.
