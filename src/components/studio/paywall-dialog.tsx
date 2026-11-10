@@ -24,6 +24,8 @@ export function PaywallDialog({ open, config, reason, onClose, onPay, onUnlock }
   const [error, setError] = useState<string | null>(null);
   const titleId = useId();
   const codeId = useId();
+  const consentHintId = useId();
+  const missingConsent = !terms || !startNow;
 
   useEffect(() => {
     const dialog = ref.current;
@@ -146,7 +148,8 @@ export function PaywallDialog({ open, config, reason, onClose, onPay, onUnlock }
           <button
             type="button"
             onClick={() => void run(() => onPay(plan), true)}
-            disabled={busy || !terms || !startNow || !chosen}
+            disabled={busy || missingConsent || !chosen}
+            aria-describedby={missingConsent ? consentHintId : undefined}
             className="btn-primary min-h-11 flex-1 rounded-full px-6 font-semibold transition disabled:cursor-not-allowed disabled:opacity-50"
           >
             {busy ? "Chvilku…" : chosen ? `Zaplatit ${chosen.priceCzk} Kč` : "Zaplatit"}
@@ -159,6 +162,11 @@ export function PaywallDialog({ open, config, reason, onClose, onPay, onUnlock }
             Zrušit
           </button>
         </div>
+        {missingConsent && (
+          <p id={consentHintId} className="text-muted -mt-2 text-sm">
+            Pro pokračování zaškrtni oba souhlasy.
+          </p>
+        )}
 
         <details className="border-line border-t pt-3">
           <summary className="cursor-pointer text-sm font-semibold">Mám kód</summary>

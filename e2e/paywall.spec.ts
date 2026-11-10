@@ -52,10 +52,16 @@ test.describe("with a Stripe key (test mode)", () => {
     // Consent with the terms and with starting right away is required before paying.
     await dialog.getByLabel(/14 dní/).check();
     const pay = dialog.getByRole("button", { name: "Zaplatit 99 Kč" });
+    const hint = dialog.getByText("Pro pokračování zaškrtni oba souhlasy.");
     await expect(pay).toBeDisabled();
+    await expect(hint).toBeVisible();
+    await expect(pay).toHaveAccessibleDescription("Pro pokračování zaškrtni oba souhlasy.");
     await dialog.getByLabel(/obchodními podmínkami/).check();
     await expect(pay).toBeDisabled();
+    await expect(hint).toBeVisible();
     await dialog.getByLabel(/přístup začal hned/).check();
+    await expect(hint).toBeHidden();
+    await expect(pay).toBeEnabled();
 
     // The fake checkout redirects straight back as "paid".
     await pay.click();
