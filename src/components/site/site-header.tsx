@@ -18,7 +18,7 @@ export function SiteHeader({ cta = true }: { cta?: boolean }) {
         >
           <span
             aria-hidden="true"
-            className="inline-block size-3 rounded-full bg-gradient-to-br from-[#5bb6f7] to-[#0a5fb8]"
+            className="inline-block size-3 rounded-full bg-gradient-to-br from-[#38bdf8] to-[#0369a1]"
           />
           Cvéčko
         </Link>
