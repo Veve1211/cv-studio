@@ -1,0 +1,82 @@
+name: Smoke test staging
+
+# Checks the live staging (Railway, branch dev) after a deploy: the new commit is live,
+# the home page loads and the server can really render a PDF in Chromium.
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "17 5 * * *" # daily, 06:17 / 07:17 Prague time
+  # Railway reports deployments to GitHub when its GitHub integration does so.
+  deployment_status:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: smoke-staging
+  cancel-in-progress: true
+
+jobs:
+  smoke:
+    if: github.event_name != 'deployment_status' || github.event.deployment_status.state == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      STAGING_URL: ${{ vars.STAGING_URL }}
+      SMOKE_TOKEN: ${{ secrets.SMOKE_TOKEN }}
+      GH_TOKEN: ${{ github.token }}
+      DEPLOY_SHA: ${{ github.event.deployment.sha }}
+    steps:
+      - name: Check configuration
+        run: |
+          if [ -z "$STAGING_URL" ]; then echo "::error::Set the repository variable STAGING_URL"; exit 1; fi
+          if [ -z "$SMOKE_TOKEN" ]; then echo "::error::Set the repository secret SMOKE_TOKEN"; exit 1; fi
+
+      - name: Which commit should be live
+        id: expected
+        run: |
+          DEV_SHA=$(gh api "repos/${{ github.repository }}/commits/dev" --jq .sha)
+          if [ -n "$DEPLOY_SHA" ] && [ "$DEPLOY_SHA" != "$DEV_SHA" ]; then
+            # A deployment of something else than the staging branch (e.g. main): nothing to check here.
+            echo "Deployment $DEPLOY_SHA is not the head of dev ($DEV_SHA), skipping."
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+          fi
+          echo "sha=$DEV_SHA" >> "$GITHUB_OUTPUT"
+          echo "Expecting dev @ $DEV_SHA on $STAGING_URL"
+
+      - name: Wait for the new commit (max ~10 min)
+        if: steps.expected.outputs.skip != 'true'
+        env:
+          EXPECTED: ${{ steps.expected.outputs.sha }}
+        run: |
+          for i in $(seq 1 40); do
+            VERSION=$(curl -fsS --max-time 20 "${STAGING_URL%/}/api/health" | jq -r .version || echo "")
+            if [ "$VERSION" = "$EXPECTED" ]; then echo "Live: $VERSION"; exit 0; fi
+            if [ "$VERSION" = "unknown" ]; then
+              echo "::warning::/api/health does not report a commit (RAILWAY_GIT_COMMIT_SHA missing); not waiting."
+              exit 0
+            fi
+            echo "Live: ${VERSION:-no answer}, waiting for $EXPECTED ($i/40)"
+            sleep 15
+          done
+          echo "::error::Staging did not switch to $EXPECTED within 10 minutes"
+          exit 1
+
+      - name: Home page answers and says Cvéčko
+        if: steps.expected.outputs.skip != 'true'
+        run: |
+          curl -fsS --max-time 30 "${STAGING_URL%/}/" -o home.html
+          grep -q "Cvéčko" home.html || { echo "::error::Home page does not contain Cvéčko"; exit 1; }
+
+      - name: Health and server PDF (Chromium)
+        if: steps.expected.outputs.skip != 'true'
+        run: |
+          CODE=$(curl -sS --max-time 90 -o health.json -w "%{http_code}" \
+            -H "x-smoke-token: $SMOKE_TOKEN" "${STAGING_URL%/}/api/health")
+          cat health.json; echo
+          if [ "$CODE" = "401" ]; then echo "::error::SMOKE_TOKEN on GitHub and on Railway differ (or is missing on Railway)"; exit 1; fi
+          if [ "$CODE" != "200" ] || [ "$(jq -r .pdf.ok health.json)" != "true" ]; then
+            echo "::error::Server PDF failed: $(jq -r '.pdf.error // "unknown"' health.json)"
+            exit 1
+          fi
+          echo "PDF OK: $(jq -r .pdf.bytes health.json) bytes in $(jq -r .pdf.ms health.json) ms"
