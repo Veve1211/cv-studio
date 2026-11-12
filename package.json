@@ -14,12 +14,18 @@
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^1.6.0",
+    "@sparticuz/chromium": "^153.0.0",
+    "mammoth": "^1.13.0",
     "next": "16.4.5",
+    "pdfjs-dist": "^6.5.438",
+    "puppeteer-core": "^25.16.0",
     "react": "19.3.0",
     "react-dom": "19.3.0",
+    "stripe": "^23.1.0",
     "zod": "^4.6.7"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.14.0",
     "@playwright/test": "^1.65.0",
     "@tailwindcss/turbopack": "^4",
     "@types/node": "^24.19.2",

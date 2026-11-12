@@ -1,0 +1,180 @@
+.root {
+  --ink: #1f2328;
+  --muted: #6e7681;
+  --line: #e4e4e0;
+  color: var(--ink);
+  font-family: var(--font-jetbrains-mono), ui-monospace, monospace;
+  font-size: 8.4pt;
+  line-height: 1.6;
+  padding: 0 0 14mm;
+}
+
+.bar {
+  display: flex;
+  align-items: center;
+  gap: 2mm;
+  padding: 4mm 14mm;
+  border-bottom: 0.6pt solid var(--line);
+  color: var(--muted);
+  font-size: 7.5pt;
+}
+
+.dots {
+  display: flex;
+  gap: 1.4mm;
+  margin-right: 3mm;
+}
+
+.dots i {
+  width: 2.4mm;
+  height: 2.4mm;
+  border-radius: 50%;
+  background: var(--line);
+}
+
+.dots i:first-child {
+  background: var(--accent);
+}
+
+.content {
+  padding: 10mm 14mm 0;
+}
+
+.prompt {
+  color: var(--muted);
+  margin-bottom: 1.5mm !important;
+}
+
+.prompt b {
+  color: var(--accent);
+  font-weight: 700;
+}
+
+.name {
+  font-size: 22pt;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+}
+
+.headline {
+  font-size: 10pt;
+  color: var(--accent);
+  margin-top: 1mm !important;
+}
+
+.headline::before {
+  content: "// ";
+  color: var(--muted);
+}
+
+.kv {
+  display: grid;
+  grid-template-columns: 22mm 1fr;
+  gap: 0.4mm 4mm;
+  margin-top: 5mm !important;
+}
+
+.key {
+  color: var(--muted);
+}
+
+.key::after {
+  content: ":";
+}
+
+.summary {
+  margin-top: 6mm !important;
+  padding: 3.5mm 4.5mm;
+  border-left: 1.4pt solid var(--accent);
+  background: color-mix(in srgb, var(--accent) 5%, #fafaf8);
+  font-size: 8.8pt;
+  line-height: 1.65;
+}
+
+.section {
+  margin-top: 8mm;
+}
+
+.h2 {
+  font-size: 9pt;
+  font-weight: 700;
+  margin-bottom: 3mm !important;
+}
+
+.h2::before {
+  content: "## ";
+  color: var(--accent);
+}
+
+.job {
+  margin-bottom: 4.5mm;
+  break-inside: avoid;
+}
+
+.jobHead {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 2.5mm;
+  align-items: baseline;
+}
+
+.period {
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.period::before {
+  content: "[";
+}
+
+.period::after {
+  content: "]";
+}
+
+.role {
+  font-weight: 700;
+}
+
+.at {
+  color: var(--accent);
+}
+
+.points {
+  margin-top: 1mm !important;
+  padding-left: 4mm !important;
+}
+
+.points li {
+  position: relative;
+  padding-left: 3.5mm;
+}
+
+.points li::before {
+  content: "-";
+  position: absolute;
+  left: 0;
+  color: var(--muted);
+}
+
+.cols {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8mm;
+}
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.6mm;
+}
+
+.tags li {
+  border: 0.6pt solid var(--line);
+  border-radius: 1mm;
+  padding: 0.2mm 2mm;
+}
+
+.muted {
+  color: var(--muted);
+}

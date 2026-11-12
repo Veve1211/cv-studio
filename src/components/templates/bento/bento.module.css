@@ -1,0 +1,213 @@
+.root {
+  --ink: #0f172a;
+  --muted: #475467;
+  --tile: #f2f5f9;
+  --gap: 3.5mm;
+  color: var(--ink);
+  font-family: var(--font-space-grotesk), var(--font-inter), sans-serif;
+  font-size: 9pt;
+  line-height: 1.45;
+  padding: 12mm 12mm 12mm;
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap);
+}
+
+.card {
+  background: var(--tile);
+  border-radius: 5mm;
+  padding: 5mm 5.5mm;
+  break-inside: avoid;
+}
+
+.top {
+  display: grid;
+  grid-template-columns: 1fr 64mm;
+  gap: var(--gap);
+}
+
+.top:has(> :only-child) {
+  grid-template-columns: 1fr;
+}
+
+/* The big tile: accent with its own readable text colour (AA by palette test). */
+.hero {
+  background: var(--accent);
+  color: var(--on-accent, #fff);
+  padding: 9mm 8mm 8mm;
+  min-height: 42mm;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+
+.name {
+  font-size: 34pt;
+  font-weight: 700;
+  line-height: 0.95;
+  letter-spacing: -0.04em;
+  overflow-wrap: anywhere;
+}
+
+.headline {
+  font-size: 12pt;
+  font-weight: 500;
+  margin-top: 3mm !important;
+}
+
+.contactCard {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+
+.contact {
+  font-family: var(--font-inter), sans-serif;
+  font-size: 8.4pt;
+  line-height: 1.7;
+  overflow-wrap: anywhere;
+}
+
+.label {
+  font-size: 7.4pt;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 2.5mm !important;
+}
+
+.summaryCard {
+  background: #fff;
+  border: 0.8pt solid #dfe5ee;
+}
+
+.summary {
+  font-size: 11.5pt;
+  font-weight: 500;
+  line-height: 1.45;
+  letter-spacing: -0.01em;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 64mm;
+  gap: var(--gap);
+  align-items: start;
+}
+
+.col {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap);
+  min-width: 0;
+}
+
+.job {
+  font-family: var(--font-inter), sans-serif;
+}
+
+.jobHead {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 3mm;
+}
+
+.role {
+  font-family: var(--font-space-grotesk), sans-serif;
+  font-size: 12pt;
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: -0.015em;
+}
+
+.chip {
+  flex-shrink: 0;
+  font-size: 7.8pt;
+  font-weight: 600;
+  padding: 0.6mm 2.4mm;
+  border-radius: 99px;
+  background: #fff;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+
+.company {
+  color: var(--muted);
+  font-weight: 600;
+  margin-top: 0.6mm !important;
+}
+
+.points {
+  margin-top: 2mm !important;
+}
+
+.points li {
+  position: relative;
+  padding-left: 4mm;
+  margin-bottom: 0.8mm;
+}
+
+.points li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.5em;
+  width: 1.6mm;
+  height: 1.6mm;
+  border-radius: 0.5mm;
+  background: var(--accent);
+}
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5mm;
+  font-family: var(--font-inter), sans-serif;
+}
+
+.tags li {
+  background: #fff;
+  border-radius: 99px;
+  padding: 0.6mm 2.6mm;
+  font-size: 8.3pt;
+  font-weight: 600;
+}
+
+.accentCard {
+  background: color-mix(in srgb, var(--accent) 10%, #fff);
+}
+
+.langs {
+  font-family: var(--font-inter), sans-serif;
+}
+
+.langs li {
+  display: flex;
+  justify-content: space-between;
+  gap: 3mm;
+  padding: 0.7mm 0;
+}
+
+.level {
+  font-weight: 700;
+}
+
+.edu {
+  font-family: var(--font-inter), sans-serif;
+  margin-bottom: 2.5mm;
+}
+
+.edu:last-child {
+  margin-bottom: 0;
+}
+
+.school {
+  font-size: 9.5pt;
+  font-weight: 700;
+}
+
+.muted {
+  color: var(--muted);
+}

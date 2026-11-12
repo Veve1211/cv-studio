@@ -1,0 +1,120 @@
+.root {
+  --ink: #1d1d1f;
+  --muted: #6b6b70;
+  color: var(--ink);
+  font-family: var(--font-manrope), sans-serif;
+  font-size: 8.6pt;
+  line-height: 1.65;
+  padding: 24mm 22mm;
+}
+
+.head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 10mm;
+  margin-bottom: 18mm;
+}
+
+.name {
+  font-size: 20pt;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+}
+
+.headline {
+  color: var(--accent);
+  font-size: 10pt;
+  font-weight: 500;
+  margin-top: 1.2mm !important;
+}
+
+.contact {
+  text-align: right;
+  color: var(--muted);
+  line-height: 1.75;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 32mm 1fr;
+  gap: 8mm;
+  margin-bottom: 10mm;
+  break-inside: avoid;
+}
+
+.label {
+  font-size: 6.8pt;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--muted);
+  padding-top: 0.6mm;
+}
+
+.summary {
+  font-size: 10pt;
+  line-height: 1.6;
+  max-width: 112mm;
+}
+
+.item {
+  margin-bottom: 6mm;
+  break-inside: avoid;
+}
+
+.item:last-child {
+  margin-bottom: 0;
+}
+
+.itemHead {
+  display: flex;
+  justify-content: space-between;
+  gap: 6mm;
+  align-items: baseline;
+}
+
+.itemTitle {
+  font-size: 9pt;
+  font-weight: 600;
+}
+
+.sub {
+  font-weight: 400;
+  color: var(--muted);
+}
+
+.period {
+  color: var(--muted);
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.points {
+  margin-top: 1.5mm !important;
+  max-width: 118mm;
+}
+
+.points li {
+  margin-bottom: 0.6mm;
+}
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2mm;
+}
+
+.tag {
+  background: color-mix(in srgb, var(--accent) 9%, #f4f4f2);
+  border-radius: 999px;
+  padding: 1mm 3.2mm;
+  font-weight: 500;
+}
+
+.level {
+  color: #4f4f55;
+  font-weight: 400;
+  margin-left: 1mm;
+}
