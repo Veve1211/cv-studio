@@ -61,6 +61,7 @@ Stripe, headless Chromium na serverové PDF. Hosting Railway.
 - **hlídač po nasazení:** workflow ověří přímo živý staging, včetně vygenerování PDF v Chromiu
 - **Lighthouse (mobil):** 97 / 100 / 100 / 100
 - **ruční kontrola na mobilu** před každým nasazením na ostrý web
+- **bezpečnost:** zvlášť v [SECURITY.md](SECURITY.md) (klíče, CSP, rate limit, audit závislostí, kontrola historie)
 
 ### Jak pracuju s AI
 
@@ -118,6 +119,10 @@ Workflow **Smoke test staging** (`.github/workflows/smoke.yml`) počká, až `/a
 `dev`, zkontroluje úvodní stránku a s hlavičkou `x-smoke-token` vyrobí testovací PDF z vymyšleného životopisu. Bez
 tokenu se Chromium nespustí. Žádná AI, žádná osobní data. Nastavení: `SMOKE_TOKEN` na Railway i v GitHub Secrets,
 proměnná `STAGING_URL` na GitHubu.
+
+### Pracovní poznámky
+
+Průběžné zprávy z práce s AI jsou v [`docs/notes/`](docs/notes/).
 
 ### Stripe (test mode)
 
