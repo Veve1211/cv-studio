@@ -29,6 +29,8 @@
 - Tajné klíče jen v proměnných prostředí (`.env.local` lokálně, Railway Variables). Nikdy v kódu ani commitech.
 - Kód, komentáře, commity anglicky (`feat: ...`, `fix: ...`). UI texty česky.
 - Knihovny: nejnovější stabilní verze, nic deprecated.
+- Nikdy nenechávej v UI placeholder.
+- Před merge do main: zelené `npm run test:e2e` (Playwright + Chromium, Chrome DevTools MCP v cloudu není) a Veve zkontroluje staging na mobilu.
 
 ## Příkazy
 - `npm run dev`, `npm run build`, `npm start`
@@ -39,7 +41,7 @@
 
 ## Struktura
 - `src/app/` – stránky (`/`, `/soukromi`, 404, error) a API routes (`/api/cv`, `/api/summary`, `/api/checkout`, `/api/checkout/verify`)
-- `src/components/site/` – hlavička, patička, landing; `studio/` – aplikace; `templates/` – 5 šablon + miniatury; `preview/` – A4 náhled
+- `src/components/site/` – hlavička, patička, landing; `studio/` – aplikace; `templates/` – 8 šablon + miniatury; `preview/` – A4 náhled
 - `src/lib/` – logika (schéma životopisu, volání AI, šablony)
 - `e2e/` – Playwright testy; `*.test.ts` vedle kódu – Vitest
 - `.github/workflows/ci.yml` – CI
@@ -73,3 +75,4 @@
 - 2026-11-09: angličtina: `POST /api/translate` (CV + dopis) → anglická verze; jméno, kontakty a firmy se v kódu přepíší z české verze (nikdy se nepřekládají), jiný počet praxí/vzdělání = chyba; obě verze v paměti (`use-english.ts`), přepínač CZ / EN v liště náhledu i karta „Anglická verze“, přepínání bez nového volání AI; pojistka u EN porovnává čísla a roky s českou verzí (`checkTranslation`, `checkNumbersAndYears`); když se čeština od překladu změní, nabídne „Přeložit znovu“; šablony berou `lang` (nadpisy z `labels.ts`), serverové PDF má `lang` v `PrintData`; soubory `CV-…` / `Cover-letter-…`
 - 2026-11-09: placený přístup (jen se `STRIPE_SECRET_KEY`): náhled vždy zdarma; plný přístup = PDF bez vodoznaku (serverové PDF), dopis, přizpůsobení, angličtina – server je hlídá (`requireAccess` → 402); tarify 1 den zdarma (jednou na prohlížeč, cookie `cvk_trial`), 14 dní (`PRICE_14D_CZK`, výchozí 99), 1 rok (`PRICE_YEAR_CZK`, výchozí 299), jednorázové platby Stripe (metadata `cv-access` + plán), konec = čas zaplacení + doba; přístup = podepsaný HttpOnly cookie `cvk_access` (HMAC z `ACCESS_SECRET`) + krátký kód `CV-<konec base36>-<8 znaků podpisu>` pro jiné zařízení („Mám kód“, rate limit); před platbou 2 souhlasy (podmínky, zahájení plnění) i na serveru; `/obchodni-podminky` a `/reklamace` s `[DOPLNIT]`, bez Stripe 404; prezentační režim odemkne vše
 - 2026-11-09: Ko-fi: jen s `KOFI_URL` (https, čte se za běhu, `kofiUrl()` v `lib/site.ts`): tlačítko „Kup mi kafe ☕“ v patičce a jemná výzva „Pomohlo ti Cvéčko?“ po stažení PDF; obyčejný odkaz do nové záložky (`noopener noreferrer`), žádné skripty z Ko-fi (CSP)
+- 2026-11-17: patička ukazuje provozovatele (`OPERATOR` v `lib/site.ts`: Věra Paukrtová + e-mail, IČO doplnit až se živností a platbami); Tereza (`SAMPLE_CV`) je na úvodu jen v „Před a po“, úvod a výběr šablon používají `SHOWCASE_CVS`; „Před a po“ ukazuje skutečný výstup pojistky (`checkGrounding`) – žlutě podtržený web; den zdarma vypisuje, co obsahuje a co ne; bez `STRIPE_SECRET_KEY` sekce Cena ukazuje „Teď je všechno zdarma“ + placené tarify s neaktivním tlačítkem „Brzy dostupné“ (žádný odkaz na platbu ani podmínky) a FAQ „Kolik to stojí? – Teď nic“; build spadne, když je nastavený `STRIPE_SECRET_KEY` a v `/obchodni-podminky` nebo `/reklamace` zůstal `<Fill>`/`[DOPLNIT]` (`src/lib/legal-check.ts`, volá `next.config.ts` ve fázi buildu) – nejdřív doplnit IČO, adresu atd., pak zapnout platby

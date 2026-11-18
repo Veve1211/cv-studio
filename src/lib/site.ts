@@ -24,3 +24,9 @@ export function kofiUrl(): string | null {
     return null;
   }
 }
+
+/** Who runs the site (footer, privacy, terms). Public business contact, not user data. */
+export const OPERATOR = {
+  name: "Věra Paukrtová",
+  email: "paukrtovavera@seznam.cz",
+} as const;

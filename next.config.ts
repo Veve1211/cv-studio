@@ -1,4 +1,7 @@
+import { readFileSync } from "node:fs";
 import type { NextConfig } from "next";
+import { PHASE_PRODUCTION_BUILD } from "next/constants";
+import { assertLegalPagesComplete } from "./src/lib/legal-check";
 
 const nextConfig: NextConfig = {
   // Cache Components / partial prerendering are off: a per-request CSP nonce needs
@@ -31,4 +34,8 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default nextConfig;
+export default function config(phase: string): NextConfig {
+  // Payments on → the terms/complaints pages must be complete, otherwise the build fails.
+  if (phase === PHASE_PRODUCTION_BUILD) assertLegalPagesComplete(process.env, (path) => readFileSync(path, "utf8"));
+  return nextConfig;
+}

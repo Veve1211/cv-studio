@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { OPERATOR } from "@/lib/site";
 import { notFound } from "next/navigation";
 import { isPaywallEnabled } from "@/lib/payments/checkout";
 import { Fill, LegalPage } from "@/components/site/legal-page";
@@ -22,7 +23,7 @@ export default function ComplaintsPage() {
       <h2>Jak reklamovat</h2>
       <ul>
         <li>
-          Napiš na: <Fill what="e-mail pro reklamace" />
+          Napiš na: <a href={`mailto:${OPERATOR.email}`}>{OPERATOR.email}</a>
         </li>
         <li>Uveď datum platby a co nefunguje. Životopis ani text neposílej, nepotřebujeme ho.</li>
         <li>
@@ -35,7 +36,8 @@ export default function ComplaintsPage() {
 
       <h2>Provozovatel</h2>
       <p>
-        <Fill what="jméno / firma, IČO, adresa" />
+        {OPERATOR.name}, <a href={`mailto:${OPERATOR.email}`}>{OPERATOR.email}</a>, IČO <Fill what="IČO" />, adresa{" "}
+        <Fill what="adresa" />
       </p>
     </LegalPage>
   );
