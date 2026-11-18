@@ -85,3 +85,91 @@ export const LONG_SAMPLE_CV: Cv = {
     { language: "Španělština", level: "B1" },
   ],
 };
+
+/**
+ * Other fictional people for the landing showcase and the template picker,
+ * so the sample person (Tereza) appears only once on the page – in "Před a po".
+ */
+export const SHOWCASE_CVS: readonly [Cv, Cv, Cv] = [
+  {
+    name: "Lucie Horáková",
+    headline: "Účetní",
+    contact: { email: "lucie.horakova@example.com", phone: "+420 604 222 333", location: "Ostrava", web: "" },
+    summary:
+      "Účetní s osmi lety praxe ve výrobní firmě. Zpracovává mzdy, DPH i roční závěrky a ráda zjednodušuje firemní procesy.",
+    experience: [
+      {
+        company: "Ocel Ostrava a.s.",
+        role: "Samostatná účetní",
+        period: "2019 – dosud",
+        highlights: ["Vede účetnictví dvou dceřiných společností", "Připravuje měsíční a roční závěrky"],
+      },
+      {
+        company: "Hotel Morava",
+        role: "Recepční a fakturantka",
+        period: "2016 – 2019",
+        highlights: ["Fakturace firemních klientů", "Komunikace s hosty v angličtině"],
+      },
+    ],
+    education: [{ school: "Obchodní akademie Ostrava", degree: "Maturita, Ekonomické lyceum", period: "2012 – 2016" }],
+    skills: ["Pohoda", "Excel", "Mzdy", "DPH", "Závěrky"],
+    languages: [
+      { language: "Čeština", level: "rodilá mluvčí" },
+      { language: "Angličtina", level: "B2" },
+    ],
+  },
+  {
+    name: "Martin Svoboda",
+    headline: "Servisní technik",
+    contact: { email: "martin.svoboda@example.com", phone: "+420 731 444 555", location: "Plzeň", web: "" },
+    summary:
+      "Servisní technik s deseti lety praxe v údržbě výrobních linek. Spolehlivý, zvyklý na směnný provoz a práci v týmu.",
+    experience: [
+      {
+        company: "Strojírny Plzeň s.r.o.",
+        role: "Servisní technik",
+        period: "2018 – dosud",
+        highlights: ["Údržba a opravy balicích linek", "Zaškolil pět nových kolegů"],
+      },
+      {
+        company: "Autoservis Kovář",
+        role: "Automechanik",
+        period: "2014 – 2018",
+        highlights: ["Diagnostika a opravy osobních vozů"],
+      },
+    ],
+    education: [{ school: "SOU strojírenské Plzeň", degree: "Výuční list, Mechanik opravář", period: "2011 – 2014" }],
+    skills: ["Elektro vyhláška 50", "Pneumatika", "Hydraulika", "Řidičák sk. B"],
+    languages: [
+      { language: "Čeština", level: "rodilý mluvčí" },
+      { language: "Němčina", level: "B1" },
+    ],
+  },
+  {
+    name: "Eliška Marková",
+    headline: "Marketingová specialistka",
+    contact: { email: "eliska.markova@example.com", phone: "+420 702 666 777", location: "Praha", web: "" },
+    summary:
+      "Marketingová specialistka zaměřená na sociální sítě a e-mailové kampaně. Plánuje obsah podle dat a ráda testuje nové nápady.",
+    experience: [
+      {
+        company: "Kavárny Zrnko",
+        role: "Marketingová specialistka",
+        period: "2021 – dosud",
+        highlights: ["Spravuje sociální sítě pro 12 poboček", "Spustila věrnostní newsletter"],
+      },
+      {
+        company: "Agentura Lano",
+        role: "Junior copywriterka",
+        period: "2019 – 2021",
+        highlights: ["Texty pro weby a kampaně klientů"],
+      },
+    ],
+    education: [{ school: "Univerzita Karlova", degree: "Bc., Mediální studia", period: "2016 – 2019" }],
+    skills: ["Meta Ads", "Copywriting", "Mailchimp", "Canva", "Google Analytics"],
+    languages: [
+      { language: "Čeština", level: "rodilá mluvčí" },
+      { language: "Angličtina", level: "C1" },
+    ],
+  },
+];

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { OPERATOR } from "@/lib/site";
 import { notFound } from "next/navigation";
 import { isPaywallEnabled } from "@/lib/payments/checkout";
 import Link from "next/link";
@@ -20,7 +21,7 @@ export default function TermsPage() {
       <h2>1. Provozovatel</h2>
       <ul>
         <li>
-          Provozovatel: <Fill what="jméno a příjmení / název firmy" />
+          Provozovatel: {OPERATOR.name}
         </li>
         <li>
           IČO: <Fill what="IČO" />
@@ -29,7 +30,7 @@ export default function TermsPage() {
           Sídlo / adresa: <Fill what="adresa" />
         </li>
         <li>
-          Kontakt: <Fill what="e-mail" />
+          Kontakt: <a href={`mailto:${OPERATOR.email}`}>{OPERATOR.email}</a>
         </li>
       </ul>
 

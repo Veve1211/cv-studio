@@ -13,7 +13,7 @@ test.describe("selling landing", () => {
     await expect(section.locator(".ba-after")).toHaveCSS("opacity", "1", { timeout: 5000 });
   });
 
-  test("FAQ answers open and close and the price is hidden without payments", async ({ page }) => {
+  test("FAQ answers open and close; without payments everything is free", async ({ page }) => {
     await page.goto("/");
     const faq = page.getByRole("region", { name: "Časté otázky" });
     const question = faq.getByText("Co AI dělá a co ne?");
@@ -21,14 +21,39 @@ test.describe("selling landing", () => {
     await expect(faq.getByText(/Nepřidává firmy, roky, čísla/)).toBeVisible();
     await question.click();
     await expect(faq.getByText(/Nepřidává firmy, roky, čísla/)).toBeHidden();
-    await expect(faq.getByText("Kolik to stojí?")).toHaveCount(0);
+    await faq.getByText("Kolik to stojí?").click();
+    await expect(faq.getByText(/Teď nic/)).toBeVisible();
     await expect(page.getByRole("region", { name: /Náhled vždy zdarma/ })).toHaveCount(0);
     await expect(page.getByRole("link", { name: "Obchodní podmínky" })).toHaveCount(0);
     expect((await page.request.get("/obchodni-podminky")).status()).toBe(404);
 
     const ld = await page.locator('script[type="application/ld+json"]').allTextContents();
     const faqLd = ld.map((t) => JSON.parse(t)).find((d) => d["@type"] === "FAQPage");
-    expect(faqLd.mainEntity.length).toBe(5);
+    expect(faqLd.mainEntity.length).toBe(6);
+  });
+});
+
+test.describe("pricing without payments", () => {
+  test("paid plans say 'Brzy dostupné' and clicking them does nothing", async ({ page }) => {
+    const errors: string[] = [];
+    page.on("pageerror", (e) => errors.push(e.message));
+    page.on("response", (r) => {
+      if (r.status() >= 400) errors.push(`${r.status()} ${r.url()}`);
+    });
+    await page.goto("/");
+    const pricing = page.getByRole("region", { name: "Teď je všechno zdarma" });
+    await expect(pricing.getByTestId("plan-free")).toContainText("0 Kč");
+    for (const id of ["14d", "year"]) {
+      const button = pricing.getByTestId(`plan-${id}`).getByRole("button", { name: "Brzy dostupné" });
+      await expect(button).toBeDisabled();
+      await button.click({ force: true });
+    }
+    await expect(page).toHaveURL(/\/$/);
+    await expect(pricing.getByRole("link", { name: /Kč/ })).toHaveCount(0);
+    await expect(page.getByRole("dialog")).toHaveCount(0);
+    await pricing.getByRole("link", { name: "Začít zdarma" }).click();
+    await expect(page).toHaveURL(/#studio$/);
+    expect(errors).toEqual([]);
   });
 });
 

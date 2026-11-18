@@ -3,20 +3,31 @@
 import { useEffect, useRef, useState } from "react";
 import { getTemplate } from "@/components/templates";
 import { Miniature } from "@/components/templates/miniature";
+import { GroundingContext } from "@/components/templates/grounding-context";
 import { ACCENTS } from "@/components/templates/palette";
+import { checkGrounding } from "@/lib/cv/grounding";
 import { SAMPLE_CV } from "@/lib/cv/sample";
 
 /** The messy input that matches the sample CV (fictional person). */
-const MESSY = `tereza novakova, brno
+export const MESSY = `tereza novakova, brno
 tereza.novakova@example.com / 777 123 456
 
 od 2022 delam v kvetouci s.r.o. senior produktova designerka – mobilni appka na objednavky kvetin, testovani s uzivatelama kazdy 2 tydny, knihovna komponent pro 3 tymy
 2019-2022 agentura pixel ux/ui – weby a eshopy pro retail, prototypy ve figme
 2017-2019 tiskarna brno grafik (katalogy, letaky, podklady pro tisk)
 
-MUNI vizualni komunikace mgr 2012-2017
-figma, vyzkum, prototypy, design systemy, html css, workshopy
-AJ C1, NJ A2`;
+masarykova univerzita (MUNI) vizualni komunikace mgr 2012-2017
+figma, vyzkum, prototypovani, design systemy, html css, workshopy
+cestina rodila mluvci, AJ C1, NJ A2`;
+
+/**
+ * The real grounding check (code, not AI) on the sample: the web address is not in the
+ * messy text, so the "after" shows it with the same yellow underline as the studio.
+ */
+export const UNVERIFIED: ReadonlyMap<string, string[]> = new Map(
+  checkGrounding(SAMPLE_CV, MESSY).map((flag) => [flag.path, flag.missing]),
+);
+const MISSING = [...UNVERIFIED.values()].flat();
 
 /**
  * Before/after: unpolished text on the left turns into a finished CV on the right
@@ -53,8 +64,8 @@ export function BeforeAfter() {
           Z neučesaných poznámek hotový životopis
         </h2>
         <p className="text-muted mt-3 text-lg leading-relaxed">
-          Bez diakritiky, bez struktury, klidně s překlepy. Cvéčko z toho vytáhne praxi, vzdělání a dovednosti – a nic
-          nepřidá.
+          Bez diakritiky, bez struktury, klidně s překlepy. Cvéčko z toho vytáhne praxi, vzdělání a dovednosti. Co v textu
+          nebylo, žlutě podtrhne.
         </p>
       </div>
 
@@ -73,13 +84,21 @@ export function BeforeAfter() {
 
         <figure className="glass ba-after flex flex-col items-center rounded-[1.75rem] p-5">
           <figcaption className="text-muted mb-3 self-start text-xs font-semibold uppercase tracking-[0.14em]">Po</figcaption>
-          <Miniature
-            template={template}
-            accent={ACCENTS[0]}
-            cv={SAMPLE_CV}
-            width={260}
-            className="rounded-[4px] shadow-[0_18px_40px_rgba(10,60,120,0.18)]"
-          />
+          <GroundingContext value={UNVERIFIED}>
+            <Miniature
+              template={template}
+              accent={ACCENTS[0]}
+              cv={SAMPLE_CV}
+              width={260}
+              className="ba-grounding rounded-[4px] shadow-[0_18px_40px_rgba(10,60,120,0.18)]"
+            />
+          </GroundingContext>
+          {MISSING.length > 0 && (
+            <p data-testid="ba-unverified" className="text-ink-soft mt-4 max-w-[300px] self-start text-sm leading-relaxed">
+              Web <span className="cv-unverified-sample font-semibold">{MISSING.join(", ")}</span> v poznámkách nebyl,
+              tak ho Cvéčko žlutě podtrhlo. Smaž ho, nebo potvrď.
+            </p>
+          )}
         </figure>
       </div>
       <button
