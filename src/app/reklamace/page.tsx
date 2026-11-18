@@ -23,7 +23,7 @@ export default function ComplaintsPage() {
       <h2>Jak reklamovat</h2>
       <ul>
         <li>
-          Napiš na: <Fill what="e-mail pro reklamace" />
+          Napiš na: <a href={`mailto:${OPERATOR.email}`}>{OPERATOR.email}</a>
         </li>
         <li>Uveď datum platby a co nefunguje. Životopis ani text neposílej, nepotřebujeme ho.</li>
         <li>
