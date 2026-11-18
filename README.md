@@ -3,7 +3,7 @@
 Životopis z volného textu. Vložíš pár neučesaných vět o sobě, starý životopis nebo PDF / Word a AI z toho poskládá
 hotový životopis v moderní šabloně. Žádný formulář.
 
-**Živě:** https://cvecko.cz · **Autorka:** Věra Paukrtová ([GitHub](https://github.com/Veve1211))
+**Živě:** https://cvecko.cz · **Autorka:** Věra Paukrtová ([verapaukrtova.cz](https://verapaukrtova.cz) · [GitHub](https://github.com/Veve1211))
 
 ---
 
@@ -62,6 +62,16 @@ Stripe, headless Chromium na serverové PDF. Hosting Railway.
 - **Lighthouse (mobil):** 97 / 100 / 100 / 100
 - **ruční kontrola na mobilu** před každým nasazením na ostrý web
 - **bezpečnost:** zvlášť v [SECURITY.md](SECURITY.md) (klíče, CSP, rate limit, audit závislostí, kontrola historie)
+
+### Moje role
+
+Cvéčko je můj projekt od nápadu po ostrý web. Kód píše AI (Claude Code), já:
+
+- určuju, co se staví a pro koho, a rozhoduju o funkcích, vzhledu i o tom, co v aplikaci nebude
+- píšu zadání a pravidla v CLAUDE.md a hlídám, aby je AI dodržovala
+- testuju: tři roky jsem pracovala jako testerka softwaru, takže každou změnu proklikám na stagingu na mobilu
+  a chyby vracím AI k opravě
+- spravuju nasazení (Railway, GitHub) a proměnné prostředí a jako jediná merguju do `main`
 
 ### Jak pracuju s AI
 
