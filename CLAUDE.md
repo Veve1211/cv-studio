@@ -30,7 +30,7 @@
 - Kód, komentáře, commity anglicky (`feat: ...`, `fix: ...`). UI texty česky.
 - Knihovny: nejnovější stabilní verze, nic deprecated.
 - Nikdy nenechávej v UI placeholder.
-- Před každým push na main otestuj web přes Chrome DevTools MCP.
+- Před merge do main: zelené `npm run test:e2e` (Playwright + Chromium, Chrome DevTools MCP v cloudu není) a Veve zkontroluje staging na mobilu.
 
 ## Příkazy
 - `npm run dev`, `npm run build`, `npm start`
