@@ -34,7 +34,7 @@ export function faqItems(paid: boolean): QA[] {
     items.push(
       {
         q: "Kolik to stojí?",
-        a: `Náhled a úpravy jsou zdarma. Plný přístup (PDF bez vodoznaku, motivační dopis, přizpůsobení inzerátu a angličtina) je na 1 den zdarma, na 14 dní za ${short.priceCzk} Kč nebo na rok za ${year.priceCzk} Kč. Platíš jednorázově, nic se automaticky neobnovuje a nepotřebuješ účet.`,
+        a: `Náhled a úpravy jsou zdarma. Plný přístup (PDF bez vodoznaku, motivační dopis, přizpůsobení inzerátu a angličtina) je na 1 den zdarma (bez karty, jednou v jednom prohlížeči), na 14 dní za ${short.priceCzk} Kč nebo na rok za ${year.priceCzk} Kč. Platíš jednorázově, nic se automaticky neobnovuje a nepotřebuješ účet.`,
       },
       {
         q: "Jak se dostanu k přístupu na jiném zařízení?",
@@ -45,6 +45,11 @@ export function faqItems(paid: boolean): QA[] {
         a: "Zaplatíš až po tom, co výsledek vidíš v náhledu. Postup při reklamaci najdeš na stránce Reklamace.",
       },
     );
+  } else {
+    items.push({
+      q: "Kolik to stojí?",
+      a: "Teď nic. Cvéčko je zatím v bezplatné verzi: PDF bez vodoznaku, motivační dopis, přizpůsobení inzerátu i angličtinu máš zdarma, bez karty a bez registrace. Placené tarify spustíme brzy.",
+    });
   }
   return items;
 }

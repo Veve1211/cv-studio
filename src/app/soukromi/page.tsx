@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { OPERATOR } from "@/lib/site";
 import Link from "next/link";
 import { SiteFooter } from "@/components/site/site-footer";
 import { SiteHeader } from "@/components/site/site-header";
@@ -69,6 +70,15 @@ export default function PrivacyPage() {
           <p>
             Abychom zabránili zahlcení služby, krátce si v paměti serveru pamatujeme počet požadavků z tvé IP adresy.
             Po restartu serveru nebo po 15 minutách se tento údaj zahodí.
+          </p>
+
+          <h2>Kdo za Cvéčkem stojí</h2>
+          <p>
+            Provozovatelkou a správkyní údajů je {OPERATOR.name}. S dotazy k soukromí piš na{" "}
+            <a href={`mailto:${OPERATOR.email}`} className="underline underline-offset-4">
+              {OPERATOR.email}
+            </a>
+            .
           </p>
 
           <p className="mt-12">

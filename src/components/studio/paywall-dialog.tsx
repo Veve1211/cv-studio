@@ -98,7 +98,7 @@ export function PaywallDialog({
             }`}
           >
             🎁 Vyzkoušet 1 den zdarma
-            <span className="text-muted block text-sm font-normal">Bez karty, jednou na prohlížeč.</span>
+            <span className="text-muted block text-sm font-normal">Vše odemčené na 24 hodin. Bez karty a bez platby, jen jednou v tomto prohlížeči.</span>
           </button>
         )}
 

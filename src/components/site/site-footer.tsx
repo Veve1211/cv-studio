@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { isPaywallEnabled } from "@/lib/payments/checkout";
-import { kofiUrl } from "@/lib/site";
+import { OPERATOR, kofiUrl } from "@/lib/site";
 import { KofiLink } from "./kofi-link";
 
 export function SiteFooter() {
@@ -9,9 +9,17 @@ export function SiteFooter() {
   return (
     <footer className="border-line text-muted border-t bg-white/60 px-4 backdrop-blur pt-8 pb-28 lg:pb-8 text-sm sm:px-8 print:hidden">
       <div className="mx-auto flex max-w-6xl flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <p>
-          <span className="font-display text-ink text-base font-semibold">Cvéčko</span> · životopis z pár vět
-        </p>
+        <div className="space-y-1">
+          <p>
+            <span className="font-display text-ink text-base font-semibold">Cvéčko</span> · životopis z pár vět
+          </p>
+          <p data-testid="operator">
+            Provozovatel: {OPERATOR.name} ·{" "}
+            <a href={`mailto:${OPERATOR.email}`} className="hover:text-ink underline underline-offset-4">
+              {OPERATOR.email}
+            </a>
+          </p>
+        </div>
         <nav aria-label="Patička" className="flex flex-wrap gap-x-5 gap-y-2">
           <Link href="/soukromi" className="hover:text-ink underline-offset-4 hover:underline">
             Zásady ochrany osobních údajů

@@ -4,7 +4,7 @@ import { TEMPLATES } from "@/components/templates";
 import { Miniature } from "@/components/templates/miniature";
 import type { Accent } from "@/components/templates/palette";
 import type { TemplateId } from "@/components/templates/types";
-import { SAMPLE_CV } from "@/lib/cv/sample";
+import { SHOWCASE_CVS } from "@/lib/cv/sample";
 import type { Cv } from "@/lib/cv/schema";
 
 interface TemplatePickerProps {
@@ -42,7 +42,7 @@ export function TemplatePicker({ value, onChange, accent, cv }: TemplatePickerPr
               <Miniature
                 template={t}
                 accent={accent}
-                cv={cv ?? SAMPLE_CV}
+                cv={cv ?? SHOWCASE_CVS[0]}
                 width={107}
                 className="peer-focus-visible:outline-ink rounded-[3px] shadow-[0_1px_4px_rgba(0,0,0,0.15)] peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2"
               />
