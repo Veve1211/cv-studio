@@ -90,7 +90,9 @@ Do CLAUDE.md se zapisuje i každé větší rozhodnutí s datem, takže AI v př
   prošlo. Od té doby hlídám i živý staging.
 - **Pojistka patří do kódu, ne do promptu.** Prompt „nevymýšlej si“ nestačí. Spolehlivé je až porovnání výsledku
   s původním textem v kódu.
-- **Co jde zapomenout, má hlídat build.** Místo poznámky „před zapnutím plateb doplnit IČO“ teď build sám spadne.
+- **Co jde zapomenout, má hlídat build.** Místo poznámky „před zapnutím plateb doplnit IČO“ teď build sám spadne,
+  když je zapnutý Stripe a v podmínkách chybí IČO. Hned první den to zabralo: na produkci jsem klíč smazala, na
+  stagingu jsem na něj zapomněla a nasazení se zastavilo. Bez pojistky by staging tiše nabízel platby.
 - **Ukázková data se rozlezou.** Vymyšlená Tereza byla na úvodní stránce 15×. Teď je jen tam, kde dává smysl.
 - **Pravidla v CLAUDE.md musí jít splnit.** Pravidlo, které AI v daném prostředí splnit nemůže, je horší než žádné.
 
