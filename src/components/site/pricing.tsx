@@ -145,7 +145,7 @@ function FreePricing() {
             ))}
           </ul>
           <a href="#studio" className="btn-primary mt-6 inline-flex min-h-11 items-center justify-center rounded-full px-6 font-semibold">
-            Vytvořit životopis
+            Začít zdarma
           </a>
         </li>
         {soon.map(({ plan, note }) => (

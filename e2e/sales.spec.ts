@@ -51,7 +51,7 @@ test.describe("pricing without payments", () => {
     await expect(page).toHaveURL(/\/$/);
     await expect(pricing.getByRole("link", { name: /Kč/ })).toHaveCount(0);
     await expect(page.getByRole("dialog")).toHaveCount(0);
-    await pricing.getByRole("link", { name: "Vytvořit životopis" }).click();
+    await pricing.getByRole("link", { name: "Začít zdarma" }).click();
     await expect(page).toHaveURL(/#studio$/);
     expect(errors).toEqual([]);
   });

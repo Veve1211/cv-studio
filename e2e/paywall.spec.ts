@@ -18,12 +18,20 @@ const prints = (page: import("@playwright/test").Page) =>
   page.evaluate(() => (window as unknown as { __prints?: number }).__prints ?? 0);
 
 test.describe("without a Stripe key", () => {
-  test("PDF is free and nothing mentions payment", async ({ page }) => {
+  test("PDF is free and prices appear only as 'Brzy dostupné'", async ({ page }) => {
     await loadSample(page);
     await page.getByRole("button", { name: "Stáhnout PDF" }).click();
     expect(await prints(page)).toBe(1);
     await expect(page.getByRole("dialog")).toHaveCount(0);
-    await expect(page.locator("body")).not.toContainText("Kč");
+    // Prices only in the pricing section, on disabled "Brzy dostupné" cards.
+    const outside = await page.evaluate(() => {
+      const clone = document.body.cloneNode(true) as HTMLElement;
+      clone.querySelector('section[aria-labelledby="pricing-title"]')?.remove();
+      clone.querySelectorAll("script").forEach((s) => s.remove());
+      return clone.textContent ?? "";
+    });
+    expect(outside).not.toMatch(/\d\s*Kč/);
+    await expect(page.getByRole("button", { name: "Brzy dostupné" })).toHaveCount(2);
     expect(await page.evaluate(() => document.documentElement.dataset.paywall)).toBeUndefined();
   });
 });
