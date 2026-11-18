@@ -28,6 +28,8 @@ Tyhle čtyři situace jsou i jako příklady přímo v aplikaci.
 
 ### Jak to vypadá
 
+![Úvodní stránka Cvéčka s ukázkami šablon Švýcar, Aura a Bento](docs/screenshots/hero.webp)
+
 - jedno textové pole, tlačítko Vytvořit, vpravo živý náhled A4
 - 8 vlastních šablon (Aura, Švýcar, Bento, Časopis, Časová osa, Minimal, Blok, Terminál) a 7 barev
 - text se upravuje kliknutím přímo v náhledu
