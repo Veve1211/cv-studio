@@ -30,7 +30,9 @@ několika dní.
 - **XSS:** veškerý text od uživatele a AI se vykresluje přes React jako text, nikdy `dangerouslySetInnerHTML`.
 - **Rate limit** na AI endpointy: podle IP a navíc podepsaným HttpOnly cookie, takže přežije restart serveru.
 - **Placené funkce hlídá server** (`requireAccess` vrací 402). Přístup je v podepsaném HttpOnly cookie (HMAC).
-- **Interní stránka pro PDF** (`/tisk`) je bez tajné hlavičky neviditelná (404).
+- **Interní stránka pro PDF** (`/tisk`) je bez tajné hlavičky neviditelná (404). Hlavičku podepisuje
+  `PDF_RENDER_SECRET`. Je povinný na stagingu i produkci (každé prostředí má vlastní náhodnou hodnotu), protože bez
+  Stripe klíče jinak tajemství chybí. Na to 18. 11. 2026 upozornil hlídač stagingu.
 - **Validace vstupů** přes zod na všech API routes.
 
 ## Platby
