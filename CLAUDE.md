@@ -83,3 +83,4 @@
 - 2026-11-23: audit (`docs/audit.md`); `browserslist` se nenastavuje – JS beze změny (core-js je `noModule`, vestavěné polyfilly Next ~1,4 kB neovlivní)
 - 2026-11-23: audit, 2. kolo (`docs/audit.md`): renderovací Chromium posílá tajnou hlavičku jen na vlastní server, cizí požadavky blokuje (dřív unikala analytice); `readJson` přijímá jen `application/json` (ochrana proti cizím formulářům); šablony a výběr šablon v `memo`; `src/lib/cookies.ts` sdílené čtení cookie; `global-error.tsx`
 - 2026-11-23: ověřeno smoke testem (`/api/health?client=1` se smoke tokenem): Railway edge přepíše podvržené `X-Forwarded-For` i `X-Real-IP`, první adresa v `X-Forwarded-For` = skutečný návštěvník → `clientKey` beze změny; `dev` a `main` chránit rulesetem (auto-mazání větví smazalo `dev` po release PR)
+- 2026-11-23: CI job `release-source`: PR do `main` musí být z `dev` (jinak červené); blokuje jen když je check povinný v rulesetu `main`
