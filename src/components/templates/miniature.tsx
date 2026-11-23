@@ -14,23 +14,27 @@ interface MiniatureProps {
   /** Rendered width in CSS px. */
   width: number;
   className?: string;
+  /** Blank paper of the same size, without the page content (and its fonts). */
+  blank?: boolean;
 }
 
 /** A real template page scaled down; decorative, hidden from assistive tech. */
-export function Miniature({ template, accent, cv, width, className = "" }: MiniatureProps) {
+export function Miniature({ template, accent, cv, width, className = "", blank = false }: MiniatureProps) {
   const scale = width / PAGE_WIDTH_PX;
   return (
     <span
       aria-hidden
       className={`relative block overflow-hidden ${className}`}
-      style={{ width, height: Math.round(PAGE_HEIGHT_PX * scale) }}
+      style={{ width, height: Math.round(PAGE_HEIGHT_PX * scale), ...(blank && { background: template.paper }) }}
     >
-      <span
-        className={`${pageStyles.page} pointer-events-none absolute left-0 top-0 block origin-top-left select-none`}
-        style={{ transform: `scale(${scale})`, ...pageStyle(accent, template.paper) }}
-      >
-        <template.Component cv={cv} />
-      </span>
+      {!blank && (
+        <span
+          className={`${pageStyles.page} pointer-events-none absolute left-0 top-0 block origin-top-left select-none`}
+          style={{ transform: `scale(${scale})`, ...pageStyle(accent, template.paper) }}
+        >
+          <template.Component cv={cv} />
+        </span>
+      )}
     </span>
   );
 }
