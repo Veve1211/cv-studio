@@ -28,6 +28,14 @@ export function Landing() {
             Napiš o sobě pár vět. Životopis ti poskládá <span className="text-gradient">AI.</span>
           </h1>
           <p className="text-ink-soft mt-6 max-w-xl text-lg leading-relaxed">{SITE_TAGLINE}</p>
+          {/* The grounding check (code, not AI) is what sets Cvéčko apart, so it's shown right away. */}
+          <p className="glass mt-5 max-w-xl rounded-2xl px-4 py-3 text-[15px] leading-relaxed">
+            Co AI doplní navíc, <span className="cv-unverified-sample font-semibold">žlutě podtrhne</span>. Firmy, roky,
+            čísla i dovednosti kontroluje kód proti tvému textu, ne AI.{" "}
+            <a href="#pred-a-po" className="text-brand-strong font-semibold underline underline-offset-4">
+              Ukázat
+            </a>
+          </p>
           <div className="mt-9 flex flex-wrap items-center gap-4">
             <a
               href="#studio"
