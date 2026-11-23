@@ -1,4 +1,5 @@
 import { createHmac, randomBytes, timingSafeEqual } from "node:crypto";
+import { isSecureRequest, readCookie } from "./cookies";
 
 /**
  * Presentation mode: DEMO_ENABLED=1 on the server + opening the site with ?demo=1
@@ -30,12 +31,6 @@ function sign(payload: string, key: string): string {
   return createHmac("sha256", key).update(`demo1:${payload}`).digest("base64url");
 }
 
-function readCookie(header: string | null, name: string): string | null {
-  if (!header) return null;
-  const hit = header.split(/;\s*/).find((c) => c.startsWith(`${name}=`));
-  return hit ? hit.slice(name.length + 1) : null;
-}
-
 /** Unix seconds until which demo access is valid, or null. */
 export function demoUntil(request: Request, now = Math.floor(Date.now() / 1000), key = secret()): number | null {
   if (!isDemoEnabled()) return null;
@@ -58,7 +53,7 @@ export function hasDemoAccess(request: Request): boolean {
 export function demoCookie(request: Request, now = Math.floor(Date.now() / 1000), key = secret()) {
   const until = now + DEMO_HOURS * 3600;
   const payload = String(until);
-  const secure = new URL(request.url).protocol === "https:" || request.headers.get("x-forwarded-proto") === "https";
+  const secure = isSecureRequest(request);
   const header = [
     `${DEMO_COOKIE}=${payload}.${sign(payload, key)}`,
     "Path=/",
