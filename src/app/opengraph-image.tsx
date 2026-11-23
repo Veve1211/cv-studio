@@ -1,7 +1,7 @@
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { ImageResponse } from "next/og";
-import { SITE_NAME } from "@/lib/site";
+import { SITE_NAME, SITE_TAGLINE } from "@/lib/site";
 
 export const alt = "Cvéčko – napiš o sobě pár vět, životopis ti poskládá AI";
 export const size = { width: 1200, height: 630 };
@@ -49,7 +49,7 @@ export default async function OpengraphImage() {
             <div style={{ fontFamily: "Space Grotesk", fontSize: 72, lineHeight: 1.02, letterSpacing: -2.5 }}>
               Napiš o sobě pár vět. Životopis ti poskládá AI.
             </div>
-            <div style={{ marginTop: 26, fontSize: 30, color: "#2c3e5a" }}>Bez formulářů. Vlož text, máš životopis.</div>
+            <div style={{ marginTop: 26, fontSize: 30, color: "#2c3e5a" }}>{SITE_TAGLINE}</div>
           </div>
           <div style={{ display: "flex" }}>
             <div

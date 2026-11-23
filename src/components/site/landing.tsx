@@ -1,3 +1,4 @@
+import { SITE_TAGLINE } from "@/lib/site";
 import { LandingShowcase } from "./landing-showcase";
 
 const STEPS = [
@@ -26,7 +27,7 @@ export function Landing() {
           >
             Napiš o sobě pár vět. Životopis ti poskládá <span className="text-gradient">AI.</span>
           </h1>
-          <p className="text-ink-soft mt-6 max-w-xl text-lg leading-relaxed">Bez formulářů. Vlož text, máš životopis.</p>
+          <p className="text-ink-soft mt-6 max-w-xl text-lg leading-relaxed">{SITE_TAGLINE}</p>
           <div className="mt-9 flex flex-wrap items-center gap-4">
             <a
               href="#studio"

@@ -1,4 +1,5 @@
 import { createHmac, randomBytes, timingSafeEqual } from "node:crypto";
+import { isSecureRequest, readCookie } from "./cookies";
 import { demoUntil } from "./demo";
 import { isPaywallEnabled } from "./payments/checkout";
 
@@ -55,12 +56,6 @@ function same(a: string, b: string): boolean {
   return a.length === b.length && timingSafeEqual(Buffer.from(a), Buffer.from(b));
 }
 
-function readCookie(header: string | null, name: string): string | null {
-  if (!header) return null;
-  const hit = header.split(/;\s*/).find((c) => c.startsWith(`${name}=`));
-  return hit ? hit.slice(name.length + 1) : null;
-}
-
 const MAX_SEC = 400 * DAY;
 
 function validUntil(until: number, now: number): boolean {
@@ -82,10 +77,6 @@ export function hasFullAccess(request: Request): boolean {
   return !isPaywallEnabled() || demoUntil(request) !== null || accessUntil(request) !== null;
 }
 
-function secure(request: Request): boolean {
-  return new URL(request.url).protocol === "https:" || request.headers.get("x-forwarded-proto") === "https";
-}
-
 export function accessCookie(request: Request, until: number, now = Math.floor(Date.now() / 1000), key = secret()): string {
   const payload = String(until);
   return [
@@ -94,7 +85,7 @@ export function accessCookie(request: Request, until: number, now = Math.floor(D
     `Max-Age=${Math.max(0, until - now)}`,
     "HttpOnly",
     "SameSite=Lax",
-    secure(request) ? "Secure" : "",
+    isSecureRequest(request) ? "Secure" : "",
   ]
     .filter(Boolean)
     .join("; ");
@@ -102,7 +93,7 @@ export function accessCookie(request: Request, until: number, now = Math.floor(D
 
 /** Remembers that the free day was used (once per browser). */
 export function trialCookie(request: Request): string {
-  return [`${TRIAL_COOKIE}=1`, "Path=/", `Max-Age=${5 * 365 * DAY}`, "HttpOnly", "SameSite=Lax", secure(request) ? "Secure" : ""]
+  return [`${TRIAL_COOKIE}=1`, "Path=/", `Max-Age=${5 * 365 * DAY}`, "HttpOnly", "SameSite=Lax", isSecureRequest(request) ? "Secure" : ""]
     .filter(Boolean)
     .join("; ");
 }
