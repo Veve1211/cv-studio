@@ -93,4 +93,4 @@ testu, kdyby Railway chování změnil.
 
 **Zbývá:**
 - Pokud je na produkci `ANALYTICS_URL`, po nasazení vyměnit `PDF_RENDER_SECRET`.
-- Zrychlit úvod na mobilu (písma ukázek načítat později), `error.tsx` na `retry()`, rozdělit `cv-studio.tsx`.
+- Zrychlit úvod na mobilu (písma ukázek načítat později), rozdělit `cv-studio.tsx`.
