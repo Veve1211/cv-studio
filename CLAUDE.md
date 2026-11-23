@@ -26,6 +26,7 @@
 - Osobní údaje: text uživatele nikde neukládej a nelogguj. Posílá se jen do Claude API. Životopis žije jen v prohlížeči.
 - AI nesmí přidat zkušenost, firmu, dovednost ani údaj, který v textu není. Smí jen učesat formulace.
 - Veškerý text od uživatele/AI vykresluj jako text (React), nikdy `dangerouslySetInnerHTML`.
+- `DEMO_ENABLED` na produkci jen na dobu prezentace, pak hned smazat (prezentační režim odemyká vše a zvyšuje AI limity).
 - Tajné klíče jen v proměnných prostředí (`.env.local` lokálně, Railway Variables). Nikdy v kódu ani commitech.
 - Kód, komentáře, commity anglicky (`feat: ...`, `fix: ...`). UI texty česky.
 - Knihovny: nejnovější stabilní verze, nic deprecated.
