@@ -61,8 +61,8 @@ Stripe, headless Chromium na serverové PDF. Hosting Railway.
   WCAG 2.1 AA), Content-Security-Policy
 - **GitHub Actions** u každého PR: lint, typecheck, Vitest, build, Playwright. Merge jen se zeleným CI.
 - **hlídač po nasazení:** workflow ověří přímo živý staging, včetně vygenerování PDF v Chromiu
-- **Lighthouse (mobil, 23. 11. 2026):** přístupnost, best practices a SEO 100; výkon úvodu 70–74 (brzdí písma
-  ukázek šablon, oprava je na seznamu)
+- **Lighthouse (mobil, 23. 11. 2026):** přístupnost, best practices a SEO 100; výkon úvodu 79–84 (dřív 70–74;
+  ukázky šablon a jejich písma se načítají až po vykreslení úvodu)
 - **ruční kontrola na mobilu** před každým nasazením na ostrý web
 - **bezpečnost:** zvlášť v [SECURITY.md](SECURITY.md) (klíče, CSP, rate limit, audit závislostí, kontrola historie)
 - **audit:** [docs/audit.md](docs/audit.md), dvě kola s čísly před/po (bezpečnost, náklady na AI, výkon) a co

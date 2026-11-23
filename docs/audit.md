@@ -77,6 +77,10 @@ o dva posluchače v měřicím skriptu; skutečný rozdíl je v tabulce.
 **Lighthouse úvod mobil: 70–74 / 100 / 100 / 100** (LCP 4,8 s), desktop 96 / 100 / 100 / 100. Brzdí hlavně
 9 písem na úvodu (asi 385 KB), protože ukázky šablon používají jejich písma.
 
+**Opraveno (#54):** ukázky šablon se dokreslí až po načtení stránky, do té doby prázdný papír stejné velikosti.
+Mobil 79–84 (FCP 2,9 → 1,7 s, LCP 4,8 → 3,9 s, CLS 0), desktop beze změny 96. `content-visibility` u „Před a po“
+nepomohl a přidal posun rozložení, vráceno.
+
 **Ověřeno na stagingu: limit pokusů podle IP funguje.** Limit bere první adresu z `X-Forwarded-For` a hrozilo,
 že ji jde na Railway podvrhnout, nebo že všichni sdílí adresu proxy. Test ze sandboxu byl nejednoznačný (37 požadavků
 prošlo i přes limit 30, nejspíš kvůli měnící se odchozí IP sandboxu). Proto `/api/health?client=1` (jen se smoke
@@ -92,5 +96,5 @@ Railway edge podvržené hlavičky přepíše, klíč je skutečná adresa náv�
 testu, kdyby Railway chování změnil.
 
 **Zbývá:**
-- Pokud je na produkci `ANALYTICS_URL`, po nasazení vyměnit `PDF_RENDER_SECRET`.
-- Zrychlit úvod na mobilu (písma ukázek načítat později), rozdělit `cv-studio.tsx`.
+- Rozdělit `cv-studio.tsx` při příští úpravě studia.
+- Hotovo: `ANALYTICS_URL` na produkci není, `PDF_RENDER_SECRET` se měnit nemusí; úvod na mobilu zrychlený (#54).
