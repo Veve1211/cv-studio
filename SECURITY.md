@@ -12,6 +12,7 @@ několika dní.
 - Text, který uživatel vloží, se nikam neukládá a nezapisuje do logů. Posílá se jen do Claude API.
 - Bez účtů a bez databáze. Hotový životopis existuje jen v prohlížeči uživatele.
 - Nahrané PDF / DOCX se čte jen v paměti (max 5 MB, typ se ověřuje podle obsahu, ne podle přípony) a hned se zahodí.
+- Nahrávání bez hlavičky Content-Length se odmítne (411), aby se tělo požadavku nenačetlo celé před kontrolou velikosti. DOCX se před rozbalením zkontroluje podle centrálního adresáře ZIPu (součet velikostí po rozbalení max 30 MB, ZIP64 odmítnut) – zastaví běžné „zip bomby“; podvržený adresář s falešnými velikostmi tím zachycen není (zbytkové riziko, omezuje ho rate limit 30 souborů / 15 min).
 - Analytika (volitelná) je bez cookies.
 
 ## Tajné klíče
