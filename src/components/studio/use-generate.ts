@@ -2,6 +2,7 @@
 
 import { useCallback, useRef, useState } from "react";
 import { postJson } from "@/lib/client-api";
+import { track } from "@/lib/track";
 import { setCvText } from "@/lib/cv/path";
 import { CvSchema, type Cv } from "@/lib/cv/schema";
 
@@ -46,6 +47,7 @@ export function useGenerate() {
         const parsed = CvSchema.safeParse((data as { cv?: unknown } | null)?.cv);
         if (!parsed.success) throw new Error("Server vrátil nečekaná data. Zkus to prosím znovu.");
         replace(parsed.data, text);
+        track("CV vytvořeno");
         return true;
       } catch (err) {
         if (controller.signal.aborted) return false;

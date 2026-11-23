@@ -63,7 +63,9 @@ export default function PrivacyPage() {
             údajů: jeden počítá, kolikrát jsi za posledních 15 minut požádal(a) AI o text, aby nikdo nemohl službu
             zahltit (po 15 minutách sám zmizí). Pokud máš plný přístup, další cookie si pamatuje jen datum, do kdy
             platí (a že už jsi využil(a) den zdarma). Žádný z nich neobsahuje tvůj text ani životopis. Pokud je zapnuté měření návštěvnosti, používá nástroj
-            bez cookies, který neukládá IP adresy ani nic, podle čeho by šlo poznat konkrétního člověka.
+            bez cookies, který neukládá IP adresy ani nic, podle čeho by šlo poznat konkrétního člověka. Kromě
+            návštěv počítá jen dvě události, „životopis vytvořen“ a „PDF staženo“, bez tvého textu a bez obsahu
+            životopisu.
           </p>
 
           <h2>Ochrana proti zneužití</h2>
