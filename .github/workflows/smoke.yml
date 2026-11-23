@@ -80,3 +80,15 @@ jobs:
             exit 1
           fi
           echo "PDF OK: $(jq -r .pdf.bytes health.json) bytes in $(jq -r .pdf.ms health.json) ms"
+
+      - name: Client address seen by the server (rate-limit diagnostics, informational)
+        if: steps.expected.outputs.skip != 'true'
+        continue-on-error: true
+        run: |
+          echo "Plain request:"
+          curl -sS --max-time 20 -H "x-smoke-token: $SMOKE_TOKEN" "${STAGING_URL%/}/api/health?client=1" | jq -c .client
+          echo "With forged X-Forwarded-For / X-Real-IP (documentation addresses):"
+          curl -sS --max-time 20 -H "x-smoke-token: $SMOKE_TOKEN" \
+            -H "X-Forwarded-For: 203.0.113.7" -H "X-Real-IP: 198.51.100.7" \
+            "${STAGING_URL%/}/api/health?client=1" | jq -c .client
+          echo "If the forged address shows up as 'key', the per-IP limit can be bypassed."

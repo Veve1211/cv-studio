@@ -54,4 +54,32 @@ describe("GET /api/health", () => {
     const body = await res.json();
     expect(body.pdf).toMatchObject({ ok: false, error: expect.stringContaining("libnspr4.so") });
   });
+
+  it("right token + ?client=1: reports the seen client address, no Chromium", async () => {
+    vi.stubEnv("SMOKE_TOKEN", "secret-token");
+    const render = vi.fn();
+    const req = new Request("http://localhost/api/health?client=1", {
+      headers: { "x-smoke-token": "secret-token", "x-forwarded-for": "203.0.113.7, 10.0.0.1", "x-real-ip": "198.51.100.7" },
+    });
+    const res = await createHealthHandler({ render })(req);
+    expect(res.status).toBe(200);
+    expect((await res.json()).client).toEqual({
+      key: "203.0.113.7",
+      forwardedFor: "203.0.113.7, 10.0.0.1",
+      realIp: "198.51.100.7",
+      rateLimitDisabled: false,
+    });
+    expect(render).not.toHaveBeenCalled();
+  });
+
+  it("?client=1 without the right token reveals nothing", async () => {
+    vi.stubEnv("SMOKE_TOKEN", "secret-token");
+    const plain = await createHealthHandler({ render: vi.fn() })(new Request("http://localhost/api/health?client=1"));
+    expect(await plain.json()).not.toHaveProperty("client");
+    const wrong = await createHealthHandler({ render: vi.fn() })(
+      new Request("http://localhost/api/health?client=1", { headers: { "x-smoke-token": "nope" } }),
+    );
+    expect(wrong.status).toBe(401);
+    expect(await wrong.json()).not.toHaveProperty("client");
+  });
 });
