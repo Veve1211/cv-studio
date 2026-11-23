@@ -1,5 +1,5 @@
 import { PRINT_GLOBAL, type PrintData } from "./print-data";
-import { PRINT_HEADER, printToken } from "./print-token";
+import { PRINT_HEADER, printRequestPolicy, printToken } from "./print-token";
 
 const RENDER_TIMEOUT_MS = 30_000;
 const MAX_CONCURRENT = 2;
@@ -65,7 +65,15 @@ export async function renderCvPdf(data: PrintData): Promise<Uint8Array> {
       page.setDefaultTimeout(RENDER_TIMEOUT_MS);
       // The browser is shared between renders: never answer from cache (304).
       await page.setCacheEnabled(false);
-      await page.setExtraHTTPHeaders({ [PRINT_HEADER]: token });
+      // The secret header goes only to this server; every outside request is blocked.
+      const origin = internalOrigin();
+      await page.setRequestInterception(true);
+      page.on("request", (req) => {
+        const policy = printRequestPolicy(req.url(), origin);
+        if (policy === "block") void req.abort("blockedbyclient").catch(() => {});
+        else if (policy === "inline") void req.continue().catch(() => {});
+        else void req.continue({ headers: { ...req.headers(), [PRINT_HEADER]: token } }).catch(() => {});
+      });
       await page.evaluateOnNewDocument(
         (name: string, value: unknown) => {
           Object.defineProperty(window, name, { value, configurable: false, writable: false });
@@ -73,7 +81,7 @@ export async function renderCvPdf(data: PrintData): Promise<Uint8Array> {
         PRINT_GLOBAL,
         data,
       );
-      const res = await page.goto(`${internalOrigin()}/tisk`, { waitUntil: "networkidle0" });
+      const res = await page.goto(`${origin}/tisk`, { waitUntil: "networkidle0" });
       if (!res || (!res.ok() && res.status() !== 304)) throw new Error(`Print page responded ${res?.status()}`);
       await page.waitForSelector("html[data-ready]");
       return await page.pdf({ preferCSSPageSize: true, printBackground: true });

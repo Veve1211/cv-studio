@@ -17,3 +17,17 @@ export function isValidPrintToken(value: string | null | undefined): boolean {
   if (!expected || !value || value.length !== expected.length) return false;
   return timingSafeEqual(Buffer.from(value), Buffer.from(expected));
 }
+
+/**
+ * What the headless browser may load while rendering /tisk: our own server (with the
+ * secret header), inline data, nothing else. The header must never reach a third party
+ * (e.g. the analytics host), and a PDF needs nothing from outside.
+ */
+export function printRequestPolicy(url: string, internalOrigin: string): "internal" | "inline" | "block" {
+  if (url.startsWith("data:") || url.startsWith("blob:")) return "inline";
+  try {
+    return new URL(url).origin === new URL(internalOrigin).origin ? "internal" : "block";
+  } catch {
+    return "block";
+  }
+}
