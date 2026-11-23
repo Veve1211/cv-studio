@@ -1,4 +1,4 @@
-import { takeAiCall } from "./ai-daily-cap";
+import { takeAiBudget } from "./ai-budget";
 import { hasDemoAccess } from "./demo";
 import { jsonError } from "./http";
 import { clientKey, createRateLimiter } from "./rate-limit";
@@ -14,9 +14,14 @@ const DEMO_LIMIT = 60;
  */
 export function createAiLimit(scope: string, limit: number) {
   const limiter = createRateLimiter({ limit, windowMs: WINDOW_SEC * 1000 });
-  const demoLimiter = createRateLimiter({ limit: DEMO_LIMIT, windowMs: WINDOW_SEC * 1000 });
+  const demoLimiter = createRateLimiter({
+    limit: DEMO_LIMIT,
+    windowMs: WINDOW_SEC * 1000,
+  });
 
-  return function check(request: Request): { error: Response } | { error: null; setCookie: string | null } {
+  return function check(
+    request: Request,
+  ): { error: Response } | { error: null; setCookie: string | null } {
     const demo = hasDemoAccess(request);
     const rate = (demo ? demoLimiter : limiter)(clientKey(request));
     if (!rate.ok) return { error: tooMany(rate.retryAfterSec) };
@@ -26,21 +31,35 @@ export function createAiLimit(scope: string, limit: number) {
       windowSec: WINDOW_SEC,
     });
     if (!cookie.ok) return { error: tooMany(cookie.retryAfterSec) };
-    // Last, so a request refused above does not use up the day's budget.
-    const day = takeAiCall();
-    if (!day.ok) {
-      return {
-        error: jsonError("Cvéčko má pro dnešek vyčerpaný limit AI. Zkus to prosím zítra.", 503, {
-          "Retry-After": String(day.retryAfterSec),
-        }),
-      };
-    }
+    // Presentation mode is exempt so a live demo never stops; everyone else shares the daily cap.
+    if (!demo && !takeAiBudget()) return { error: dailyCapReached() };
     return { error: null, setCookie: cookie.setCookie };
   };
 }
 
+function dailyCapReached(): Response {
+  return jsonError(
+    "Cvéčko má pro dnešek vyčerpanou kapacitu. Zkus to prosím zítra – omlouváme se.",
+    503,
+    { "Retry-After": String(secondsUntilUtcMidnight()) },
+  );
+}
+
+function secondsUntilUtcMidnight(now = new Date()): number {
+  const midnight = Date.UTC(
+    now.getUTCFullYear(),
+    now.getUTCMonth(),
+    now.getUTCDate() + 1,
+  );
+  return Math.max(1, Math.ceil((midnight - now.getTime()) / 1000));
+}
+
 function tooMany(retryAfterSec: number): Response {
-  return jsonError("Moc pokusů za sebou. Zkus to prosím za chvíli znovu.", 429, {
-    "Retry-After": String(retryAfterSec),
-  });
+  return jsonError(
+    "Moc pokusů za sebou. Zkus to prosím za chvíli znovu.",
+    429,
+    {
+      "Retry-After": String(retryAfterSec),
+    },
+  );
 }

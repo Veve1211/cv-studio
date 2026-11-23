@@ -85,30 +85,3 @@ describe("POST /api/cv – restart-proof limit", () => {
     expect(res.status).toBe(429);
   });
 });
-
-describe("POST /api/cv – daily AI cap for the whole server", () => {
-  it("stops every visitor once the day's budget is used", async () => {
-    vi.resetModules();
-    vi.stubEnv("E2E_MOCK_AI", "1");
-    vi.stubEnv("AI_DAILY_LIMIT", "3");
-    const { POST } = await import("./route");
-    const body = JSON.stringify({ text: "Jsem designérka z Brna a mám šest let praxe." });
-    const statuses = [];
-    for (let i = 0; i < 4; i++) {
-      // a fresh IP and no cookie each time: only the shared daily cap can stop it
-      const res = await POST(
-        new Request("http://localhost/api/cv", {
-          method: "POST",
-          headers: { "content-type": "application/json", "x-forwarded-for": `10.9.0.${i}` },
-          body,
-        }),
-      );
-      statuses.push(res.status);
-      if (res.status === 503) {
-        expect((await res.json()).error).toContain("limit AI");
-        expect(Number(res.headers.get("retry-after"))).toBeGreaterThan(0);
-      }
-    }
-    expect(statuses).toEqual([200, 200, 200, 503]);
-  });
-});

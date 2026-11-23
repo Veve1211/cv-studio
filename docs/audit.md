@@ -1,66 +1,84 @@
-# Audit Cvéčka – případová studie (23. 11. 2026)
+# Audit: případová studie (listopad 2026)
 
-Audit kódu, bezpečnosti a výkonu aplikace postavené vibecodingem. Všechna čísla jsou naměřená (lokální build
-v cloud sandboxu), ne odhadnutá. Chování aplikace pro uživatele se nezměnilo.
+Audit hotové aplikace před odevzdáním do portfolia. Cíl: najít, co uživatelům nebo provozu reálně
+vadí, opravit jen levné a bezpečné věci a u každé změny ukázat ověření nebo čísla.
 
-## Výchozí stav
+## Postup
 
-Projekt byl v dobré kondici: zelené CI, 145 unit testů, 226 e2e testů (počítač + mobil), 0 zranitelností
-v závislostech, CSP s nonce, podepsané cookies, žádné logování textu uživatele, přístupnost a SEO 100 v Lighthouse.
+1. **Fáze 1 – průzkum.** Aplikace prošlá z pohledu uživatele i lektora (pravdivost textů, náklady
+   na AI), Lighthouse, řádek po řádku serverové části s největším rizikem: `proxy.ts` (CSP,
+   ochrana `/tisk`), generování PDF, nahrávání souborů, podepsané cookies a přístup.
+2. **Fáze 2 – návrh.** Každý nález dostal závažnost, odhad práce a návrh řešení; Veve schválila,
+   co se dělá hned.
+3. **Fáze 3 – quick wins.** Každá oprava zvlášť ve feature větvi z `dev`, s testem, PR do `dev`.
+   Do `main` merguje jen Veve.
 
-Audit přesto našel:
+## Co se udělalo
 
-| # | Nález | Závažnost | Ověření |
+| Oblast | Problém | Řešení | Ověření | PR |
+|---|---|---|---|---|
+| Náklady na AI | Limit podle IP a cookie jde obejít, útrata nemá strop | Společný denní limit volání AI (`AI_DAILY_LIMIT`, výchozí 300), po vyčerpání česká hláška (503) | 3 nové testy | #43 |
+| Pravdivé texty | „Nic si nevymýšlí“ slibovalo víc, než AI zaručí | Texty říkají, co se opravdu děje: co AI doplní navíc, označíme žlutě | e2e text FAQ upravený | #43 |
+| Ukázková CV | Roky praxe neseděly s daty | Opravené roky (stav 2026) | – | #43 |
+| Nahrávání | Kontrola velikosti spoléhala na `Content-Length`; chunked požadavek by se načetl celý | Upload bez `Content-Length` → 411 | Vitest 147/147 | #44 |
+| Nahrávání | DOCX je ZIP – „zip bomba“ by se rozbalila do paměti | Před rozbalením se sečtou velikosti z centrálního adresáře ZIPu, max 30 MB, ZIP64 odmítnut | 2 nové testy | #44 |
+
+V pořádku bez změny: HMAC podpisy s oddělenými účely a porovnáním odolným vůči měření času,
+`/tisk` jen s tajnou hlavičkou, šablony nenačítají obrázky z adres od uživatele (serverový Chromium
+nejde zneužít na dotazy do vnitřní sítě), max 2 souběžné rendery PDF.
+
+## Co se změřilo a nedělá se
+
+**C5 – `browserslist`.** Předpoklad: nastavení cílových prohlížečů v `package.json` odstraní
+zbytečné polyfilly. Měření (úvodní stránka, skripty, které stáhne moderní prohlížeč, produkční build):
+
+| Cílové prohlížeče | JS úvodní stránky | CSS celkem |
+|---|---|---|
+| bez nastavení (výchozí Next: Chrome/Edge/Firefox 111, Safari 16.4) | 687 156 B (202 784 B gzip) | 82 988 B |
+| Chrome/Edge/Firefox 130, Safari 18 | beze změny | 81 452 B (−1 536 B) |
+
+Proč: balík polyfillů core-js má `noModule`, takže ho moderní prohlížeč vůbec nestáhne. Zbytek
+jsou vestavěné polyfilly Next.js v hlavním chunku (~1,4 kB, 0,6 kB gzip), které `browserslist`
+neovlivní. Vyšší cíl by ušetřil 1,5 kB CSS, ale vyřadil by starší iPhony (Safari 16.4–17), na kterých
+si lidé životopis často dělají. **Rozhodnutí: beze změny.** Stejný výsledek vyšel i v Českém králi.
+
+## Co zůstává
+
+- Po sloučení #43: v Anthropic Console nastavit měsíční spending limit (tvrdá pojistka nad denním stropem v kódu).
+- Zbytkové riziko u DOCX (podvržené velikosti v ZIPu) je popsané v `SECURITY.md`.
+
+## Co si z toho beru
+
+- Měřit před opravou: úspora z `browserslist` vypadala jistě a vyšla nulová.
+- U aplikace s AI je největší provozní riziko útrata, ne výkon – strop patří do kódu i do konzole poskytovatele.
+- Sliby na webu musí odpovídat tomu, co technika opravdu zaručí.
+
+## Druhé kolo (23. 11. 2026, PR do `dev` po #45)
+
+Celé měření znovu (lokální build v cloud sandboxu): build, lint, typecheck, Vitest, Playwright, `npm audit`,
+Lighthouse 3×. Výchozí stav: vše zelené, Vitest 150/150, Playwright 226 prošlo / 0 selhalo (50 přeskočeno
+záměrně), `npm audit` 0.
+
+| Oblast | Problém | Řešení | Před → po |
 |---|---|---|---|
-| 1 | Tajná hlavička serverového PDF unikala na server analytiky (když je nastavené `ANALYTICS_URL`) | důležité | pokus: 8 z 8 renderů |
-| 2 | Limit pokusů bere první IP z `X-Forwarded-For`; na Railway buď jde podvrhnout, nebo všichni sdílí jednu IP | důležité | **NEOVĚŘENO**, čeká na test na stagingu |
-| 3 | Žádný celkový strop výdajů za AI, jen limity na jednu IP | důležité | čtení kódu |
-| 4 | Cizí web mohl z prohlížeče návštěvníka poslat formulář na `/api/cv` a čerpat AI | drobnost | pokus: odpověď 200 |
-| 5 | Úvod na mobilu: výkon 70–74 (LCP 4,8 s), v dokumentaci stálo 97 | důležité | Lighthouse, 3 běhy |
-| 6 | Psaní do pole překreslovalo náhled a 8 miniatur šablon | drobnost | měření psaní |
-| 7 | Mrtvý kód, stejné funkce ve třech souborech, slogan napsaný třikrát | drobnost | grep |
-| 8 | Dokumentace neodpovídala kódu (časové limity, Lighthouse, audit) a chyběl `global-error` | drobnost | čtení |
+| Serverové PDF | Renderovací Chromium posílal tajnou hlavičku `/tisk` na každý server, i na analytiku (s `ANALYTICS_URL`) | Hlavička jen na vlastní server, cizí požadavky zablokované | pokus s falešnou analytikou: 8 z 8 renderů s tajemstvím → 0 z 8 |
+| Cizí formuláře | API četlo tělo bez ohledu na `Content-Type`; cizí web mohl z prohlížeče návštěvníka poslat `text/plain` formulář na `/api/cv` a čerpat AI | `readJson` bere jen `application/json` | `text/plain` → 200 → 400, aplikace dál 200 |
+| Psaní do pole | Každé písmeno překreslilo náhled i 8 miniatur šablon | `memo` pro šablony a výběr šablon | 37 znaků při CPU 4×: 2,23–2,30 s → 1,83–2,00 s, medián klávesy 56 → 40–48 ms |
+| Úklid | Mrtvé funkce (`yearOf`, `initials`, `isEmptyCv`), čtení cookie ve 3 souborech, slogan napsaný třikrát | Smazáno, `src/lib/cookies.ts`, `SITE_TAGLINE` | −63 / +40 řádků |
+| Chyby | Chyběl `global-error.tsx` (chyba v samotném layoutu) | Česká záchranná stránka | – |
+| Dokumentace | Časové limity AI v `CLAUDE.md` 150/120 s, v kódu 65/55 s; Lighthouse 97 neodpovídal | Opraveno | – |
 
-## Co se změnilo
+Po kole: Vitest 156/156, Playwright 226 / 0 selhalo, lint, typecheck a build zelené.
 
-| Oprava | Před | Po |
-|---|---|---|
-| Hlavička PDF jen na vlastní server, cizí požadavky blokované | 8 z 8 renderů poslalo tajemství analytice | 0 z 8 |
-| API bere jen `application/json` | cizí formulář (`text/plain`) → 200 | → 400, aplikace dál 200 |
-| Denní strop AI pro celý server (`AI_DAILY_LIMIT`, výchozí 500) | bez stropu | 501. volání za den → česká hláška 503 |
-| `memo` pro šablony a výběr šablon | psaní 37 znaků 2,23–2,30 s, medián klávesy 56 ms | 1,83–2,00 s, 40–48 ms (CPU 4× zpomalené) |
-| Úklid: mrtvý kód, `src/lib/cookies.ts`, `SITE_TAGLINE` | – | 9 souborů, −63 / +40 řádků |
-| `global-error.tsx`, opravené `CLAUDE.md` a `SECURITY.md` | – | – |
+**Změřeno a vráceno:** přednačtení písma nadpisu (Space Grotesk). FCP 2,9 → 2,4 s, ale LCP 4,8 → 5,1 s a
+skóre se nezlepšilo. **Vlastní chyba v měření:** první měření psaní ukázalo „2× víc pomalých událostí“, šlo
+o dva posluchače v měřicím skriptu; skutečný rozdíl je v tabulce.
 
-## Čísla celkově
+**Lighthouse úvod mobil: 70–74 / 100 / 100 / 100** (LCP 4,8 s), desktop 96 / 100 / 100 / 100. Brzdí hlavně
+9 písem na úvodu (asi 385 KB), protože ukázky šablon používají jejich písma.
 
-| Metrika | Před | Po |
-|---|---|---|
-| Unit testy (Vitest) | 145 | 155 |
-| E2E testy (Playwright, počítač + mobil) | 226 prošlo, 0 selhalo | 226 prošlo, 0 selhalo |
-| Lint, typecheck, build | zelené | zelené |
-| `npm audit` | 0 | 0 |
-| JS + CSS na úvodu (gzip) | 253 KB | 253 KB |
-| Lighthouse úvod mobil (výkon / přístupnost / BP / SEO) | 70–74 / 100 / 100 / 100 | 70–74 / 100 / 100 / 100 |
-| Lighthouse úvod desktop | 96 / 100 / 100 / 100 | beze změny |
-
-## Co nevyšlo
-
-- **Přednačtení písma nadpisu** (Space Grotesk): první vykreslení se zrychlilo (FCP 2,9 → 2,4 s), ale LCP se
-  zhoršilo (4,8 → 5,1 s) a skóre se nezlepšilo. Změna vrácena.
-- **Chyba v mém měření:** první měření psaní ukazovalo „2× víc pomalých událostí“. Šlo o chybu ve skriptu
-  (dva posluchače najednou). Po opravě je rozdíl menší, viz tabulka.
-
-## Co zbývá
-
-1. **Ověřit IP na Railway** (nález 2): pár požadavků na staging s podvrženou hlavičkou, pak případně brát `X-Real-IP`.
-2. **Limit útraty v Anthropic konzoli:** tvrdý strop, který kód nahradit nemůže.
-3. **Výkon úvodu na mobilu:** úvod stahuje 9 písem (asi 385 KB), protože ukázky šablon používají jejich písma.
-   Chce to návrh, jak ukázky načítat později, aniž by se změnil vzhled.
-4. `cv-studio.tsx` má 730 řádků. Rozdělit, až se do něj bude znovu sahat.
-5. `error.tsx` používá `reset()`, Next 16 doporučuje `retry()` (znovu načte data ze serveru).
-
-## Jak pracuju
-
-Nejdřív měření, potom nálezy se soubor:řádek, potom malé opravy, každá ověřená testy a čísly před/po.
-Co se nepodařilo ověřit, je označené NEOVĚŘENO. Co čísla nezlepšilo, šlo zpátky.
+**Zbývá:**
+- **NEOVĚŘENO:** limit pokusů bere první IP z `X-Forwarded-For`. Na Railway ji buď jde podvrhnout, nebo všichni
+  sdílí adresu proxy. Ověřit pár požadavky na staging, pak případně `X-Real-IP`.
+- Pokud je na produkci `ANALYTICS_URL`, po nasazení vyměnit `PDF_RENDER_SECRET`.
+- Zrychlit úvod na mobilu (písma ukázek načítat později), `error.tsx` na `retry()`, rozdělit `cv-studio.tsx`.

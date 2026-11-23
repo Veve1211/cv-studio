@@ -14,7 +14,7 @@ export const SAMPLE_CV: Cv = {
     web: "terezanovakova.example",
   },
   summary:
-    "Produktová designérka se šesti lety praxe v mobilních a webových aplikacích. Propojuje výzkum s uživateli, rychlé prototypy a úzkou spolupráci s vývojáři.",
+    "Produktová designérka s devíti lety praxe v mobilních a webových aplikacích. Propojuje výzkum s uživateli, rychlé prototypy a úzkou spolupráci s vývojáři.",
   experience: [
     {
       company: "Kvetoucí s.r.o.",
@@ -62,7 +62,7 @@ export const LONG_SAMPLE_CV: Cv = {
     web: "github.com/jandvorak-example",
   },
   summary:
-    "Backend vývojář s jedenácti lety praxe v e-commerce a fintechu. Posledních pět let vede menší týmy, stará se o architekturu služeb a o to, aby se nasazovalo často a bez stresu. Rád učí mladší kolegy a píše dokumentaci, kterou lidé opravdu čtou.",
+    "Backend vývojář se třinácti lety praxe v e-commerce a fintechu. Posledních pět let vede menší týmy, stará se o architekturu služeb a o to, aby se nasazovalo často a bez stresu. Rád učí mladší kolegy a píše dokumentaci, kterou lidé opravdu čtou.",
   experience: Array.from({ length: 6 }, (_, i) => ({
     company: ["Platby a.s.", "Obchod.example", "Fintech Labs", "Logistika CZ", "Studio Kód", "Univerzitní IT"][i],
     role: ["Vedoucí backend týmu", "Senior backend vývojář", "Backend vývojář", "Vývojář", "Junior vývojář", "Stážista"][i],
@@ -96,7 +96,7 @@ export const SHOWCASE_CVS: readonly [Cv, Cv, Cv] = [
     headline: "Účetní",
     contact: { email: "lucie.horakova@example.com", phone: "+420 604 222 333", location: "Ostrava", web: "" },
     summary:
-      "Účetní s osmi lety praxe ve výrobní firmě. Zpracovává mzdy, DPH i roční závěrky a ráda zjednodušuje firemní procesy.",
+      "Účetní s deseti lety praxe ve výrobní firmě. Zpracovává mzdy, DPH i roční závěrky a ráda zjednodušuje firemní procesy.",
     experience: [
       {
         company: "Ocel Ostrava a.s.",
@@ -123,7 +123,7 @@ export const SHOWCASE_CVS: readonly [Cv, Cv, Cv] = [
     headline: "Servisní technik",
     contact: { email: "martin.svoboda@example.com", phone: "+420 731 444 555", location: "Plzeň", web: "" },
     summary:
-      "Servisní technik s deseti lety praxe v údržbě výrobních linek. Spolehlivý, zvyklý na směnný provoz a práci v týmu.",
+      "Servisní technik s dvanácti lety praxe v údržbě výrobních linek. Spolehlivý, zvyklý na směnný provoz a práci v týmu.",
     experience: [
       {
         company: "Strojírny Plzeň s.r.o.",

@@ -27,8 +27,8 @@ describe("English translation", () => {
 
   it("flags numbers and years that differ from the Czech version", () => {
     const en = structuredClone(SAMPLE_CV);
-    en.summary = "Designer with 9 years of experience since 2011.";
-    expect(checkTranslation(en, SAMPLE_CV).get("summary")).toEqual(expect.arrayContaining(["2011", "9"]));
+    en.summary = "Designer with 4 years of experience since 2011.";
+    expect(checkTranslation(en, SAMPLE_CV).get("summary")).toEqual(expect.arrayContaining(["2011", "4"]));
     expect(checkTranslation(structuredClone(SAMPLE_CV), SAMPLE_CV).size).toBe(0);
   });
 
