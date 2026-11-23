@@ -9,6 +9,11 @@
 - Webová aplikace: uživatel vloží libovolný text o sobě, AI (Claude) z něj udělá hotový životopis v moderních šablonách. Bez formulářů.
 - Cíl: výrazně modernější než klasické generátory životopisů. Nekopíruj vzhled ani texty jiných služeb.
 - Jazyk UI: čeština, tón přátelský. Mobile first.
+- Pro koho: lidé v Česku, kteří potřebují rychle životopis a nechtějí vyplňovat formuláře (absolventi, lidé měnící práci, řemeslníci i kancelář). Často na mobilu.
+
+## Uživatel
+- Veve (Věra Paukrtová), skill level: začátečník. AI rozhoduje technickou syntaxi a architekturu sama, Veve vysvětluje funkčně a jednoduše česky.
+- Rozhodnutí, která mění chování webu, platby, Railway nebo proměnné prostředí, jen se souhlasem Veve.
 
 ## Stack
 - Next.js 16 (App Router, `src/`, Cache Components vypnuté kvůli CSP nonce), React 19, TypeScript, Tailwind 4
