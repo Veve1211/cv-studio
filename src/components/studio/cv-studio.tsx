@@ -367,7 +367,7 @@ export function CvStudio({ kofiUrl = null }: { kofiUrl?: string | null }) {
           />
           <div className="text-muted flex justify-between text-xs">
             <span id={hintId}>
-              Text nikam neukládáme. AI ho jen učeše, nic si nevymýšlí.
+              Text neukládáme, pošle se jen do AI (Claude). Co doplní navíc, označíme žlutě.
               <span className="hidden lg:inline"> Odeslat: Ctrl + Enter.</span>
             </span>
             <span aria-live="off" className="shrink-0 whitespace-nowrap pl-3 tabular-nums">
