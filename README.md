@@ -55,15 +55,18 @@ Stripe, headless Chromium na serverové PDF. Hosting Railway.
 
 ### Jak to testuju
 
-- **Vitest:** zhruba 120 testů logiky (pojistka proti vymýšlení s 10 testovacími vstupy, platby, přístup, PDF, AI s
+- **Vitest:** 158 testů logiky (pojistka proti vymýšlení s 10 testovacími vstupy, platby, přístup, PDF, AI s
   mockem)
 - **Playwright** na počítači i mobilu: tvorba, šablony, PDF (počet stran a úplnost textu), platby, přístupnost (axe,
   WCAG 2.1 AA), Content-Security-Policy
 - **GitHub Actions** u každého PR: lint, typecheck, Vitest, build, Playwright. Merge jen se zeleným CI.
 - **hlídač po nasazení:** workflow ověří přímo živý staging, včetně vygenerování PDF v Chromiu
-- **Lighthouse (mobil):** 97 / 100 / 100 / 100
+- **Lighthouse (mobil, 23. 11. 2026):** přístupnost, best practices a SEO 100; výkon úvodu 70–74 (brzdí písma
+  ukázek šablon, oprava je na seznamu)
 - **ruční kontrola na mobilu** před každým nasazením na ostrý web
 - **bezpečnost:** zvlášť v [SECURITY.md](SECURITY.md) (klíče, CSP, rate limit, audit závislostí, kontrola historie)
+- **audit:** [docs/audit.md](docs/audit.md), dvě kola s čísly před/po (bezpečnost, náklady na AI, výkon) a co
+  se vědomě nedělá
 
 ### Moje role
 
