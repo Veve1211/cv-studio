@@ -77,8 +77,20 @@ o dva posluchače v měřicím skriptu; skutečný rozdíl je v tabulce.
 **Lighthouse úvod mobil: 70–74 / 100 / 100 / 100** (LCP 4,8 s), desktop 96 / 100 / 100 / 100. Brzdí hlavně
 9 písem na úvodu (asi 385 KB), protože ukázky šablon používají jejich písma.
 
+**Ověřeno na stagingu: limit pokusů podle IP funguje.** Limit bere první adresu z `X-Forwarded-For` a hrozilo,
+že ji jde na Railway podvrhnout, nebo že všichni sdílí adresu proxy. Test ze sandboxu byl nejednoznačný (37 požadavků
+prošlo i přes limit 30, nejspíš kvůli měnící se odchozí IP sandboxu). Proto `/api/health?client=1` (jen se smoke
+tokenem, #48) a smoke test z GitHubu:
+
+| Požadavek | Klíč limitu | `X-Forwarded-For` na serveru | `X-Real-IP` |
+|---|---|---|---|
+| obyčejný | adresa runneru | runner, Railway edge | runner |
+| s podvrženými `X-Forwarded-For` / `X-Real-IP` | adresa runneru | runner, Railway edge | runner |
+
+Railway edge podvržené hlavičky přepíše, klíč je skutečná adresa návštěvníka a každý má vlastní limit.
+`RATE_LIMIT_DISABLED` na stagingu není. **Rozhodnutí: `clientKey` beze změny.** Diagnostika zůstává v smoke
+testu, kdyby Railway chování změnil.
+
 **Zbývá:**
-- **NEOVĚŘENO:** limit pokusů bere první IP z `X-Forwarded-For`. Na Railway ji buď jde podvrhnout, nebo všichni
-  sdílí adresu proxy. Ověřit pár požadavky na staging, pak případně `X-Real-IP`.
 - Pokud je na produkci `ANALYTICS_URL`, po nasazení vyměnit `PDF_RENDER_SECRET`.
 - Zrychlit úvod na mobilu (písma ukázek načítat později), `error.tsx` na `retry()`, rozdělit `cv-studio.tsx`.
