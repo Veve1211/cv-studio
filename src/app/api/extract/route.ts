@@ -6,8 +6,10 @@ const limiter = createRateLimiter({ limit: 30, windowMs: 15 * 60 * 1000 });
 
 /** Upload → plain text. In memory only: nothing is stored or logged. */
 export async function POST(request: Request) {
-  const length = Number(request.headers.get("content-length") ?? 0);
-  // multipart overhead is small; anything far above the limit is rejected before reading
+  const length = Number(request.headers.get("content-length"));
+  // Browsers always send the length of an upload. Without it (chunked) the body would be
+  // read whole before any check, so it is refused; anything far above the limit too.
+  if (!Number.isFinite(length) || length <= 0) return jsonError("Neplatný požadavek.", 411);
   if (length > MAX_UPLOAD_BYTES + 64 * 1024) return jsonError("Soubor je větší než 5 MB.", 413);
   if (!limiter(clientKey(request)).ok) return jsonError("Moc pokusů za sebou. Zkus to prosím za chvíli.", 429);
 

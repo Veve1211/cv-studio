@@ -1,5 +1,6 @@
 "use client";
 
+import { memo } from "react";
 import { TEMPLATES } from "@/components/templates";
 import { Miniature } from "@/components/templates/miniature";
 import type { Accent } from "@/components/templates/palette";
@@ -14,8 +15,11 @@ interface TemplatePickerProps {
   cv: Cv | null;
 }
 
-/** Native radio inputs (arrow keys work) with live miniature previews. */
-export function TemplatePicker({ value, onChange, accent, cv }: TemplatePickerProps) {
+/**
+ * Native radio inputs (arrow keys work) with live miniature previews.
+ * Memoized: typing in the text field must not re-render 8 miniature CVs.
+ */
+export const TemplatePicker = memo(function TemplatePicker({ value, onChange, accent, cv }: TemplatePickerProps) {
   return (
     <fieldset className="min-w-0">
       <legend className="text-muted mb-2 text-xs font-semibold uppercase tracking-[0.14em]">Šablona</legend>
@@ -56,4 +60,4 @@ export function TemplatePicker({ value, onChange, accent, cv }: TemplatePickerPr
       </div>
     </fieldset>
   );
-}
+});

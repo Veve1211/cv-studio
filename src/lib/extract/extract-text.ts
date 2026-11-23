@@ -2,6 +2,8 @@ import { MAX_INPUT_CHARS } from "@/lib/cv/schema";
 
 export const MAX_UPLOAD_BYTES = 5 * 1024 * 1024;
 const MAX_PDF_PAGES = 20;
+/** A real CV in Word unpacks to a few MB at most; more means a "zip bomb". */
+export const MAX_UNZIPPED_BYTES = 30 * 1024 * 1024;
 
 export type FileKind = "pdf" | "docx";
 
@@ -66,7 +68,38 @@ async function pdfText(bytes: Uint8Array): Promise<string> {
   }
 }
 
+/**
+ * Sum of the uncompressed sizes listed in the ZIP central directory, read before
+ * anything is unpacked. Infinity for ZIP64 (far too big for a CV), null when the
+ * directory can't be read. The sizes are declared by the file itself, so this stops
+ * ordinary zip bombs, not a deliberately forged directory.
+ */
+export function zipUncompressedSize(bytes: Uint8Array): number | null {
+  const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
+  // End of central directory record: 22 bytes + an optional comment of up to 64 KiB.
+  const lowest = Math.max(0, bytes.length - 22 - 0xffff);
+  for (let i = bytes.length - 22; i >= lowest; i--) {
+    if (view.getUint32(i, true) !== 0x06054b50) continue;
+    const entries = view.getUint16(i + 10, true);
+    let offset = view.getUint32(i + 16, true);
+    let total = 0;
+    for (let n = 0; n < entries; n++) {
+      if (offset + 46 > bytes.length || view.getUint32(offset, true) !== 0x02014b50) return null;
+      const size = view.getUint32(offset + 24, true);
+      if (size === 0xffffffff) return Infinity;
+      total += size;
+      offset +=
+        46 + view.getUint16(offset + 28, true) + view.getUint16(offset + 30, true) + view.getUint16(offset + 32, true);
+    }
+    return total;
+  }
+  return null;
+}
+
 async function docxText(bytes: Uint8Array): Promise<string> {
+  const unzipped = zipUncompressedSize(bytes);
+  if (unzipped === null) throw new ExtractError("Dokument Word se nepodařilo přečíst. Je možná poškozený.", 422);
+  if (unzipped > MAX_UNZIPPED_BYTES) throw new ExtractError("Dokument Word je po rozbalení příliš velký.", 413);
   const mammoth = await import("mammoth");
   try {
     const result = await mammoth.extractRawText({ buffer: Buffer.from(bytes) });

@@ -1,3 +1,4 @@
+import { memo } from "react";
 import { Aura } from "./aura/aura";
 import { Bento } from "./bento/bento";
 import { Block } from "./block/block";
@@ -13,56 +14,56 @@ export const TEMPLATES: TemplateDef[] = [
     id: "aura",
     name: "Aura",
     description: "Jemná světelná záře v hlavičce, velké jméno, hodně vzduchu",
-    Component: Aura,
+    Component: memo(Aura),
     paper: "#ffffff",
   },
   {
     id: "swiss",
     name: "Švýcar",
     description: "Přísná mřížka, číslované sekce a obří roky v jedné barvě",
-    Component: Swiss,
+    Component: memo(Swiss),
     paper: "#ffffff",
   },
   {
     id: "bento",
     name: "Bento",
     description: "Obsah v kartách různých velikostí jako moderní dashboard",
-    Component: Bento,
+    Component: memo(Bento),
     paper: "#ffffff",
   },
   {
     id: "magazine",
     name: "Časopis",
     description: "Velké jméno přes celou šířku, patkové písmo, text ve sloupcích",
-    Component: Magazine,
+    Component: memo(Magazine),
     paper: "#fbf8f2",
   },
   {
     id: "timeline",
     name: "Časová osa",
     description: "Praxe jako svislá linka s roky",
-    Component: Timeline,
+    Component: memo(Timeline),
     paper: "#ffffff",
   },
   {
     id: "minimal",
     name: "Minimal",
     description: "Hodně bílého místa, dovednosti jako štítky",
-    Component: Minimal,
+    Component: memo(Minimal),
     paper: "#ffffff",
   },
   {
     id: "block",
     name: "Blok",
     description: "Barevné plochy a velká typografie",
-    Component: Block,
+    Component: memo(Block),
     paper: "#ffffff",
   },
   {
     id: "terminal",
     name: "Terminál",
     description: "Pro IT: neproporcionální písmo, decentní",
-    Component: Terminal,
+    Component: memo(Terminal),
     paper: "#fdfdfb",
   },
 ];

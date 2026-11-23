@@ -1,6 +1,6 @@
 # Bezpečnost
 
-Jak Cvéčko chrání data uživatelů a klíče. Poslední kontrola: 18. 11. 2026.
+Jak Cvéčko chrání data uživatelů a klíče. Poslední kontrola: 23. 11. 2026.
 
 ## Nahlášení chyby
 
@@ -12,6 +12,7 @@ několika dní.
 - Text, který uživatel vloží, se nikam neukládá a nezapisuje do logů. Posílá se jen do Claude API.
 - Bez účtů a bez databáze. Hotový životopis existuje jen v prohlížeči uživatele.
 - Nahrané PDF / DOCX se čte jen v paměti (max 5 MB, typ se ověřuje podle obsahu, ne podle přípony) a hned se zahodí.
+- Nahrávání bez hlavičky Content-Length se odmítne (411), aby se tělo požadavku nenačetlo celé před kontrolou velikosti. DOCX se před rozbalením zkontroluje podle centrálního adresáře ZIPu (součet velikostí po rozbalení max 30 MB, ZIP64 odmítnut) – zastaví běžné „zip bomby“; podvržený adresář s falešnými velikostmi tím zachycen není (zbytkové riziko, omezuje ho rate limit 30 souborů / 15 min).
 - Analytika (volitelná) je bez cookies.
 
 ## Tajné klíče
@@ -29,11 +30,17 @@ několika dní.
 - **Bezpečnostní hlavičky:** `nosniff`, `X-Frame-Options: DENY`, `Referrer-Policy`, `Permissions-Policy`.
 - **XSS:** veškerý text od uživatele a AI se vykresluje přes React jako text, nikdy `dangerouslySetInnerHTML`.
 - **Rate limit** na AI endpointy: podle IP a navíc podepsaným HttpOnly cookie, takže přežije restart serveru.
+- **Denní strop AI** pro celý server (`src/lib/ai-budget.ts`, `AI_DAILY_LIMIT`, výchozí 300 volání za den).
+  Pojistka účtu za Claude, když by někdo obcházel limit přes víc IP adres. Tvrdý strop je limit útraty v Anthropic
+  konzoli.
 - **Placené funkce hlídá server** (`requireAccess` vrací 402). Přístup je v podepsaném HttpOnly cookie (HMAC).
 - **Interní stránka pro PDF** (`/tisk`) je bez tajné hlavičky neviditelná (404). Hlavičku podepisuje
   `PDF_RENDER_SECRET`. Je povinný na stagingu i produkci (každé prostředí má vlastní náhodnou hodnotu), protože bez
   Stripe klíče jinak tajemství chybí. Na to 18. 11. 2026 upozornil hlídač stagingu.
-- **Validace vstupů** přes zod na všech API routes.
+- **Validace vstupů** přes zod na všech API routes. API bere jen `Content-Type: application/json`, takže cizí web
+  nemůže z prohlížeče návštěvníka poslat obyčejný formulář a čerpat AI.
+- **PDF na serveru:** renderovací Chromium posílá tajnou hlavičku jen na vlastní server, všechno ostatní
+  (třeba analytika) je zablokované.
 
 ## Platby
 
@@ -44,10 +51,7 @@ nasazení stagingu, kde klíč pořád zůstal.
 
 ## Závislosti
 
-- **`npm audit --omit=dev` (18. 11. 2026): 0 zranitelností** v tom, co běží na serveru.
-- Ve vývojových nástrojích (ESLint, Vitest) hlásí `npm audit` zranitelnosti typu ReDoS / DoS v knihovnách
-  `minimatch` a `picomatch`. Ty se na server nedostanou a zpracovávají jen naše vlastní soubory. Opravím je s další
-  aktualizací nástrojů.
+- **`npm audit` (23. 11. 2026): 0 zranitelností**, včetně vývojových nástrojů.
 - Knihovny držím na nejnovějších stabilních verzích. Po každém upgradu musí projít celé CI.
 
 ## MCP a AI nástroje

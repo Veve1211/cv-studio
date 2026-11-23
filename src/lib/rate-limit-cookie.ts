@@ -1,4 +1,5 @@
 import { createHmac, timingSafeEqual } from "node:crypto";
+import { isSecureRequest } from "./cookies";
 
 /**
  * Restart-proof part of the rate limit, without a database: the request count lives in
@@ -58,7 +59,7 @@ export function cookieLimit(
     return { ok: false, retryAfterSec: Math.max(1, start + options.windowSec - now), setCookie: null };
   }
   const payload = `${start}-${count + 1}`;
-  const secure = new URL(request.url).protocol === "https:" || request.headers.get("x-forwarded-proto") === "https";
+  const secure = isSecureRequest(request);
   const setCookie = [
     `${RATE_COOKIE}_${options.scope}=${payload}.${sign(payload, key)}`,
     "Path=/api",
