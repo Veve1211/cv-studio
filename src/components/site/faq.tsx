@@ -14,7 +14,7 @@ export function faqItems(paid: boolean): QA[] {
     },
     {
       q: "Co AI dělá a co ne?",
-      a: "Vytáhne z textu praxi, vzdělání, dovednosti a jazyky, srovná je a učeše formulace. Nepřidává firmy, roky, čísla ani dovednosti, které jsi nenapsal(a). Navíc výsledek porovnáme s tvým textem a co v něm nebylo, žlutě podtrhneme, ať to můžeš zkontrolovat.",
+      a: "Vytáhne z textu praxi, vzdělání, dovednosti a jazyky, srovná je a učeše formulace. Má zakázáno přidávat firmy, roky, čísla nebo dovednosti, které jsi nenapsal(a) – ale AI se může splést. Proto výsledek porovnáme s tvým textem a co v něm nebylo, žlutě podtrhneme. Rozhodneš ty.",
     },
     {
       q: "Můžu text po vytvoření upravit?",
