@@ -25,6 +25,7 @@ function sameToken(given: string, expected: string): boolean {
  * Health check for the post-deploy smoke test. Without the secret header it only says
  * "up" and which commit runs. With x-smoke-token = SMOKE_TOKEN it also renders a small
  * PDF of the fictional sample CV in headless Chromium. Chromium never starts otherwise.
+ * With the token and ?client=1 it only reports which client address the server sees.
  * No AI, no user data.
  */
 export function createHealthHandler(deps: Deps) {
@@ -39,6 +40,22 @@ export function createHealthHandler(deps: Deps) {
     const expected = process.env.SMOKE_TOKEN ?? "";
     if (!expected || !sameToken(given, expected)) {
       return Response.json({ ...base, error: "invalid smoke token" }, { status: 401, headers });
+    }
+    if (new URL(request.url).searchParams.get("client") === "1") {
+      // Diagnostics for the rate limit: which address does the server see behind the proxy?
+      // Only for the smoke token holder, never logged, no Chromium.
+      return Response.json(
+        {
+          ...base,
+          client: {
+            key: clientKey(request),
+            forwardedFor: request.headers.get("x-forwarded-for")?.slice(0, 200) ?? null,
+            realIp: request.headers.get("x-real-ip")?.slice(0, 64) ?? null,
+            rateLimitDisabled: process.env.RATE_LIMIT_DISABLED === "1",
+          },
+        },
+        { headers },
+      );
     }
     if (!limiter(clientKey(request)).ok) {
       return Response.json({ ...base, error: "too many checks" }, { status: 429, headers });
