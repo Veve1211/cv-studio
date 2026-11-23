@@ -1,3 +1,4 @@
+import { takeAiCall } from "./ai-daily-cap";
 import { hasDemoAccess } from "./demo";
 import { jsonError } from "./http";
 import { clientKey, createRateLimiter } from "./rate-limit";
@@ -25,6 +26,15 @@ export function createAiLimit(scope: string, limit: number) {
       windowSec: WINDOW_SEC,
     });
     if (!cookie.ok) return { error: tooMany(cookie.retryAfterSec) };
+    // Last, so a request refused above does not use up the day's budget.
+    const day = takeAiCall();
+    if (!day.ok) {
+      return {
+        error: jsonError("Cvéčko má pro dnešek vyčerpaný limit AI. Zkus to prosím zítra.", 503, {
+          "Retry-After": String(day.retryAfterSec),
+        }),
+      };
+    }
     return { error: null, setCookie: cookie.setCookie };
   };
 }
