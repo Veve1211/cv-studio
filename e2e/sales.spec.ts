@@ -18,9 +18,9 @@ test.describe("selling landing", () => {
     const faq = page.getByRole("region", { name: "Časté otázky" });
     const question = faq.getByText("Co AI dělá a co ne?");
     await question.click();
-    await expect(faq.getByText(/Nepřidává firmy, roky, čísla/)).toBeVisible();
+    await expect(faq.getByText(/Má zakázáno přidávat firmy, roky, čísla/)).toBeVisible();
     await question.click();
-    await expect(faq.getByText(/Nepřidává firmy, roky, čísla/)).toBeHidden();
+    await expect(faq.getByText(/Má zakázáno přidávat firmy, roky, čísla/)).toBeHidden();
     await faq.getByText("Kolik to stojí?").click();
     await expect(faq.getByText(/Teď nic/)).toBeVisible();
     await expect(page.getByRole("region", { name: /Náhled vždy zdarma/ })).toHaveCount(0);
