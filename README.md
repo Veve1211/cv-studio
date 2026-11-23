@@ -97,7 +97,7 @@ merguju jen já, až po kontrole stagingu.
 - Nikdy nenechávej v UI placeholder.
 ```
 
-Do CLAUDE.md se zapisuje i každé větší rozhodnutí s datem, takže AI v příští session ví, proč je něco udělané takhle.
+Každé větší rozhodnutí se zapisuje s datem do [`docs/decisions.md`](docs/decisions.md), takže AI v příští session ví, proč je něco udělané takhle. CLAUDE.md zůstává krátký: jen pravidla a mapa projektu. Proč jsou hlavní věci udělané právě takhle, vysvětluju vlastními slovy v [`docs/proc.md`](docs/proc.md).
 
 ### Co jsem se naučila
 

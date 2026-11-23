@@ -57,7 +57,12 @@ export function BeforeAfter() {
   const template = getTemplate("timeline");
 
   return (
-    <section ref={ref} aria-labelledby="before-after-title" className="mx-auto max-w-6xl px-4 pb-20 sm:px-8 print:hidden">
+    <section
+      ref={ref}
+      id="pred-a-po"
+      aria-labelledby="before-after-title"
+      className="mx-auto max-w-6xl scroll-mt-24 px-4 pb-20 sm:px-8 print:hidden"
+    >
       <div className="mb-8 max-w-2xl">
         <p className="text-brand-strong text-xs font-semibold uppercase tracking-[0.16em]">Před a po</p>
         <h2 id="before-after-title" className="font-display mt-2 text-3xl font-bold tracking-[-0.03em] sm:text-4xl">
