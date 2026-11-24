@@ -1,6 +1,9 @@
 /** Builds the Content-Security-Policy for one page request. */
 export function buildCsp(options: { nonce: string; dev: boolean; https: boolean; analyticsOrigin: string | null }): string {
   const { nonce, dev, https, analyticsOrigin } = options;
+  const analyticsSources = analyticsOrigin === "https://cloud.umami.is"
+    ? `${analyticsOrigin} https://gateway.umami.is`
+    : analyticsOrigin;
   const directives = [
     "default-src 'self'",
     // Scripts: only ours, carrying this request's nonce ('strict-dynamic' trusts what they load).
@@ -9,7 +12,7 @@ export function buildCsp(options: { nonce: string; dev: boolean; https: boolean;
     "style-src 'self' 'unsafe-inline'",
     "img-src 'self' blob: data:",
     "font-src 'self'",
-    `connect-src 'self'${analyticsOrigin ? ` ${analyticsOrigin}` : ""}`,
+    `connect-src 'self'${analyticsSources ? ` ${analyticsSources}` : ""}`,
     "worker-src 'self' blob:",
     "manifest-src 'self'",
     "object-src 'none'",

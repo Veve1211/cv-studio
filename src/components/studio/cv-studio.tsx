@@ -26,6 +26,7 @@ import { PaywallDialog } from "./paywall-dialog";
 import { usePaywall } from "./use-paywall";
 import { NextSteps } from "./next-steps";
 import { KofiLink } from "@/components/site/kofi-link";
+import { track } from "@/lib/track";
 import { PreviewToolbar } from "./preview-toolbar";
 import { useGenerate } from "./use-generate";
 import { TailorPanel } from "./tailor-panel";
@@ -269,6 +270,7 @@ export function CvStudio({ kofiUrl = null }: { kofiUrl?: string | null }) {
   function downloadPdf() {
     if (!cv) return;
     if (!paywall.config?.enabled) {
+      track("PDF stažení");
       setAskSupport(true);
       if (enActive) printCv(cv.name, doc === "letter" ? "Cover-letter" : "CV");
       else printCv(cv.name, doc === "letter" ? "Motivacni-dopis" : undefined);
@@ -279,6 +281,7 @@ export function CvStudio({ kofiUrl = null }: { kofiUrl?: string | null }) {
       setPaywallOpen(true);
       return;
     }
+    track("PDF stažení");
     setAskSupport(true);
     void paywall.downloadServerPdf({
       cv: shownCv ?? cv,
