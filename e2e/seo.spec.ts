@@ -12,6 +12,10 @@ test.describe("sharing and search", () => {
     const ogImage = await page.locator('meta[property="og:image"]').getAttribute("content");
     expect(ogImage).toMatch(/opengraph-image/);
     await expect(page.locator('meta[name="twitter:card"]')).toHaveAttribute("content", "summary_large_image");
+    await expect(page.locator('meta[name="google-site-verification"]')).toHaveAttribute(
+      "content",
+      "3rKgZFnPvp7-zFmbHVV5roVqvvg2WpZQEtJXu2wGjoE",
+    );
 
     const blocks = (await page.locator('script[type="application/ld+json"]').allTextContents()).map((t) => JSON.parse(t));
     const app = blocks.find((d) => d["@type"] === "WebApplication");
