@@ -14,6 +14,7 @@
 ## Uživatel
 - Veve (Věra Paukrtová), skill level: začátečník. AI rozhoduje technickou syntaxi a architekturu sama, Veve vysvětluje funkčně a jednoduše česky.
 - Rozhodnutí, která mění chování webu, platby, Railway nebo proměnné prostředí, jen se souhlasem Veve.
+- Změny cloudového prostředí Claude Code (povolené adresy v síti, proměnné, setup skript, klíče) jen po výslovném souhlasu Veve v chatu, i v režimu Auto. Nejdřív napiš, co a proč chceš změnit, a počkej na odpověď.
 
 ## Stack
 - Next.js 16 (App Router, `src/`, Cache Components vypnuté kvůli CSP nonce), React 19, TypeScript, Tailwind 4
