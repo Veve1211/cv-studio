@@ -45,3 +45,4 @@ Pravidla pro práci jsou v [`CLAUDE.md`](../CLAUDE.md).
 - 2026-11-23: měření trychtýře: `src/lib/track.ts` posílá do Plausible/Umami jen dvě pevné události („CV vytvořeno“ po úspěšném vytvoření, „PDF stažení“ po kliknutí na stažení), nikdy text ani data z CV; bez `ANALYTICS_URL` nedělá nic; zmíněno v `/soukromi`; e2e `analytics.spec.ts` hlídá, že odchází jen názvy událostí
 - 2026-11-24: změny cloudového prostředí Claude Code jen po výslovném souhlasu Veve v chatu, i v režimu Auto (pravidlo v `CLAUDE.md`); v Auto se dřív povolená adresa přidala bez ptaní
 - 2026-11-25: ověřovací značka Google Search Console (`verification.google` v `src/app/layout.tsx`) musí zůstat natrvalo; hlídá ji `e2e/seo.spec.ts`
+- 2026-11-26: ověření Seznam Webmaster přes `verification.other` ve stávajících metadatech Next.js. Umístění značky v `<head>` úvodní stránky kontroluje `e2e/seo.spec.ts`.

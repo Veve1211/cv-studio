@@ -17,6 +17,11 @@ test.describe("sharing and search", () => {
       "3rKgZFnPvp7-zFmbHVV5roVqvvg2WpZQEtJXu2wGjoE",
     );
 
+    await expect(page.locator('head meta[name="seznam-wmt"]')).toHaveAttribute(
+      "content",
+      "gyESrKAxgU1XwdtvMH41fDXQrggrDEsJ",
+    );
+
     const blocks = (await page.locator('script[type="application/ld+json"]').allTextContents()).map((t) => JSON.parse(t));
     const app = blocks.find((d) => d["@type"] === "WebApplication");
     expect(app.inLanguage).toBe("cs");
