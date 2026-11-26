@@ -17,15 +17,17 @@ test.describe("sharing and search", () => {
       "3rKgZFnPvp7-zFmbHVV5roVqvvg2WpZQEtJXu2wGjoE",
     );
 
-    await expect(page.locator('head meta[name="seznam-wmt"]')).toHaveAttribute(
-      "content",
-      "gyESrKAxgU1XwdtvMH41fDXQrggrDEsJ",
-    );
-
     const blocks = (await page.locator('script[type="application/ld+json"]').allTextContents()).map((t) => JSON.parse(t));
     const app = blocks.find((d) => d["@type"] === "WebApplication");
     expect(app.inLanguage).toBe("cs");
     expect(blocks.some((d) => d["@type"] === "FAQPage")).toBe(true);
+  });
+
+  test("home page serves Seznam Webmaster verification in the HTML head", async ({ request }) => {
+    const response = await request.get("/");
+    expect(response.ok()).toBe(true);
+    const head = (await response.text()).match(/<head>[\s\S]*?<\/head>/)?.[0];
+    expect(head).toContain('<meta name="seznam-wmt" content="xnQEye5IrXvqlbcfH7ZkiZAagmcaBgAd"');
   });
 
   test("Open Graph image is a 1200×630 PNG", async ({ request }) => {
