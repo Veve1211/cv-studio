@@ -23,7 +23,10 @@ export const metadata: Metadata = {
   },
   twitter: { card: "summary_large_image", title: SITE_TITLE, description: SITE_DESCRIPTION },
   // Google Search Console ownership check; must stay in place permanently.
-  verification: { google: "3rKgZFnPvp7-zFmbHVV5roVqvvg2WpZQEtJXu2wGjoE" },
+  verification: {
+    google: "3rKgZFnPvp7-zFmbHVV5roVqvvg2WpZQEtJXu2wGjoE",
+    other: { "seznam-wmt": "xnQEye5IrXvqlbcfH7ZkiZAagmcaBgAd" },
+  },
 };
 
 export const viewport: Viewport = {
