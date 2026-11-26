@@ -47,7 +47,7 @@ export default async function OpengraphImage() {
           </div>
           <div style={{ display: "flex", flexDirection: "column" }}>
             <div style={{ fontFamily: "Space Grotesk", fontSize: 72, lineHeight: 1.02, letterSpacing: -2.5 }}>
-              Napiš o sobě pár vět. Životopis ti poskládá AI.
+              Životopis z pár vět
             </div>
             <div style={{ marginTop: 26, fontSize: 30, color: "#2c3e5a" }}>{SITE_TAGLINE}</div>
           </div>
