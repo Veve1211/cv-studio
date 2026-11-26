@@ -25,7 +25,7 @@ export const metadata: Metadata = {
   // Google Search Console ownership check; must stay in place permanently.
   verification: {
     google: "3rKgZFnPvp7-zFmbHVV5roVqvvg2WpZQEtJXu2wGjoE",
-    other: { "seznam-wmt": "ShB4nDb6AEyn2MP1A8LdrapSIgn9KYKQ" },
+    other: { "seznam-wmt": "xnQEye5IrXvqlbcfH7ZkiZAagmcaBgAd" },
   },
 };
 

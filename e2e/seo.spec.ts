@@ -28,7 +28,7 @@ test.describe("sharing and search", () => {
     expect(response.ok()).toBe(true);
     const html = await response.text();
     const head = html.match(/<head>[\s\S]*?<\/head>/i)?.[0];
-    expect(head).toContain('<meta name="seznam-wmt" content="ShB4nDb6AEyn2MP1A8LdrapSIgn9KYKQ"');
+    expect(head).toContain('<meta name="seznam-wmt" content="xnQEye5IrXvqlbcfH7ZkiZAagmcaBgAd"');
   });
 
   test("Open Graph image is a 1200×630 PNG", async ({ request }) => {
