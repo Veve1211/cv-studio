@@ -1,4 +1,4 @@
-name: Smoke test staging
+name: Smoke test Railway
 
 # Checks the live staging (Railway, branch dev) after a deploy: the new commit is live,
 # the home page loads and the server can really render a PDF in Chromium.
@@ -13,12 +13,15 @@ permissions:
   contents: read
 
 concurrency:
-  group: smoke-staging
+  group: ${{ github.event.deployment.environment == 'precious-emotion / production' && 'smoke-production' || 'smoke-staging' }}
   cancel-in-progress: true
 
 jobs:
   smoke:
-    if: github.event_name != 'deployment_status' || github.event.deployment_status.state == 'success'
+    if: >-
+      github.event_name != 'deployment_status' ||
+      (github.event.deployment_status.state == 'success' &&
+       github.event.deployment.environment != 'precious-emotion / production')
     runs-on: ubuntu-latest
     timeout-minutes: 15
     env:
@@ -92,3 +95,48 @@ jobs:
             -H "X-Forwarded-For: 203.0.113.7" -H "X-Real-IP: 198.51.100.7" \
             "${STAGING_URL%/}/api/health?client=1" | jq -c .client
           echo "If the forged address shows up as 'key', the per-IP limit can be bypassed."
+
+  production-static:
+    if: >-
+      github.event_name == 'deployment_status' &&
+      github.event.deployment_status.state == 'success' &&
+      github.event.deployment.environment == 'precious-emotion / production'
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+    env:
+      PRODUCTION_URL: https://cvecko.cz
+      DEPLOY_SHA: ${{ github.event.deployment.sha }}
+    steps:
+      - name: Wait for the production deployment
+        run: |
+          for attempt in $(seq 1 12); do
+            if curl -fsS --max-time 5 "$PRODUCTION_URL/api/health" |
+              jq -e --arg sha "$DEPLOY_SHA" '.status == "ok" and .version == $sha' >/dev/null; then
+              exit 0
+            fi
+            sleep 10
+          done
+          echo "::error::Production did not serve deployment $DEPLOY_SHA"
+          exit 1
+
+      - name: Check public icons and Seznam verification file
+        run: |
+          fetch() {
+            local path=$1 response_type=$2 status
+            status=$(curl -sS --max-time 15 -o response -w '%{http_code} %{content_type}' "$PRODUCTION_URL/$path")
+            if [[ "$status" != "200 $response_type"* ]] || [ ! -s response ]; then
+              echo "::error::/$path returned $status or an empty body"
+              return 1
+            fi
+          }
+
+          for icon in favicon.ico icon.svg icon1.png icon2.png apple-icon.png; do
+            fetch "$icon" image/
+          done
+
+          token=hK1Fl74YGYODOHacirsjpThGqRk00qvc
+          fetch "seznam-wmt-$token.txt" text/plain
+          if ! printf '%s' "$token" | cmp -s - response; then
+            echo "::error::Seznam verification file has incorrect contents"
+            exit 1
+          fi
