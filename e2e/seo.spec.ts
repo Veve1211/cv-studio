@@ -23,10 +23,11 @@ test.describe("sharing and search", () => {
     expect(blocks.some((d) => d["@type"] === "FAQPage")).toBe(true);
   });
 
-  test("home page serves Seznam Webmaster verification in the HTML head", async ({ request }) => {
+  test("home page HTML head contains the Seznam Webmaster verification tag", async ({ request }) => {
     const response = await request.get("/");
     expect(response.ok()).toBe(true);
-    const head = (await response.text()).match(/<head>[\s\S]*?<\/head>/)?.[0];
+    const html = await response.text();
+    const head = html.match(/<head>[\s\S]*?<\/head>/i)?.[0];
     expect(head).toContain('<meta name="seznam-wmt" content="xnQEye5IrXvqlbcfH7ZkiZAagmcaBgAd"');
   });
 
