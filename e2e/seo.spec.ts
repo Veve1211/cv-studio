@@ -23,6 +23,14 @@ test.describe("sharing and search", () => {
     expect(blocks.some((d) => d["@type"] === "FAQPage")).toBe(true);
   });
 
+  test("home page HTML head contains the Seznam Webmaster verification tag", async ({ request }) => {
+    const response = await request.get("/");
+    expect(response.ok()).toBe(true);
+    const html = await response.text();
+    const head = html.match(/<head>[\s\S]*?<\/head>/i)?.[0];
+    expect(head).toContain('<meta name="seznam-wmt" content="gyESrKAxgU1XwdtvMH41fDXQrggrDEsJ"');
+  });
+
   test("Open Graph image is a 1200×630 PNG", async ({ request }) => {
     const res = await request.get("/opengraph-image");
     expect(res.status()).toBe(200);
